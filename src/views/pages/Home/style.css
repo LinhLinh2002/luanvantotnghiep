@@ -1,3 +1,4 @@
+
 body{
     margin:0;
     font-family:Verdana, Geneva, Tahoma, sans-serif;
@@ -379,7 +380,7 @@ body{
 
 .textsell-2{
     /* background-color: #4f85c0; */
-    width: 60%;
+    width: 50%;
     display: flex;
     justify-content: space-around;
     align-items: center;
@@ -396,92 +397,152 @@ a {
 }
 .product-list-sell {
     display: flex;
+    flex-wrap: wrap; /* Cho phép các thẻ con xuống hàng khi không đủ chỗ */
     gap: 20px;
-    justify-content: space-around;
-    align-items: center;
+    justify-content: space-between; /* Thay thế space-around bằng space-between để tận dụng khoảng trống */
+    align-items: flex-start; /* Căn chỉnh các thẻ con lên trên cùng */
 }
+
 .product-card-sell {
     position: relative;
     background: white;
-    border-radius: 10px;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
     text-align: center;
-    width: 170px;
+    width: calc(20% - 20px); /* Fit 5 cards per row */
     padding: 15px;
-    margin-top: 15px ;
+    margin-top: 15px;
+    min-height: 250px; /* Set a minimum height for consistency */
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+
 }
-.product-image-sell {
-    width: 100px;
-    height: 100px;
-    margin-bottom: 10px;
+.product-card-sell:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 12px rgba(0, 0, 0, 0.15);
 }
-.product-name-sell {
-    font-size: 14px;
-    margin: 10px 0;
-}
-.product-price-sell {
-    color: #FF5733;
-    font-size: 16px;
-    font-weight: bold;
-}
-.cart-icon-sell{
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    width: 24px;
-    height: 24px;
-    cursor: pointer;
-}
-.product-button-sell{
-    background-color: #0056b3;
-    color: white;
-    padding: 10px 15px;
-    border: none;
-    border-radius: 20px;
-    cursor: pointer;
-    text-transform: uppercase;
-    font-size:15px;
-}
-.product-button-sell:hover{
-    background-color: #5b91cc;
+.product-card-sell img {
+    max-height: 200px; /* Adjust image height as needed */
+    width:200px;
+    margin-bottom: 5px;
 }
 
-.vietnambook{
+.product-card-sell .product-title {
+    font-weight: bold;
+    margin: 10px 0;
+}
+
+.product-card-sell .product-price {
+    color: red;
+    font-size: 1.2em;
+    margin-bottom: 10px;
+}
+
+.product-card-sell .buy-button {
+    background-color: #0056b3;
+    color: white;
+    padding: 10px;
+    border-radius: 5px;
+    text-decoration: none;
+    font-weight: bold;
+    display: inline-block;
+}
+
+.product-card-sell .buy-button:hover {
+    background-color: #004494;
+}
+
+.product-name-sell {
+    font-weight: 400;
+    color:#000;
+}
+
+.vietnambook {
     /* background-color: cadetblue; */
-    margin:0 auto;
+    margin: 0 auto;
     width: 1197px;
     display: flex;
     flex-direction: column;
 }
-.textvnbook{
+
+.textvnbook {
     margin-right: 1000px;
-    color:#000;
+    color: #000;
 }
-.textvn-2{
+
+.textvn-2 {
     /* background-color: #4f85c0; */
     width: 50%;
     display: flex;
     justify-content: space-around;
     align-items: center;
-
 }
-.textvn-2 a:hover{
-    color:#4f85c0;
-}  
+
+.textvn-2 a:hover {
+    color: #4f85c0;
+}
+a {
+    text-decoration: none;
+    color: #000;
+    font-size: 14px;
+}
 .product-list-sell-1 {
     display: flex;
+    flex-wrap: wrap; /* Cho phép các thẻ con xuống hàng khi không đủ chỗ */
     gap: 20px;
-    justify-content: space-around;
-    align-items: center;
+    justify-content: space-between; /* Thay thế space-around bằng space-between để tận dụng khoảng trống */
+    align-items: flex-start; /* Căn chỉnh các thẻ con lên trên cùng */
 }
+
 .product-card-sell-1 {
     position: relative;
     background: white;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
     text-align: center;
-    width: 230px;
+    width: calc(20% - 20px); /* Fit 5 cards per row */
     padding: 15px;
-    margin-top: 15px ;
+    margin-top: 15px;
+    min-height: 250px; /* Set a minimum height for consistency */
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+
+}
+.product-card-sell-1:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 12px rgba(0, 0, 0, 0.15);
+}
+.product-card-sell-1 img {
+    max-height: 200px; /* Adjust image height as needed */
+    width:200px;
+    margin-bottom: 5px;
+}
+
+.product-card-sell-1 .product-title {
+    font-weight: bold;
+    margin: 10px 0;
+}
+
+.product-card-sell-1 .product-price {
+    color: red;
+    font-size: 1.2em;
+    margin-bottom: 10px;
+}
+
+.product-card-sell-1 .buy-button {
+    background-color: #0056b3;
+    color: white;
+    padding: 10px;
+    border-radius: 5px;
+    text-decoration: none;
+    font-weight: bold;
+    display: inline-block;
+}
+
+.product-card-sell-1 .buy-button:hover {
+    background-color: #004494;
 }
 .product-list-sell-1-1 {
     display: flex;
@@ -489,6 +550,7 @@ a {
     justify-content: space-around;
     align-items: center;
 }
+
 .icon-container-1 {
     /* background-color: rgb(102, 224, 224); */
     width: 1197px;

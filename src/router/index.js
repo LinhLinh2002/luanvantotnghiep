@@ -151,7 +151,20 @@ const router = createRouter({
         {
             path: '/bookstore',
             name: 'bookstore',
-            component: () => import('@/views/pages/BookStore.vue')
+            component: () => import('@/views/pages/Home/BookStore.vue')
+        },
+        {
+            path: '/books/:id',
+            name: 'bookdetails',
+            component: () => import('@/views/pages/Home/BookDetails.vue'),
+            props: true,
+
+        },
+        {
+            path: '/cart',
+            name: 'cart',
+            component: () => import('@/views/pages/Home/Cart.vue'),
+
         },
         {
             path: '/pages/notfound',
