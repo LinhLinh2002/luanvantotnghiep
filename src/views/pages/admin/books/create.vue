@@ -39,14 +39,7 @@
                         </option>
                     </select>
                 </div>
-                <div class="form-group">
-                    <label for="co_publisher">Nhà Đồng Xuất Bản:</label>
-                    <select v-model="book.co_publisher_id" class="form-control">
-                        <option v-for="co_publisher in co_publishers" :key="co_publisher.id" :value="co_publisher.id">
-                            {{ co_publisher.name }}
-                        </option>
-                    </select>
-                </div>
+                
             </div>
             <div class="form-row">
                 <div class="form-group">

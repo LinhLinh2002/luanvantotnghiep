@@ -1,96 +1,96 @@
-<template>
-    <div class="login-page">
-        <div class="container">
-            <div class="img-login">
-                <img src="https://img.freepik.com/free-vector/gradient-glossary-illustration_23-2150261251.jpg?t=st=1728623406~exp=1728627006~hmac=8c4fa9967947c37a81c1931bc9b3ef70fb6bf9942a23aaf0fa4e2cc676afb893&w=740"
-                    alt="" class="img">
-            </div>
-            <div class="signin-page">
-                <form @submit.prevent="loginUser">
-                    <h6>Not A Member? <a @click.prevent="goToRegister" class="Signuplink">Register now</a></h6>
-                    <h1>Hello Again! Login</h1>
-                    <h4> Wellcome back you been missed</h4>
+    <template>
+        <div class="login-page">
+            <div class="container">
+                <div class="img-login">
+                    <img src="https://img.freepik.com/free-vector/gradient-glossary-illustration_23-2150261251.jpg?t=st=1728623406~exp=1728627006~hmac=8c4fa9967947c37a81c1931bc9b3ef70fb6bf9942a23aaf0fa4e2cc676afb893&w=740"
+                        alt="" class="img">
+                </div>
+                <div class="signin-page">
+                    <form @submit.prevent="loginUser">
+                        <h6>Not A Member? <a @click.prevent="goToRegister" class="Signuplink">Register now</a></h6>
+                        <h1>Hello Again! Login</h1>
+                        <h4> Wellcome back you been missed</h4>
 
-                    <div class="input-group">
-                        <input type="email" v-model="login.email" class="textname" placeholder="Email" required>
-                    </div>
-                    <div class="input-group">
-                        <input type="password" v-model="login.password" class="pass" placeholder="Password" required>
-                    </div>
-                    <div class="forgot">
-                        <a href="">Forgot Password ? </a>
-                    </div>
-
-                    <div class="btn-container">
-                        <button class="btn-In">Sign In</button>
-                    </div>
-
-                    <div class="conti-wit">
-                        <h5> Or continue with</h5>
-                        <div class="icon-container">
-                            <div class="icon-item">
-                                <img src="https://nhasachphuongnam.com/design/themes/responsive/media/images/addons/hybrid_auth/icons/flat_32x32/google.png"
-                                    alt="" class="">
-                            </div>
-
+                        <div class="input-group">
+                            <input type="email" v-model="login.email" class="textname" placeholder="Email" required>
                         </div>
-                    </div>
-                </form>
+                        <div class="input-group">
+                            <input type="password" v-model="login.password" class="pass" placeholder="Password" required>
+                        </div>
+                        <div class="forgot">
+                            <a href="">Forgot Password ? </a>
+                        </div>
 
+                        <div class="btn-container">
+                            <button class="btn-In">Sign In</button>
+                        </div>
+
+                        <div class="conti-wit">
+                            <h5> Or continue with</h5>
+                            <div class="icon-container">
+                                <div class="icon-item">
+                                    <img src="https://nhasachphuongnam.com/design/themes/responsive/media/images/addons/hybrid_auth/icons/flat_32x32/google.png"
+                                        alt="" class="">
+                                </div>
+
+                            </div>
+                        </div>
+                    </form>
+
+                </div>
             </div>
         </div>
-    </div>
-</template>
+    </template>
 
-<script>
-import axios from 'axios';
+    <script>
+    import axios from 'axios';
 
-export default {
-    name: 'Login',
-    data() {
-        return {
-            login: {
-                email: '',
-                password: ''
-            }
-        }
-    },
-    methods: {
-        async loginUser() {
-            // Client-side validation
-            if (!this.login.email || !this.login.password) {
-                alert("Vui lòng điền tất cả các trường!");
-                return;
-            }
-            if (!this.validateEmail(this.login.email)) {
-                alert("Địa chỉ email không hợp lệ!");
-                return;
-            }
-            if (this.login.password.length < 8) {
-                alert("Mật khẩu phải có ít nhất 8 ký tự!");
-                return;
-            }
-
-            try {
-                const response = await axios.post("https://backend.vothanhhoang.online/api/auth/login", this.login);
-                console.log("Đăng nhập thành công:", response.data);
-                localStorage.setItem("currentUser", JSON.stringify(response.data));
-                this.$router.push({ name: 'bookstore' });
-            } catch (error) {
-                console.error("Lỗi khi đăng nhập:", error);
-                alert("Đăng nhập thất bại! Vui lòng thử lại.");
+    export default {
+        name: 'Login',
+        data() {
+            return {
+                login: {
+                    email: '',
+                    password: ''
+                }
             }
         },
-        goToRegister() {
-            this.$router.push({ name: 'register' });
-        },
-        validateEmail(email) {
-            const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            return re.test(email);
+        methods: {
+            async loginUser() {
+                // Client-side validation
+                if (!this.login.email || !this.login.password) {
+                    alert("Vui lòng điền tất cả các trường!");
+                    return;
+                }
+                if (!this.validateEmail(this.login.email)) {
+                    alert("Địa chỉ email không hợp lệ!");
+                    return;
+                }
+                if (this.login.password.length < 8) {
+                    alert("Mật khẩu phải có ít nhất 8 ký tự!");
+                    return;
+                }
+
+                try {
+                    const response = await axios.post("https://backend.vothanhhoang.online/api/auth/login", this.login);
+                    console.log("Đăng nhập thành công:", response.data);
+                    localStorage.setItem("currentUser", JSON.stringify(response.data));
+                    this.$router.push({ name: 'bookstore' });
+                } catch (error) {
+                    console.error("Lỗi khi đăng nhập:", error);
+                    alert("Đăng nhập thất bại! Vui lòng thử lại.");
+                }
+            },
+            goToRegister() {
+                this.$router.push({ name: 'register' });
+            },
+            validateEmail(email) {
+                const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                return re.test(email);
+            }
         }
     }
-}
-</script>
+    </script>
 
 
 <style>

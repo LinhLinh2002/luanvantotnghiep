@@ -1,6 +1,8 @@
 <template>
+    <HeaderComponent />
+
     <div class="cart-container">
-        <h2>Giỏ hàng của bạn</h2>
+        <h2>CHI TIẾT GIỎ HÀNG </h2>
         
         <div v-if="cartItems.length" class="cart-items">
             <div 
@@ -11,13 +13,14 @@
                 <img :src="item.image" alt="Product Image" class="product-image" />
                 
                 <div class="product-details">
-                    <h3>{{ item.name }}</h3>
-                    <p>Giá: {{ item.price }} đ</p>
+                    <h3>{{ item.title }}</h3>
+                    <p>Giá: {{ item.original_price }} đ</p>
                     <p>Số lượng: {{ item.quantity }}</p>
                     
                     <div class="quantity-controls">
-                        <button @click="increaseQuantity(item.rowId)">+</button>
                         <button @click="decreaseQuantity(item.rowId)">-</button>
+                        <span>{{ item.quantity }}</span>
+                        <button @click="increaseQuantity(item.rowId)">+</button>
                     </div>
                     
                     <button @click="removeItem(item.rowId)" class="remove-button">Xóa</button>
@@ -37,17 +40,25 @@
                     class="coupon-input" />
                 <button @click="applyCoupon" class="apply-coupon-button">Áp dụng mã giảm giá</button>
             </div>
-            <p>Tổng cộng: {{ total }} đ</p>
+            <p class="total">Tổng cộng: {{ total }} đ</p>
             <button @click="clearCart" class="clear-cart-button">Xóa toàn bộ giỏ hàng</button>
         </div>
     </div>
+    <FooterComponent />
+
 </template>
 
 <script>
-import CartService from '@/services/CartService';
+import HeaderComponent from './Header.vue';
+import FooterComponent from './Footer.vue';
+import CartService from '@/service/CartService';
 
 export default {
     name: 'Cart',
+    components: {
+        HeaderComponent,
+        FooterComponent
+    },
     data() {
         return {
             cartItems: [],
@@ -115,7 +126,7 @@ export default {
 
 <style scoped>
 .cart-container {
-    max-width: 800px;
+    width: 1180px;
     margin: 0 auto;
     padding: 20px;
     background-color: #fff;
@@ -124,8 +135,13 @@ export default {
 }
 
 h2 {
-    text-align: center;
+    text-align: start;
     color: #333;
+    font-family: Inter, -apple-system, sans-serif;
+    font-weight: 900;
+    letter-spacing: normal;
+    font-size:20px;
+
 }
 
 .cart-items {
@@ -139,6 +155,7 @@ h2 {
     align-items: center;
     border-bottom: 1px solid #ddd;
     padding-bottom: 15px;
+    gap: 15px;
 }
 
 .product-image {
@@ -152,9 +169,14 @@ h2 {
     flex: 1;
 }
 
+.quantity-controls {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
 .quantity-controls button,
 .remove-button {
-    margin-right: 5px;
     padding: 5px 10px;
     background-color: #034784;
     color: #fff;
@@ -201,6 +223,12 @@ h2 {
     display: block;
     width: 100%;
     text-align: center;
+}
+
+.total {
+    font-weight: bold;
+    margin-top: 20px;
+    font-size: 1.2em;
 }
 
 .cart-footer {

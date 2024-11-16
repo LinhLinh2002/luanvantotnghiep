@@ -1,5 +1,6 @@
 // src/services/CartService.js
 import axios from 'axios';
+import router from '../router';
 
 const API_URL = 'https://backend.vothanhhoang.online/api/cart';
 
@@ -8,24 +9,37 @@ class CartService {
     async getCart() {
         try {   
             const response = await axios.get(API_URL);
+            console.log("Lấy giỏ hàng:", API_URL);
+            
             return response.data;
         } catch (error) {
             console.error('Lỗi khi tải giỏ hàng:', error);
-            // throw error;
+             throw error;
         }
     }
 
     // Thêm sản phẩm vào giỏ hàng
-    async addToCart(productId, quantity = 1) {
+    async addToCart(bookId, quantity = 1) {
+        if (!this.isLoggedIn()) {
+            alert("Bạn cần đăng nhập để thêm sản phẩm vào giỏ hàng.");
+            router.push({ name: 'login' }); // Dùng router để chuyển trang
+            return;
+        }
+
         try {
             const response = await axios.post(`${API_URL}/add`, {
-                product_id: productId,
+                book_id: bookId,
                 quantity: quantity,
             });
             return response.data;
         } catch (error) {
-            console.error('Lỗi khi thêm vào giỏ hàng:', error);
+            console.error('Lỗi khi thêm vào giỏ hàng:', error.response?.data || error);
+            throw error;
         }
+    }
+
+    isLoggedIn() {
+        return !!localStorage.getItem("currentUser"); // Kiểm tra xem người dùng có đăng nhập hay không
     }
 
     // Áp dụng mã giảm giá
@@ -37,6 +51,8 @@ class CartService {
             return response.data;
         } catch (error) {
             console.error('Lỗi khi áp dụng mã giảm giá:', error);
+            throw error;
+
         }
     }
 
@@ -47,6 +63,8 @@ class CartService {
             return response.data;
         } catch (error) {
             console.error('Lỗi khi xóa mã giảm giá:', error);
+            throw error;
+
         }
     }
 
@@ -57,6 +75,8 @@ class CartService {
             return response.data;
         } catch (error) {
             console.error('Lỗi khi tăng số lượng sản phẩm trong giỏ hàng:', error);
+            throw error;
+
         }
     }
 
@@ -67,6 +87,8 @@ class CartService {
             return response.data;
         } catch (error) {
             console.error('Lỗi khi giảm số lượng sản phẩm trong giỏ hàng:', error);
+            throw error;
+
         }
     }
 
@@ -77,6 +99,8 @@ class CartService {
             return response.data;
         } catch (error) {
             console.error('Lỗi khi xóa sản phẩm khỏi giỏ hàng:', error);
+            throw error;
+
         }
     }
 
@@ -87,6 +111,8 @@ class CartService {
             return response.data;
         } catch (error) {
             console.error('Lỗi khi xóa toàn bộ giỏ hàng:', error);
+            throw error;
+
         }
     }
 
@@ -99,6 +125,8 @@ class CartService {
             return response.data;
         } catch (error) {
             console.error('Lỗi khi áp dụng giảm giá trực tiếp:', error);
+            throw error;
+
         }
     }
 }

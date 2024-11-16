@@ -90,11 +90,7 @@ const model = ref([
                 icon: 'pi pi-fw pi-bookmark',
                 to: '/categories'
             },
-            {
-                label: 'Co Publishers',
-                icon: 'pi pi-fw pi-bookmark',
-                to: '/co_publishers'
-            },
+           
             {
                 label: 'Publishers',
                 icon: 'pi pi-fw pi-bookmark',

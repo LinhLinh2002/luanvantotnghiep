@@ -39,14 +39,7 @@
                         </option>
                     </select>
                 </div>
-                <div class="form-group">
-                    <label for="co_publisher">Nhà Đồng Xuất Bản:</label>
-                    <select v-model="book.co_publisher_id" class="form-control">
-                        <option v-for="co_publisher in co_publishers" :key="co_publisher.id" :value="co_publisher.id">
-                            {{ co_publisher.name }}
-                        </option>
-                    </select>
-                </div>
+                
             </div>
             <div class="form-row">
                 <div class="form-group">
@@ -136,7 +129,6 @@ import AttributeService from '@/service/AttributeService';
 import AuthorService from '@/service/AuthorService';
 import BookService from '@/service/BookService';
 import CategoryService from '@/service/CategoryService';
-import CoPublisherService from '@/service/CoPublisherService';
 import PublisherService from '@/service/PublisherService';
 import TranslatorService from '@/service/TranslatorService';
 import { useToast } from 'primevue/usetoast';
@@ -149,7 +141,6 @@ const book = ref({});
 const imagePreview = ref(null);
 const authors = ref([]);
 const publishers = ref([]);
-const co_publishers = ref([]);
 const translators = ref([]);
 const genres = ref([]);
 const categories = ref([]);
@@ -170,7 +161,6 @@ const updateBook = async () => {
         title: book.value.title,
         isbn: book.value.isbn,
         publisher_id: book.value.publisher_id,
-        co_publisher_id: book.value.co_publisher_id,
         translator_id: book.value.translator_id,
         author_id: book.value.author_id,
         category_id: book.value.category_id,
@@ -294,7 +284,6 @@ onMounted(() => {
     fetchBook(bookId);
     fetchAuthors();
     fetchPublishers();
-    fetchCoPublishers();
     fetchTranslators();
     fetchGenres();
     fetchCategories();

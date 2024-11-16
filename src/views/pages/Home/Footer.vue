@@ -48,7 +48,67 @@ export default {
 </script>
 
 <style >
-@import "../Home/style.css";
+body {
+    background-color: #fff;
+}
+.footer{
+    background-color: #fff;
+    padding-top: 40px;
+    
+}
+.footer-container {
+    display: flex;
+    justify-content: space-between;
+    max-width: 1200px;
+    margin: 0 auto;
+    /* background-color: #4f85c0; */
+}
+.footer-column {
+    width: 23%;
+    /* background-color: #e71e54; */
+}
+
+.footer-column h5 {
+    font-size: 18px;
+    margin-bottom: 15px;
+    /* display: flex; */
+    width: 100%;
+    /* justify-content: center; */
+    color:#000;
+    font-size: 15px;
+    text-align: justify; 
+    padding-left: 10px;
+}
+.footer-column ul {
+    list-style: none;
+    padding: 0;
+    
+}
+.footer-column ul li {
+    margin-bottom: 10px;
+    text-align: justify;   /* Canh đều hai bên */
+    padding-left: 10px;
+
+}
+.footer-column ul li a {
+    color: #349cd8;
+    text-decoration: none;
+}
+.footer-column ul li a:hover {
+    text-decoration: underline;
+}
+.footer-column p {
+        text-align: justify;   /* Canh đều hai bên */
+    margin: 5px 0;
+    font-size: 12px;
+}
+
+.divider {
+    margin: 20px auto;
+    width: 100%; 
+    border-bottom: 1px solid #9b9a9e; 
+  }
+
 
 </style>
 

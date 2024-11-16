@@ -7,7 +7,7 @@
             <div class="banner">
                 <div class="list">
                     <div class="item-1 ">
-                        <img src="https://nhasachphuongnam.com/images/promo/294/Banner-Halloween-2024-890x396-2.jpg"
+                        <img src="https://nhasachphuongnam.com/images/promo/294/Banner-L%E1%BB%8Bch-2025-890x396.jpg"
                             alt="">
                     </div>
                     <div class="item-2 ">
@@ -624,7 +624,7 @@ import { onMounted, ref } from 'vue';
 import BookService from '@/service/BookService';
 import HeaderComponent from './Header.vue';
 import FooterComponent from './Footer.vue';
-//import CartService from '/src/services/CartService.js';
+import CartService from '/src/service/CartService.js';
 
 export default {
     name: 'bookstores',
@@ -646,8 +646,10 @@ export default {
             }
         };
 
-        onMounted(async () => {
+        onMounted(async () => {     
+
       try {
+        document.title='BookStore';
         const response = await BookService.getAllBooks();
         books.value = response.data;
         
@@ -658,10 +660,22 @@ export default {
       }
     });
 
+     // Cập nhật currentUser khi đăng nhập hoặc đăng xuất từ localStorage
+         const updateUser = () => {
+            currentUser.value = JSON.parse(localStorage.getItem("currentUser"));
+           };
+
+         window.addEventListener('storage', updateUser);
+
+    //     onBeforeUnmount(() => {
+    //         window.removeEventListener('storage', updateUser);
+    //     });
+
         return {
             books,
             bestsellerBooks,
             addToCart,
+            updateUser,
 
         };
     }

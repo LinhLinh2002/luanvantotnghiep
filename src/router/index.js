@@ -6,10 +6,15 @@ const router = createRouter({
     routes: [
         {
             path: '/',
+            name: 'Home',
+            component: () => import('@/views/HomeView.vue')
+        },
+        {
+            path: '/admin',
             component: AppLayout,
             children: [
                 {
-                    path: '/',
+                    path: '/dashboard',
                     name: 'dashboard',
                     component: () => import('@/views/Dashboard.vue')
                 },
@@ -148,10 +153,16 @@ const router = createRouter({
                 }
             ]
         },
+        //HomaPage
         {
             path: '/bookstore',
             name: 'bookstore',
             component: () => import('@/views/pages/Home/BookStore.vue')
+        },
+        {
+            path: '/index2',
+            name: 'index',
+            component: () => import('@/views/pages/Home/index.vue')
         },
         {
             path: '/books/:id',
@@ -171,12 +182,13 @@ const router = createRouter({
             name: 'notfound',
             component: () => import('@/views/pages/NotFound.vue')
         },
-
+        //User
         {
             path: '/auth/login',
             name: 'login',
             component: () => import('@/views/pages/auth/Login.vue')
         },
+
         {
             path: '/auth/forgot',
             name: 'forgot',
