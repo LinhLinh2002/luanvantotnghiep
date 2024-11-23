@@ -178,6 +178,18 @@ const router = createRouter({
 
         },
         {
+            path: '/profile',
+            name: 'profile',
+            component: () => import('@/views/pages/Home/Profile.vue'),
+
+        },
+        {
+            path: '/checkout',
+            name: 'checkout',
+            component: () => import('@/views/pages/Home/Checkout.vue'),
+
+        },
+        {
             path: '/pages/notfound',
             name: 'notfound',
             component: () => import('@/views/pages/NotFound.vue')

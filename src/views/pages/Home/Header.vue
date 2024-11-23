@@ -16,8 +16,8 @@
         <header class="header-botton">
             <div class="header-botton1">
                 <div class="logo">
-                    <img src="https://nhasachphuongnam.com/images/logos/269/logo_ns-01-01.jpg" alt="Nhà Sách Phương Nam"
-                        @click="goToBookstore">
+                    <img src="https://nhasachphuongnam.com/images/logos/269/LOGO_NHASACHPN-XMAS-for-Web-2024.png"
+                        alt="Nhà Sách Phương Nam" @click="goToBookstore">
                 </div>
                 <div class="icon">
                     <div class="hidden-phone">
@@ -35,7 +35,7 @@
             <div class="header-botton2">
                 <div class="danhmuc">
 
-                    <i class='bx bx-grid-alt' @click="ShowDrop" v-on:click="HideDrop"></i>
+                    <i class='bx bx-grid-alt' @click="ShowDrop"></i>
 
                 </div>
                 <ul class="dropd" v-if="drop">
@@ -55,6 +55,8 @@
                         <!-- Hiển thị tên người dùng nếu đã đăng nhập -->
                         <template v-if="isLoggedIn">
                             <h3 v-if="user">Xin chào, {{ user.name }}</h3>
+                            <router-link to="/profile" class="account-link">Tài Khoản Của Tôi </router-link>
+
                             <a href="#" class="account-link">Đơn Hàng Của Tôi</a>
                             <a href="#" class="account-link">Danh Sách Yêu Thích</a>
                             <div class="order-tracking">
@@ -106,11 +108,11 @@
 </template>
 
 <script>
-import axios from 'axios';
 import CartService from '@/service/CartService';
+import CategoryService from '@/service/CategoryService';
+import axios from 'axios';
 import { onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
-
 export default {
     name: "HeaderComponent",
     setup() {
@@ -126,9 +128,7 @@ export default {
 
         const ShowDrop = () => {
             drop.value = !drop.value;
-        };
-        const HideDrop = () => {
-            drop.value = !drop.value;
+            console.log("Dropdown visible:", drop.value);
         };
         const showcart = () => {
             dropcart.value = !dropcart.value;
@@ -140,12 +140,22 @@ export default {
         const goToBookstore = () => {
             router.push({ name: "bookstore" }); // Navigate to the bookstore route
         };
+        const loadCategories = async () => {
+            try {
+                const response = await CategoryService.getAllCategories();
+                categories.value = response.data;  // Gán đúng dữ liệu trả về từ API
+                console.log("Categories loaded:", categories.value);  // Kiểm tra xem danh mục có được tải về không
+            } catch (error) {
+                console.error("Error loading categories:", error);
+            }
+        };
         // URL API
         const API_URL = 'https://backend.vothanhhoang.online/api/auth';
 
         // Kiểm tra trạng thái đăng nhập
         const checkLoginStatus = () => {
             const currentUser = localStorage.getItem("currentUser");
+            console.log('line 156:', currentUser)
             if (currentUser) {
                 isLoggedIn.value = true;
                 user.value = JSON.parse(currentUser);  // Lấy thông tin người dùng từ localStorage
@@ -157,54 +167,62 @@ export default {
 
         // Hàm đăng xuất
         const logout = async () => {
-    try {
-        const currentUser = localStorage.getItem("currentUser");
-        if (!currentUser) {
-            alert("Phiên đăng nhập không tồn tại, vui lòng đăng nhập lại.");
-            router.push({ name: "login" });
-            return;
-        }
+            try {
+                const currentUser = localStorage.getItem("currentUser");
+                console.log('line 169:', currentUser)
+                if (!currentUser) {
+                    alert("Phiên đăng nhập không tồn tại, vui lòng đăng nhập lại.");
+                    router.push({ name: "login" });
+                    return;
+                }
 
-        const token = JSON.parse(currentUser)?.token;
-        
-        await axios.post(
-            `${API_URL}/logout`,
-            {},
-            {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                },
-                withCredentials: true,
+                const token = JSON.parse(currentUser)?.token;
+
+                await axios.post(
+                    `${API_URL}/logout`,
+                    {},
+                    {
+                        headers: {
+                            Authorization: `Bearer ${token}`,
+                        },
+                        withCredentials: true,
+                    }
+                );
+
+                localStorage.removeItem("currentUser");
+                isLoggedIn.value = false;
+                user.value = null;
+                alert("Bạn đã đăng xuất thành công!");
+                router.push({ name: "bookstore" });
+            } catch (error) {
+                if (error.response?.status === 401) {
+                    alert("Phiên đăng nhập đã hết hạn, vui lòng đăng nhập lại.");
+                    localStorage.removeItem("currentUser");
+                    router.push({ name: "login" }); //web đang out ở trạng thái này
+                } else {
+                    console.error("Lỗi không xác định:", error);
+                    alert("Đăng xuất không thành công. Vui lòng thử lại.");
+                }
             }
-        );
-        
-        localStorage.removeItem("currentUser");
-        isLoggedIn.value = false;
-        user.value = null;
-        alert("Bạn đã đăng xuất thành công!");
-        router.push({ name: "bookstore" });
-    } catch (error) {
-        if (error.response?.status === 401) {
-            alert("Phiên đăng nhập đã hết hạn, vui lòng đăng nhập lại.");
-            localStorage.removeItem("currentUser");
-            router.push({ name: "login" });
-        } else {
-            console.error("Lỗi không xác định:", error);
-            alert("Đăng xuất không thành công. Vui lòng thử lại.");
-        }
-    }
-};
+        };
 
 
         // Hàm tải giỏ hàng từ API
         const loadCart = async () => {
             try {
                 const response = await CartService.getCart();
-                cartItems.value = response ? response.items : [];
-                // Cập nhật số lượng sản phẩm
+                console.log(response)
+                cartItems.value = response ? response.cart.items : [];
+                console.log("cartItems:", cartItems, cartItems.value)
                 cartItemCount.value = cartItems.value.reduce((total, item) => total + item.quantity, 0);
             } catch (error) {
-                console.error('Error loading cart:', error);
+                console.log('215:',error)
+                // console.error("Error loading cart:", {
+                //     message: error.message,
+                //     response: error.response ? error.response.data : "No response data",
+                //     config: error.config,
+                // });
+                alert("Không thể tải giỏ hàng. Vui lòng thử lại sau!");
             }
         };
 
@@ -215,16 +233,9 @@ export default {
 
         // Xử lý thanh toán
         const checkout = () => {
-            alert("Chức năng thanh toán chưa được phát triển.");
+            window.location.href = '/checkout';
         };
-        const loadCategories = async () => {
-            try {
-                const response = await CartService.getCategories();
-                categories.value = response; // Lưu danh sách thể loại từ API
-            } catch (error) {
-                console.error('Error loading categories:', error);
-            }
-        };
+
         onMounted(() => {
             loadCart();
             loadCategories();
@@ -461,7 +472,7 @@ export default {
 }
 
 .login-btn,
-.register-btn  {
+.register-btn {
     flex: 1;
     padding: 8px;
     border: none;
@@ -475,10 +486,12 @@ export default {
     background-color: #333;
     color: white;
 }
+
 .register-btn {
     background-color: #034784;
     color: white;
 }
+
 .logout-btn {
     background-color: #d42d2d;
     color: white;
@@ -488,7 +501,7 @@ export default {
     border-radius: 4px;
     cursor: pointer;
     margin: 5px;
-    margin-left:90px;
+    margin-left: 90px;
     text-align: center;
 }
 

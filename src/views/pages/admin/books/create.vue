@@ -105,8 +105,16 @@
                     <input type="number" v-model="book.number_pages" class="form-control" required />
                 </div>
                 <div class="form-group">
-                    <label for="size">Kích Thước:</label>
-                    <input type="text" v-model="book.size" class="form-control" required />
+                    <label for="size">Length:</label>
+                    <input type="text" v-model="book.length" class="form-control" required />
+                </div>
+                <div class="form-group">
+                    <label for="size">Width:</label>
+                    <input type="text" v-model="book.width" class="form-control" required />
+                </div>
+                <div class="form-group">
+                    <label for="size">Height:</label>
+                    <input type="text" v-model="book.height" class="form-control" required />
                 </div>
                 <div class="form-group">
                     <label for="weight">Trọng Lượng:</label>
@@ -165,7 +173,9 @@ const book = ref({
     discount_price: null,
     published_year: null,
     number_pages: 0,
-    size: '',
+    length: '',
+    width: '',
+    height: '',
     status: 'instock',
     weight: 0,
 });

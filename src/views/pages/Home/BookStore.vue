@@ -231,47 +231,21 @@
                     <a href="">Sách Tham Khảo</a>
                 </div>
                 <div class="product-list-sell">
-                    <div class="product-card-sell">
+                    <router-link 
+                        v-for="book in bestsellerBooks" 
+                        :key="book.id" 
+                        :to="{ name: 'bookdetails', params: { id: book.id } }" 
+                        class="product-card-sell">
+                        
                         <div class="cart-icon-sell"></div>
-                        <img src="https://nhasachphuongnam.com/images/thumbnails/270/270/detailed/291/chuyen-de-hoc-tap-hoa-hoc-lop-12-chan-troi-sang-tao.jpg"
-                            alt="Product 1" class="product-image">
-                        <p class="product-name-sell">Trở Về Không </p>
-                        <p class="product-price-sell">169,000 đ</p>
-                        <button class="product-button-sell">Chọn Mua</button>
-                    </div>
-                    <div class="product-card-sell">
-                        <div class="cart-icon-sell"></div>
-                        <img src="https://nhasachphuongnam.com/images/thumbnails/270/270/detailed/291/ngu-van-lop-10-tap-2-chan-troi-sang-tao.jpg"
-                            alt="Product 1" class="product-image">
-                        <p class="product-name-sell">Màu Gstar Acrylic 0124</p>
-                        <p class="product-price-sell">169,000 đ</p>
-                        <button class="product-button-sell">Chọn Mua</button>
-                    </div>
-                    <div class="product-card-sell">
-                        <div class="cart-icon-sell"></div>
-                        <img src="https://nhasachphuongnam.com/images/thumbnails/270/270/detailed/290/khoa-hoc-tu-nhien-lop-7-chan-troi-sang-tao.jpg"
-                            alt="Product 1" class="product-image">
-                        <p class="product-name-sell">Màu Gstar Acrylic 0124</p>
-                        <p class="product-price-sell">169,000 đ</p>
-                        <button class="product-button-sell">Chọn Mua</button>
-                    </div>
-                    <div class="product-card-sell">
-                        <div class="cart-icon-sell"></div>
-                        <img src="https://nhasachphuongnam.com/images/thumbnails/270/270/detailed/290/bai-tap-hoa-hoc-lop-12-chan-troi-sang-tao.jpg"
-                            alt="Product 1" class="product-image">
-                        <p class="product-name-sell">Màu Gstar Acrylic 0124</p>
-                        <p class="product-price-sell">169,000 đ</p>
-                        <button class="product-button-sell">Chọn Mua</button>
-                    </div>
-                    <div class="product-card-sell">
-                        <div class="cart-icon-sell"></div>
-                        <img src="https://nhasachphuongnam.com/images/thumbnails/270/270/detailed/290/bai-tap-toan-lop-12-tap-2-chan-troi-sang-tao.jpg"
-                            alt="Product 1" class="product-image">
-                        <p class="product-name-sell">Màu Gstar Acrylic 0124</p>
-                        <p class="product-price-sell">169,000 đ</p>
-                        <button class="product-button-sell">Chọn Mua</button>
-                    </div>
-                </div>
+                        <img :src="book.image" alt="Product Image" class="product-image">
+                        <p class="product-name-sell">{{ book.title }}</p>
+                        <p class="product-price-sell">{{ book.original_price }} đ</p>
+                        <button class="product-button-sell" @click.prevent="addToCart(book.id)">
+                            <i class="bx bxs-cart"></i> Chọn Mua
+                        </button>
+                    </router-link>
+                </div>  
             </div>
             <div class="pic">
                 <img src="https://nhasachphuongnam.com/images/promo/292/0655fcef07fca1a2f8ed.jpg" alt="" class="">
@@ -635,10 +609,15 @@ export default {
     setup() {
         const books = ref([]);
         const bestsellerBooks = ref([]);
+        const currentUser = ref(null); // Thêm biến currentUser
 
         const addToCart = async (bookId) => {
+            if (!currentUser.value) {
+                alert('Bạn cần đăng nhập để thêm sản phẩm vào giỏ hàng.');
+                return;
+            }
             try {
-                await CartService.addToCart(bookId, 1); // Gọi API thêm vào giỏ hàng với số lượng 1
+                await CartService.addToCart(bookId, 1);
                 alert('Sản phẩm đã được thêm vào giỏ hàng!');
             } catch (error) {
                 console.error('Error adding to cart:', error);
@@ -646,39 +625,31 @@ export default {
             }
         };
 
-        onMounted(async () => {     
+        onMounted(async () => {
+            try {
+                document.title = 'BookStore';
 
-      try {
-        document.title='BookStore';
-        const response = await BookService.getAllBooks();
-        books.value = response.data;
-        
-        // Lọc sách Bestseller với ID từ 12 đến 16
-        bestsellerBooks.value = books.value.filter(book => book.id >= 12 && book.id <= 16);
-      } catch (error) {
-        console.error("Lỗi khi tải danh sách sách:", error);
-      }
-    });
+                // Lấy thông tin người dùng từ localStorage
+                currentUser.value = JSON.parse(localStorage.getItem('currentUser'));
+                console.log('Thông tin người dùng:', currentUser.value);
 
-     // Cập nhật currentUser khi đăng nhập hoặc đăng xuất từ localStorage
-         const updateUser = () => {
-            currentUser.value = JSON.parse(localStorage.getItem("currentUser"));
-           };
+                const response = await BookService.getAllBooks();
+                books.value = response.data;
 
-         window.addEventListener('storage', updateUser);
-
-    //     onBeforeUnmount(() => {
-    //         window.removeEventListener('storage', updateUser);
-    //     });
+                // Lọc sách Bestseller với ID từ 12 đến 16
+                bestsellerBooks.value = books.value.filter(book => book.id >= 12 && book.id <= 16);
+            } catch (error) {
+                console.error('Lỗi khi tải danh sách sách:', error);
+            }
+        });
 
         return {
             books,
             bestsellerBooks,
             addToCart,
-            updateUser,
-
+            currentUser, // Trả về để sử dụng trong template
         };
-    }
+    },
 };
 </script>
 

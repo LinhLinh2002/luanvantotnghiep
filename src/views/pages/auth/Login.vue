@@ -9,13 +9,14 @@
                     <form @submit.prevent="loginUser">
                         <h6>Not A Member? <a @click.prevent="goToRegister" class="Signuplink">Register now</a></h6>
                         <h1>Hello Again! Login</h1>
-                        <h4> Wellcome back you been missed</h4>
+                        <!-- <h4> Wellcome back you been missed</h4> -->
 
                         <div class="input-group">
                             <input type="email" v-model="login.email" class="textname" placeholder="Email" required>
                         </div>
                         <div class="input-group">
-                            <input type="password" v-model="login.password" class="pass" placeholder="Password" required>
+                            <input type="password" v-model="login.password" class="pass" placeholder="Password"
+                                required>
                         </div>
                         <div class="forgot">
                             <a href="">Forgot Password ? </a>
@@ -42,55 +43,67 @@
         </div>
     </template>
 
-    <script>
-    import axios from 'axios';
+<script>
+import axios from 'axios';
 
-    export default {
-        name: 'Login',
-        data() {
-            return {
-                login: {
-                    email: '',
-                    password: ''
-                }
-            }
-        },
-        methods: {
-            async loginUser() {
-                // Client-side validation
-                if (!this.login.email || !this.login.password) {
-                    alert("Vui lòng điền tất cả các trường!");
-                    return;
-                }
-                if (!this.validateEmail(this.login.email)) {
-                    alert("Địa chỉ email không hợp lệ!");
-                    return;
-                }
-                if (this.login.password.length < 8) {
-                    alert("Mật khẩu phải có ít nhất 8 ký tự!");
-                    return;
-                }
-
-                try {
-                    const response = await axios.post("https://backend.vothanhhoang.online/api/auth/login", this.login);
-                    console.log("Đăng nhập thành công:", response.data);
-                    localStorage.setItem("currentUser", JSON.stringify(response.data));
-                    this.$router.push({ name: 'bookstore' });
-                } catch (error) {
-                    console.error("Lỗi khi đăng nhập:", error);
-                    alert("Đăng nhập thất bại! Vui lòng thử lại.");
-                }
-            },
-            goToRegister() {
-                this.$router.push({ name: 'register' });
-            },
-            validateEmail(email) {
-                const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-                return re.test(email);
+export default {
+    name: 'Login',
+    data() {
+        return {
+            login: {
+                email: '',
+                password: ''
             }
         }
+    },
+    methods: {
+        async loginUser() {
+            // Client-side validation
+            if (!this.login.email || !this.login.password) {
+                alert("Vui lòng điền tất cả các trường!");
+                return;
+            }
+            if (!this.validateEmail(this.login.email)) {
+                alert("Địa chỉ email không hợp lệ!");
+                return;
+            }
+            if (this.login.password.length < 8) {
+                alert("Mật khẩu phải có ít nhất 8 ký tự!");
+                return;
+            }
+
+            try {
+                const response = await axios.post("https://backend.vothanhhoang.online/api/auth/login", this.login);
+                console.log("Đăng nhập thành công:", response.data);
+                // let  data = response.data;
+                console.log('Line 78', response.data)
+                //  localStorage.setItem('data', data)
+                localStorage.setItem("currentUser", JSON.stringify({
+                    name:response.data.data.user.name,
+                    token: response.data.data.token,
+                    user_id: response.data.data.user.id,
+                    email: response.data.data.user.email
+                }));
+                //  localStorage.setItem("currentUser", JSON.stringify(response.data.data));
+
+                console.log("line 88:currentUser trong localStorage:", localStorage.getItem("currentUser"));
+                // console.log(localStorage.getItem('data'),)
+                this.$router.push({ name: 'bookstore' });
+            } catch (error) {
+                console.error("Lỗi khi đăng nhập:", error);
+                alert("Đăng nhập thất bại! Vui lòng thử lại.");
+            }
+        },
+        goToRegister() {
+            this.$router.push({ name: 'register' });
+        },
+        validateEmail(email) {
+            const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return re.test(email);
+        }
     }
-    </script>
+}
+</script>
 
 
 <style>
@@ -166,13 +179,13 @@ h6 a:hover {
 
 .input-group {
     position: relative;
-    margin: 20px ;
+    margin: 20px;
     padding-left: 90px;
 }
 
 .input-group ::placeholder {
     color: #ccc;
-    
+
 }
 
 .textname {
@@ -233,9 +246,11 @@ h6 a:hover {
 h5 {
     text-align: center;
 }
-.conti-wit{
+
+.conti-wit {
     margin-top: 15px;
 }
+
 .icon-container {
     display: flex;
     justify-content: center;
