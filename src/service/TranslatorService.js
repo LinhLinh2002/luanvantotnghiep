@@ -3,7 +3,7 @@
 
 import axios from 'axios';
 
-const API_URL = 'https://backend.vothanhhoang.online/api/translators';
+const API_URL = 'http://127.0.0.1:8000/api/translators';
 
 class Translatorservice {
     async getAllTranslators() {

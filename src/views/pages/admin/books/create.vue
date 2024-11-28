@@ -13,14 +13,26 @@
                 </div>
             </div>
             <div class="form-row">
+
                 <div class="form-group">
-                    <label for="author">Tác Giả:</label>
-                    <select v-model="book.author_id" class="form-control" required>
-                        <option v-for="author in authors" :key="author.id" :value="author.id">
-                            {{ author.name }}
-                        </option>
-                    </select>
+                    <label for="authors">Tác Giả:</label>
+                    <div class="dropdown">
+                        <button class="dropdown-toggle" @click.stop="toggleDropdown">
+                            Chọn Tác Giả
+                            <span class="caret"></span>
+                        </button>
+                        <div v-if="isDropdownOpen" class="dropdown-menu" @click.stop>
+                            <div v-for="author in authors" :key="author.id" class="dropdown-item">
+                                <label>
+                                    <input type="checkbox" :value="author.id" v-model="book.authors" />
+                                    {{ author.name }}
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    <p>Đã chọn: {{ selectedAuthors }}</p>
                 </div>
+
                 <div class="form-group">
                     <label for="translator">Dịch Giả:</label>
                     <select v-model="book.translator_id" class="form-control">
@@ -39,7 +51,7 @@
                         </option>
                     </select>
                 </div>
-                
+
             </div>
             <div class="form-row">
                 <div class="form-group">
@@ -138,16 +150,15 @@ import AttributeService from '@/service/AttributeService';
 import AuthorService from '@/service/AuthorService';
 import BookService from '@/service/BookService';
 import CategoryService from '@/service/CategoryService';
-import CoPublisherService from '@/service/CoPublisherService';
 import PublisherService from '@/service/PublisherService';
 import TranslatorService from '@/service/TranslatorService';
 import { useToast } from 'primevue/usetoast';
-import { onMounted, ref } from 'vue';
+import { computed, onMounted, onUnmounted, ref } from 'vue';
 
+const isDropdownOpen = ref(false); // Trạng thái của dropdown
 
 const authors = ref([]);
 const publishers = ref([]);
-const co_publishers = ref([]);
 const translators = ref([]);
 const genres = ref([]);
 const categories = ref([]);
@@ -158,10 +169,9 @@ const imagePreview = ref(null);
 const book = ref({
     title: '',
     isbn: '',
-    author_id: null,
+    authors: [],
     publisher_id: null,
     category_id: null,
-    co_publisher_id: null,
     translator_id: null,
     genre_id: null,
     cover_type_id: null,
@@ -184,8 +194,29 @@ const fetchAuthors = async () => {
     try {
         const response = await AuthorService.getAllAuthors();
         authors.value = response.data;
+        console.log('Authors loaded:', authors.value);
+
     } catch (error) {
         alert('Lỗi khi lấy danh sách tác giả: ' + error.message);
+    }
+};
+
+const toggleDropdown = (event) => {
+    event.stopPropagation(); // Ngăn không cho sự kiện click bên ngoài đóng ngay lập tức
+    isDropdownOpen.value = !isDropdownOpen.value;
+};
+const selectedAuthors = computed(() => {
+    return authors.value.length > 0 && book.value.authors.length > 0
+        ? authors.value
+            .filter((author) => book.value.authors.includes(author.id))
+            .map((author) => author.name)
+            .join(', ')
+        : 'Chưa chọn tác giả nào';
+});
+const handleClickOutside = (event) => {
+    // Kiểm tra xem sự kiện click có xảy ra ngoài dropdown không
+    if (!event.target.closest('.dropdown')) {
+        isDropdownOpen.value = false;
     }
 };
 
@@ -198,14 +229,6 @@ const fetchPublishers = async () => {
     }
 };
 
-const fetchCoPublishers = async () => {
-    try {
-        const response = await CoPublisherService.getAllCoPublishers();
-        co_publishers.value = response.data;
-    } catch (error) {
-        alert('Lỗi khi lấy danh sách đồng nhà xuất bản: ' + error.message);
-    }
-};
 
 const fetchTranslator = async () => {
     try {
@@ -261,21 +284,35 @@ const onFileChange = (event) => {
 
 const createBook = async () => {
     const formData = new FormData();
-    
+
     for (const key in book.value) {
-        if (book.value[key] !== null && book.value[key] !== '') {
+        if (key === "authors" && Array.isArray(book.value[key])) {
+            formData.append(key, JSON.stringify(book.value[key])); // JSON.stringify để gửi đúng định dạng
+            book.value.authors.forEach((id) => {
+                formData.append('authors[]', id);
+            });
+
+        } else if (book.value[key] !== null && book.value[key] !== '') {
             formData.append(key, book.value[key]);
         }
     }
+
+    // Kiểm tra log FormData gửi đi
+    for (let pair of formData.entries()) {
+        console.log(pair[0], pair[1]);
+    }
+
     try {
         await BookService.createBook(formData);
         showToast('Thêm sách thành công!');
-        router.push('/books')
-        resetForm();
+        router.push('/books');
     } catch (error) {
-        alert('Lỗi khi thêm sách: ' + error.message);
+        console.error('Lỗi khi thêm sách:', error.response?.data || error.message);
+        alert('Lỗi: ' + (error.response?.data.message || error.message));
     }
 };
+
+
 
 const resetForm = () => {
     for (const key in book.value) {
@@ -291,12 +328,17 @@ onMounted(() => {
     fetchAuthors();
     fetchCategory();
     fetchPublishers();
-    fetchCoPublishers();
     fetchTranslator();
     fetchGenres();
     fetchCoverTypes();
     fetchLanguages();
+    document.addEventListener('click', handleClickOutside);
+
 });
+onUnmounted(() => {
+    document.removeEventListener('click', handleClickOutside);
+});
+
 </script>
 
 <style scoped>
@@ -327,6 +369,72 @@ h1 {
     flex-direction: column;
     flex: 1;
     margin-right: 10px;
+}
+
+.dropdown {
+    position: relative;
+    width: 100%;
+}
+
+.dropdown-toggle {
+    width: 100%;
+    padding: 10px;
+    background-color: #f8f9fa;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    cursor: pointer;
+    text-align: left;
+}
+
+.dropdown-menu {
+    display: block;
+    /* Đảm bảo hiển thị */
+    position: absolute;
+    width: 100%;
+    background-color: white;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    max-height: 200px;
+    overflow-y: auto;
+    z-index: 1000;
+}
+
+.dropdown-item {
+    padding: 10px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.dropdown-item label {
+    margin: 0;
+    cursor: pointer;
+}
+
+.dropdown-item input[type="checkbox"] {
+    cursor: pointer;
+}
+
+.caret {
+    float: right;
+    margin-top: 5px;
+    border-top: 5px solid #333;
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
+}
+
+.dropdown-toggle:hover {
+    background-color: #e9ecef;
+}
+
+.dropdown-menu::-webkit-scrollbar {
+    width: 6px;
+}
+
+.dropdown-menu::-webkit-scrollbar-thumb {
+    background-color: #ccc;
+    border-radius: 4px;
 }
 
 .form-control {

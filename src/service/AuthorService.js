@@ -3,7 +3,7 @@
 
 import axios from 'axios';
 
-const API_URL = 'https://backend.vothanhhoang.online/api/authors';
+const API_URL = 'http://127.0.0.1:8000/api/authors';
 
 class AuthorService {
     async getAllAuthors() {

@@ -55,10 +55,21 @@ const router = createRouter({
                     component: () => import('@/views/pages/admin/publishers/index.vue')
                 },
                 {
-                    path: '/co_publishers',
-                    name: 'co_publishers',
-                    component: () => import('@/views/pages/admin/co_publishers/index.vue')
+                    path: '/discount',
+                    name: 'discount',
+                    component: () => import('@/views/pages/admin/discount/index.vue')
                 },
+                {
+                    path: '/users',
+                    name: 'users',
+                    component: () => import('@/views/pages/admin/users/index.vue')
+                },
+                {
+                    path: '/buys',
+                    name: 'buys',
+                    component: () => import('@/views/pages/admin/buys/index.vue')
+                },
+
                 //Form
                 {
                     path: '/uikit/formlayout',
@@ -187,6 +198,12 @@ const router = createRouter({
             path: '/checkout',
             name: 'checkout',
             component: () => import('@/views/pages/Home/Checkout.vue'),
+
+        },
+        {
+            path: '/order',
+            name: 'order',
+            component: () => import('@/views/pages/Home/Order.vue'),
 
         },
         {

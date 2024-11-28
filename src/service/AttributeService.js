@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_URL = 'https://backend.vothanhhoang.online/api';
+const API_URL = 'http://127.0.0.1:8000/api';
 class AttributeService {
     async getAllGenres() {
         try {

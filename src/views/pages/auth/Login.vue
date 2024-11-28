@@ -44,7 +44,7 @@
     </template>
 
 <script>
-import axios from 'axios';
+import AuthService from '@/service/AuthService';
 
 export default {
     name: 'Login',
@@ -73,21 +73,11 @@ export default {
             }
 
             try {
-                const response = await axios.post("https://backend.vothanhhoang.online/api/auth/login", this.login);
-                console.log("Đăng nhập thành công:", response.data);
-                // let  data = response.data;
-                console.log('Line 78', response.data)
-                //  localStorage.setItem('data', data)
-                localStorage.setItem("currentUser", JSON.stringify({
-                    name:response.data.data.user.name,
-                    token: response.data.data.token,
-                    user_id: response.data.data.user.id,
-                    email: response.data.data.user.email
-                }));
-                //  localStorage.setItem("currentUser", JSON.stringify(response.data.data));
-
-                console.log("line 88:currentUser trong localStorage:", localStorage.getItem("currentUser"));
-                // console.log(localStorage.getItem('data'),)
+                // Call the login function from authService
+                const response = await AuthService.login(this.login);
+                console.log("Đăng nhập thành công:", response);
+                
+                // Navigate to the bookstore page after login
                 this.$router.push({ name: 'bookstore' });
             } catch (error) {
                 console.error("Lỗi khi đăng nhập:", error);
@@ -107,65 +97,74 @@ export default {
 
 
 <style>
+/* Reset mặc định */
 body {
     margin: 0;
     font-family: Verdana, Geneva, Tahoma, sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background-color: #80a9e2;
+
 }
 
 .login-page {
-    background-color: rgb(88, 102, 188);
+
     width: 100%;
-    height: 100%;
-    padding-top: 50px;
+    padding: 20px;
 }
 
 .container {
-    background-color: rgb(218, 228, 237);
-    border: 2px solid #fcfcfc;
-    width: 1200px;
-    height: 100%;
     display: flex;
-    max-width: 1200px;
-    margin: 0 auto;
-    justify-content: space-around;
-    padding: 10px;
+    flex-wrap: wrap; /* Đảm bảo phần tử xuống dòng khi không đủ không gian */
+    justify-content: center;
+    align-items: center;
+    background-color: rgb(218, 228, 237);
+    border: 2px solid #3b92c5;
     border-radius: 20px;
+    padding: 20px;
+    gap: 20px; /* Khoảng cách giữa các phần tử */
+    max-width: 1200px;
+    margin: auto;
+}
+
+.img-login {
+    flex: 1; /* Chia đều không gian giữa hình và form */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    max-width: 500px; /* Giới hạn chiều rộng tối đa */
 }
 
 .img-login img {
-    width: 600px;
-    height: 100%;
+    width: 100%; /* Hình ảnh tự động co giãn */
+    max-width: 500px; /* Giới hạn chiều rộng tối đa */
+    aspect-ratio: 1; /* Giữ tỉ lệ vuông */
+    object-fit: cover; /* Đảm bảo hình không bị méo */
     border-radius: 20px;
 }
 
 .signin-page {
+    flex: 1; /* Chia đều không gian giữa hình và form */
+    max-width: 500px; /* Giới hạn chiều rộng tối đa */
     background-color: transparent;
-    width: 600px;
     border-radius: 20px;
-    padding-left: 50px;
-    padding-top: -5px;
-
+    padding: 20px;
 }
 
 h1 {
     text-align: center;
-    padding-top: 40px;
     color: black;
     font-weight: normal;
-    font-size: 35px;
-}
-
-h4 {
-    font-size: 16px;
-    font-weight: normal;
-    padding-bottom: 20px;
-    padding-left: 140px;
+    font-size: 28px;
+    margin-bottom: 20px;
 }
 
 h6 {
-    text-align: right;
+    text-align: center;
     font-size: 12px;
-    padding-right: 20px;
+    margin-bottom: 20px;
 }
 
 h6 a {
@@ -178,38 +177,35 @@ h6 a:hover {
 }
 
 .input-group {
-    position: relative;
-    margin: 20px;
-    padding-left: 90px;
-}
-
-.input-group ::placeholder {
-    color: #ccc;
+    display: flex;
+    justify-content: center;
+    margin: 10px 0;
 
 }
 
-.textname {
-    padding: 20px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    outline: none;
-    width: 350px;
-    height: 30px;
-}
-
+.textname,
 .pass {
-    padding: 10px;
-    padding: 20px;
+    width: 100%;
+    max-width: 400px;
+    padding: 15px;
     border: 1px solid #ccc;
-    border-radius: 5px;
+    border-radius: 20px;
     outline: none;
-    width: 350px;
-    height: 30px;
+    font-size: 16px;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease; /* Thêm hiệu ứng mượt */
 }
+
+.textname:focus,
+.pass:focus {
+    border-color: #4c5bb6; /* Viền màu xanh */
+    box-shadow: 0 0 5px rgba(76, 91, 182, 0.5); /* Ánh sáng nhẹ */
+    outline: none; /* Bỏ viền mặc định */
+}
+
 
 .forgot {
-    padding-left: 310px;
-    padding-bottom: 20px;
+    text-align: end;
+    margin: 10px 0;
 }
 
 .forgot a {
@@ -224,19 +220,19 @@ h6 a:hover {
 
 .btn-container {
     text-align: center;
+    margin: 20px 0;
 }
 
 .btn-In {
-    padding: 10px 1px;
+    padding: 15px;
     background-color: #4554b3;
     border: 1px solid #e756b5;
     cursor: pointer;
-    border-radius: 10px;
-    width: 340px;
-    height: 55px;
+    border-radius: 20px;
+    width: 100%;
+    max-width: 400px;
     font-size: 17px;
     color: #fff;
-    margin-left: 30px;
 }
 
 .btn-In:hover {
@@ -262,4 +258,48 @@ h5 {
     height: 45px;
     width: 45px;
 }
+
+/* Responsive design */
+@media (min-width: 768px) {
+    .container {
+        flex-direction: row; /* Hiển thị ngang khi màn hình lớn */
+    }
+
+    .img-login, 
+    .signin-page {
+        flex: 1; /* Chia đều không gian giữa hình ảnh và form */
+        max-width: none; /* Cho phép tự co giãn */
+    }
+}
+
+@media (max-width: 768px) {
+    .container {
+        flex-direction: column; /* Hiển thị dọc khi màn hình nhỏ */
+    }
+
+    .img-login img, 
+    .signin-page {
+        max-width: 100%; /* Đảm bảo chiếm toàn bộ chiều ngang */
+    }
+}
+
+@media (max-width: 480px) {
+    h1 {
+        font-size: 24px;
+    }
+
+    h6 {
+        font-size: 10px;
+    }
+
+    .textname,
+    .pass {
+        font-size: 14px;
+    }
+
+    .btn-In {
+        font-size: 15px;
+    }
+}
+
 </style>

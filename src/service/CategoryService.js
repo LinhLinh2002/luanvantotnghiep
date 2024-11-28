@@ -1,7 +1,7 @@
 // src/services/Categorieservice.js
 import axios from 'axios';
 
-const API_URL = 'https://backend.vothanhhoang.online/api/categories';
+const API_URL = 'http://127.0.0.1:8000/api/categories';
 
 class CategoryService {
     async getAllCategories() {

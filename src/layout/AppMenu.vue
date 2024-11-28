@@ -66,7 +66,7 @@ const model = ref([
         items: [
             {
                 label: 'Authors',
-                icon: 'pi pi-fw pi-bookmark',
+                icon: 'pi pi-fw pi-clone',
                 to: '/authors'
             },
             {
@@ -75,33 +75,55 @@ const model = ref([
                 items: [
                     {
                         label: 'List Books',
-                        icon: 'pi pi-fw pi-bookmark',
+                        icon: 'pi pi-fw pi-list',
                         to: '/books'
                     },
                     {
                         label: 'Add Book',
-                        icon: 'pi pi-fw pi-bookmark',
+                        icon: 'pi pi-fw pi-list',
                         to: '/books/add'
                     }
                 ]
             },
             {
                 label: 'Categories',
-                icon: 'pi pi-fw pi-bookmark',
+                icon: 'pi pi-fw pi-id-card',
                 to: '/categories'
             },
            
             {
                 label: 'Publishers',
-                icon: 'pi pi-fw pi-bookmark',
+                icon: 'pi pi-fw pi-share-alt',
                 to: '/publishers'
             },
 
             {
                 label: 'Translator',
-                icon: 'pi pi-fw pi-bookmark',
+                icon: 'pi pi-fw pi-comment',
                 to: '/translators'
             },
+        ]
+    },
+    {
+        label: 'ADMIN',
+        items: [
+            {
+                label: 'Discount',
+                icon: 'pi pi-fw pi-circle',
+                to: '/discount'
+            },
+            {
+                label: 'Users',
+                icon: 'pi pi-fw pi-sign-in',
+                to: '/users'
+            },
+           
+            {
+                label: 'Orders',
+                icon: 'pi pi-fw pi-calendar',
+                to: '/buys'
+            },
+
         ]
     },
 ]);

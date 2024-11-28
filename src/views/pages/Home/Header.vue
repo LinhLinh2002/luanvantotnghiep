@@ -39,9 +39,16 @@
 
                 </div>
                 <ul class="dropd" v-if="drop">
-                    <li v-for="category in categories" :key="category.id">
+                    <span>Danh Muc 
+                        <li v-for="category in categories" :key="category.id">
                         {{ category.name }}
                     </li>
+                    </span>
+                    <span>Tác Giả
+                        <li v-for="author in authors " :key="author.id">
+                            {{ author.name }}
+                        </li>
+                    </span>
                 </ul>
 
                 <div class="timkiem">
@@ -57,8 +64,8 @@
                             <h3 v-if="user">Xin chào, {{ user.name }}</h3>
                             <router-link to="/profile" class="account-link">Tài Khoản Của Tôi </router-link>
 
-                            <a href="#" class="account-link">Đơn Hàng Của Tôi</a>
-                            <a href="#" class="account-link">Danh Sách Yêu Thích</a>
+                            <router-link to="/order" class="account-link">Đơn Hàng Của Tôi </router-link>
+                            <router-link to="/" class="account-link">Danh Sách Yêu Thích </router-link>
                             <div class="order-tracking">
                                 <h6>Theo dõi đơn hàng của tôi</h6>
                                 <div class="order-tracking-input">
@@ -90,10 +97,11 @@
                         <h3>Sản phẩm trong giỏ hàng:</h3>
                         <ul>
                             <li v-for="item in cartItems" :key="item.id">
-                                {{ item.title }} - {{ item.quantity }} x {{ item.original_price }}
+                                <img :src="item.book.image" alt="Product Image" class="product-image" />
+                                {{ item.book.title }} - {{ item.quantity }} x {{ item.price }}
                             </li>
                         </ul>
-
+                        
                         <!-- Các nút điều hướng -->
                         <div class="btn-cart">
                             <button @click="goToCart">Xem giỏ hàng</button>
@@ -110,6 +118,7 @@
 <script>
 import CartService from '@/service/CartService';
 import CategoryService from '@/service/CategoryService';
+import AuthorService from '@/service/AuthorService';
 import axios from 'axios';
 import { onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
@@ -121,7 +130,10 @@ export default {
         const cartItems = ref([]);
         const dropcart = ref(false);
         const cartItemCount = ref(0); // Thêm biến này để lưu số lượng sản phẩm trong giỏ hàng
+
         const categories = ref([]);
+        const authors = ref([]);
+
         const dropuser = ref(false);
         const isLoggedIn = ref(false);
         const user = ref(null);
@@ -149,8 +161,18 @@ export default {
                 console.error("Error loading categories:", error);
             }
         };
+        const loadAuthors = async () => {
+            try {
+                const response = await AuthorService.getAllAuthors();
+                categories.value = response.data;  // Gán đúng dữ liệu trả về từ API
+                console.log("Authors loaded:", authors.value);  // Kiểm tra xem danh mục có được tải về không
+            } catch (error) {
+                console.error("Error loading authors:", error);
+            }
+        };
+
         // URL API
-        const API_URL = 'https://backend.vothanhhoang.online/api/auth';
+        const API_URL = 'http://127.0.0.1:8000/api/auth';
 
         // Kiểm tra trạng thái đăng nhập
         const checkLoginStatus = () => {
@@ -239,6 +261,7 @@ export default {
         onMounted(() => {
             loadCart();
             loadCategories();
+            loadAuthors ();
             checkLoginStatus();
 
         });
@@ -256,6 +279,7 @@ export default {
             showuser,
             cartItemCount, // Trả về biến này để sử dụng trong template
             categories,
+            authors,
             isLoggedIn,
             user,
             logout,
@@ -316,11 +340,14 @@ export default {
 }
 
 .header-botton1 .logo img {
-    height: 50px;
+    height: 70px;
+    padding-left: 55px;
 }
 
 .header-botton1 .hidden-phone {
     font-size: 20px;
+    padding-right: 55px;
+
 
 }
 
@@ -372,8 +399,8 @@ export default {
     width: 400px;
     height: auto;
     position: absolute;
-    left: 95px;
-    top: 215px;
+    left: 132px;
+    top: 235px;
 }
 
 .divider {
@@ -402,10 +429,12 @@ export default {
 
 
 }
-
+/* .taikhoan {
+    background-color: #3f4895;
+} */
 .user-dropdown {
     position: absolute;
-    top: 215px;
+    top: 235px;
     right: 200px;
     width: 350px;
     padding: 15px;

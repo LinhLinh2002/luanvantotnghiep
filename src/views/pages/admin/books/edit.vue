@@ -225,14 +225,7 @@ const fetchPublishers = async () => {
     }
 };
 
-const fetchCoPublishers = async () => {
-    try {
-        const response = await CoPublisherService.getAllCoPublishers();
-        co_publishers.value = response.data;
-    } catch (error) {
-        alert('Lỗi khi tải danh sách đồng nhà xuất bản: ' + error.message);
-    }
-};
+
 
 const fetchTranslators = async () => {
     try {

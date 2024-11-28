@@ -619,6 +619,8 @@ export default {
             try {
                 await CartService.addToCart(bookId, 1);
                 alert('Sản phẩm đã được thêm vào giỏ hàng!');
+                window.location.reload();
+
             } catch (error) {
                 console.error('Error adding to cart:', error);
                 alert('Có lỗi xảy ra khi thêm vào giỏ hàng.');

@@ -47,7 +47,7 @@
                         </li>
                         <li>
                             <span class="label">Tác giả : </span>
-                            <span class="value">{{ book.author.name }}</span>
+                            <span class="value">{{ book.author }}</span>
                         </li>
                         <li>
                             <span class="label">Dịch giả : </span>
@@ -90,30 +90,22 @@
 
 <script>
 import BookService from '@/service/BookService';
-import CartService from '@/service/CartService.js';
-import FooterComponent from './Footer.vue';
+import CartService from '@/service/CartService';
 import HeaderComponent from './Header.vue';
+import FooterComponent from './Footer.vue';
 
 export default {
     name: 'BookDetails',
-    components: {
-        HeaderComponent,
-        FooterComponent
-    },
-    //props: ['id'],
+    components: { HeaderComponent, FooterComponent },
     data() {
         return {
             book: null,
-            bookId: null, // Lưu bookId trong data
-            activeTab: 'description', // Tab mặc định là Mô tả sản phẩm
-            cartItemCount: 0, // Thêm biến để lưu số lượng giỏ hàng
+            activeTab: 'description',
             quantity: 1, // Số lượng mặc định
-
         };
     },
     async mounted() {
-        const bookId = this.$route.params.id; // Lấy id từ params
-        console.log("bookId:", bookId); // In ra để kiểm tra
+        const bookId = this.$route.params.id;
         try {
             const response = await BookService.getBookById(bookId);
             this.book = response.data;
@@ -122,37 +114,15 @@ export default {
         }
     },
     methods: {
-        async addToCart(bookId, quantity = 1) {
-            const currentUser = JSON.parse(localStorage.getItem("currentUser"));
-            if (!currentUser || !currentUser.token) {
-                alert("Bạn cần đăng nhập để thêm sản phẩm vào giỏ hàng.");
-                router.push({ name: 'login' });
-                return;
-            }
-
+        async addToCart(bookId) {
             try {
-                const response = await axios.post(`${API_URL}/add`, {
-                    user_id: currentUser.user_id,
-                    book_id: bookId,
-                    quantity: quantity,
-                }, {
-                    headers: { Authorization: `Bearer ${currentUser.token}` }
-                });
-                console.log("Sản phẩm đã được thêm vào giỏ hàng:", response.data);
-                return response.data;
+                await CartService.addToCart(bookId,  this.quantity);
+                alert("Sản phẩm đã được thêm vào giỏ hàng thành công!");
+                window.location.reload();
             } catch (error) {
-                console.error("Lỗi khi thêm sản phẩm vào giỏ hàng:", error.response?.data || error);
-                throw error;
+                console.error("Lỗi khi thêm sản phẩm vào giỏ hàng:", error);
             }
         },
-
-
-        // Bạn có thể thêm một phương thức để xử lý đăng nhập người dùng và lưu trữ dữ liệu người dùng trong localStorage
-        async loginUser(response) {
-            localStorage.setItem("currentUser", JSON.stringify(response.data));
-            // console.log("Người dùng đã đăng nhập thành công:", response.data);
-        },
-
         increaseQuantity() {
             if (this.quantity < 99) {
                 this.quantity++;
@@ -162,10 +132,11 @@ export default {
             if (this.quantity > 1) {
                 this.quantity--;
             }
-        }
-    }
+        },
+    },
 };
 </script>
+
 
 <style>
 body {

@@ -80,7 +80,7 @@ export default {
             }
 
             try {
-                const response = await axios.post("https://backend.vothanhhoang.online/api/auth/register", this.register);
+                const response = await axios.post("http://127.0.0.1:8000/api/auth/register", this.register);
                 console.log("Đăng ký thành công:", response.data);
                 alert("Đăng ký thành công!");
                 this.$router.push({ name: 'login' });
@@ -101,159 +101,211 @@ export default {
 </script>
 
 <style>
+/* Reset */
 body {
     margin: 0;
     font-family: Verdana, Geneva, Tahoma, sans-serif;
 }
 
+/* Tổng thể trang */
 .login-page {
     background-color: #80a9e2;
     width: 100%;
-    height: 100%;
+    min-height: 100vh;
     padding-top: 50px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 .container {
     background-color: #e6edf7;
     border: 2px solid #fcfcfc;
-    width: 1200px;
-    height: 100%;
     display: flex;
-    max-width: 1200px;
-    margin: 0 auto;
-    justify-content: space-around;
-    padding: 10px;
+    justify-content: space-between;
+    padding: 20px;
     border-radius: 20px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    width: 90%;
+    max-width: 1200px;
+    min-height: 600px; /* Đảm bảo container luôn giữ chiều cao */
+}
+
+/* Hình ảnh */
+.img-login {
+    flex: 1; /* Phần hình ảnh chiếm một nửa chiều rộng */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 10px;
 }
 
 .img-login img {
-    width: 600px;
-    height: 100%;
+    width: 100%;
+    height: auto;
+    max-height: 100%; /* Đảm bảo hình không vượt quá chiều cao container */
     border-radius: 20px;
+    object-fit: cover; /* Đảm bảo ảnh không bị méo */
 }
 
+/* Form */
 .signin-page {
-    background-color: transparent;
-    width: 600px;
-    border-radius: 20px;
-    padding-left: 50px;
-    padding-top: -5px;
-
+    flex: 1; /* Phần form chiếm một nửa chiều rộng */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
 }
 
 h1 {
-    font-size: 30px;
+    font-size: 2rem;
     text-align: center;
-    padding-top: 40px;
     color: black;
     font-weight: normal;
-}
-
-h4 {
-    font-size: 16px;
-    font-weight: normal;
-    padding-bottom: 20px;
-    padding-left: 140px;
+    margin-bottom: 20px;
 }
 
 h6 {
     text-align: right;
-    font-size: 12px;
-    padding-right: 20px;
+    font-size: 14px;
+    margin-bottom: 20px;
+    width: 100%;
+    color: #4c5bb6;
 }
 
 h6 a {
     text-decoration: none;
     color: #4c5bb6;
+    font-weight: bold;
 }
 
 h6 a:hover {
     color: #80e4fc;
 }
 
+/* Input group */
 .input-group {
+    width: 100%;
+    max-width: 350px;
+    margin-bottom: 20px;
     position: relative;
-    margin: 20px;
-    padding-left: 90px;
 }
 
-.input-group ::placeholder {
-    color: #ccc;
-
-}
-
-.textname {
-    padding: 20px;
+.input-group input {
+    padding: 15px;
     border: 1px solid #ccc;
-    border-radius: 5px;
+    border-radius: 20px;
+    width: 400px; /* Tăng chiều rộng */
     outline: none;
-    width: 350px;
-    height: 30px;
+    font-size: 16px;
+    transition: border-color 0.3s;
 }
 
-.pass {
-    padding: 10px;
-    padding: 20px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    outline: none;
-    width: 350px;
-    height: 30px;
+.input-group input:focus {
+    border-color: #4c5bb6;
+    box-shadow: 0 0 4px #4c5bb6;
 }
 
-.forgot {
-    padding-left: 310px;
-    padding-bottom: 20px;
-}
-
-.forgot a {
-    text-decoration: none;
-    color: black;
-    font-size: 15px;
-}
-
-.forgot a:hover {
-    color: #e756b5;
-}
-
+/* Button */
 .btn-container {
+    width: 100%;
+    max-width: 350px;
     text-align: center;
+    margin-top: 20px;
 }
 
 .btn-In {
-    padding: 10px 1px;
+    padding: 12px;
     background-color: #4554b3;
-    border: 1px solid #e756b5;
-    cursor: pointer;
-    border-radius: 10px;
-    width: 340px;
-    height: 55px;
-    font-size: 17px;
+    border: none;
+    border-radius: 20px;
+    width: 400px;    font-size: 16px;
     color: #fff;
-    margin-left: 30px;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.2s;
 }
 
 .btn-In:hover {
     background-color: #e756b5;
+    transform: scale(1.05);
 }
 
-h5 {
+/* Tiếp tục với phần mạng xã hội */
+.conti-wit {
+    margin-top: 20px;
     text-align: center;
 }
 
-.conti-wit {
-    margin-top: 15px;
+.conti-wit h5 {
+    margin-bottom: 10px;
+    font-size: 14px;
+    color: #555;
 }
 
 .icon-container {
     display: flex;
     justify-content: center;
-    gap: 15px;
-    margin-top: 15px;
+    gap: 10px;
 }
 
 .icon-item img {
     height: 45px;
     width: 45px;
 }
+
+/* Responsive chỉnh sửa */
+@media (max-width: 768px) {
+    .container {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .img-login, .signin-page {
+        flex: unset;
+        width: 100%;
+    }
+
+    .img-login img {
+        max-height: 300px;
+    }
+
+    h1 {
+        font-size: 1.8rem;
+    }
+
+    .input-group input {
+        font-size: 14px;
+    }
+
+    .btn-In {
+        font-size: 14px;
+        padding: 10px;
+    }
+}
+
+@media (max-width: 480px) {
+    h1 {
+        font-size: 1.5rem;
+    }
+
+    h6 {
+        font-size: 12px;
+    }
+
+    .btn-In {
+        font-size: 14px;
+        padding: 8px;
+    }
+
+    .conti-wit h5 {
+        font-size: 12px;
+    }
+
+    .icon-item img {
+        height: 40px;
+        width: 40px;
+    }
+}
+
 </style>
