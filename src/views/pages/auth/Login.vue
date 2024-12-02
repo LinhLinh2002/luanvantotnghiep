@@ -19,7 +19,7 @@
                                 required>
                         </div>
                         <div class="forgot">
-                            <a href="">Forgot Password ? </a>
+                            <router-link to="/auth/forgot">Forgot Password ?</router-link>
                         </div>
 
                         <div class="btn-container">
@@ -208,13 +208,13 @@ h6 a:hover {
     margin: 10px 0;
 }
 
-.forgot a {
+.forgot router-link {
     text-decoration: none;
     color: black;
     font-size: 15px;
 }
 
-.forgot a:hover {
+.forgot router-link:hover {
     color: #e756b5;
 }
 

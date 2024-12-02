@@ -244,7 +244,7 @@ export default {
                 //     response: error.response ? error.response.data : "No response data",
                 //     config: error.config,
                 // });
-                alert("Không thể tải giỏ hàng. Vui lòng thử lại sau!");
+                //alert("Không thể tải giỏ hàng. Vui lòng thử lại sau!");
             }
         };
 
@@ -473,7 +473,12 @@ export default {
     /* Căn ô nhập và nút trên một dòng */
     width: 100%;
 }
-
+h3 {
+  text-align: center;
+  margin-bottom: 20px;
+  font-size: 24px;
+  color: #333;
+}
 .order-tracking input {
     flex: 1;
     padding: 5px;
@@ -540,7 +545,7 @@ export default {
 }
 
 .cart-dropdown {
-    width: 300px;
+    width: 400px;
     height: auto;
     position: absolute;
     top: 50px;

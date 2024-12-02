@@ -63,40 +63,42 @@
 
             <!-- Nếu có địa chỉ đã chọn -->
             <div v-if="selectedAddressInfo">
-              <div class="input-group">
-                <label for="name">Họ và tên</label>
-                <input v-model="selectedAddressInfo.name" type="text" id="name" placeholder="Nhập tên" required />
-              </div>
-              <div class="input-group">
-                <label for="phone">Số điện thoại</label>
-                <input v-model="selectedAddressInfo.phone" type="text" id="phone" placeholder="Nhập số điện thoại"
-                  required />
+              <div class="form-row">
+                <div class="input-group">
+                  <label for="name">Họ và tên</label>
+                  <input v-model="selectedAddressInfo.name" type="text" id="name" placeholder="Nhập tên" readonly />
+                </div>
+                <div class="input-group">
+                  <label for="phone">Số điện thoại</label>
+                  <input v-model="selectedAddressInfo.phone" type="text" id="phone" placeholder="Nhập số điện thoại"
+                    readonly />
+                </div>
+                <div class="input-group">
+                  <label for="email">Email</label>
+                  <input v-model="selectedAddressInfo.email" type="email" id="email" placeholder="Nhập email"
+                    readonly />
+                </div>
               </div>
               <div class="input-group">
                 <label for="address">Địa chỉ giao hàng</label>
                 <input v-model="selectedAddressInfo.street" type="text" id="address" placeholder="Nhập địa chỉ"
-                  required />
+                  readonly />
               </div>
-              <div class="input-group">
-                <label for="email">Email</label>
-                <input v-model="selectedAddressInfo.email" type="email" id="email" placeholder="Nhập email" required />
-              </div>
-
               <div class="form-row">
                 <div class="input-group">
                   <label for="province">Tỉnh/Thành</label>
                   <input v-model="selectedAddressInfo.province" type="text" id="province" placeholder="Nhập tỉnh/thành"
-                    required />
+                    readonly />
                 </div>
                 <div class="input-group">
                   <label for="district">Quận/Huyện</label>
                   <input v-model="selectedAddressInfo.district" type="text" id="district" placeholder="Nhập quận/huyện"
-                    required />
+                    readonly />
                 </div>
                 <div class="input-group">
                   <label for="ward">Xã/Phường</label>
                   <input v-model="selectedAddressInfo.ward" type="text" id="ward" placeholder="Nhập xã/phường"
-                    required />
+                    readonly />
                 </div>
 
               </div>
@@ -178,15 +180,15 @@
             <h3>3. Phương Thức Thanh Toán</h3>
             <div class="payment-method">
               <div>
-                <input type="radio" id="cod" v-model="paymentMethod" name="payment" value="cod" required />
+                <input type="radio" id="cod" v-model="paymentMethod" name="payment" value="cod" readonly />
                 <label for="cod">Thanh toán khi nhận hàng (COD)</label>
               </div>
               <div>
-                <input type="radio" id="momo" v-model="paymentMethod" name="payment" value="momo" required />
+                <input type="radio" id="momo" v-model="paymentMethod" name="payment" value="momo" readonly />
                 <label for="momo">Thanh toán bằng ví điện tử MOMO</label>
               </div>
               <div>
-                <input type="radio" id="vnpay" v-model="paymentMethod" name="payment" value="vnpay" required />
+                <input type="radio" id="vnpay" v-model="paymentMethod" name="payment" value="vnpay" readonly />
                 <label for="vnpay">Thanh toán bằng ví điện tử VNPAY</label>
               </div>
             </div>
@@ -223,11 +225,11 @@
             </div>
             <div class="summary-total">
               <span>Tổng cộng:</span>
-              <span>{{ formatCurrency(formattedTotal)}}</span>
+              <span>{{ formatCurrency(formattedTotal) }}</span>
             </div>
             <div class="summary-buttons">
               <router-link to="/cart" class="btn-back">Quay lại giỏ hàng</router-link>
-              <router-link to="" @click.prevent="checkoutOrder" class="btn-order">Đặt Mua</router-link>
+              <router-link to="/order" @click.prevent="checkoutOrder" class="btn-order">Đặt Mua</router-link>
             </div>
           </div>
         </div>
@@ -280,219 +282,232 @@ export default {
   computed: {
     // Tính tổng tiền bao gồm phí vận chuyển và chiết khấu
     formattedTotal() {
-    // Đảm bảo rằng các giá trị đều là kiểu số
-    const shippingFee = parseFloat(this.shippingFee) || 0; // Phí vận chuyển là 21000
-    const discount = parseFloat(this.discount) || 0; // Giá trị giảm giá
-    const total = parseFloat(this.total) || 0; // Tổng số tiền hiện tại
+      // Đảm bảo rằng các giá trị đều là kiểu số
+      const shippingFee = parseFloat(this.shippingFee) || 0; // Phí vận chuyển là 21000
+      const discount = parseFloat(this.discount) || 0; // Giá trị giảm giá
+      const total = parseFloat(this.total) || 0; // Tổng số tiền hiện tại
 
-    // Tính tổng số tiền
-    this.total_amount = total + shippingFee - discount;
+      // Tính tổng số tiền
+      this.total_amount = total + shippingFee - discount;
 
-    // Làm tròn kết quả đến 2 chữ số sau dấu phẩy
-    this.total_amount = parseFloat(this.total_amount.toFixed(2));
+      // Làm tròn kết quả đến 2 chữ số sau dấu phẩy
+      this.total_amount = parseFloat(this.total_amount.toFixed(2));
 
-    console.log('Tổng cộng:', this.total_amount);
+      console.log('Tổng cộng:', this.total_amount);
 
-    return this.total_amount;
+      return this.total_amount;
+    },
+    // Tính tổng số lượng sản phẩm trong giỏ hàng
+    totalQuantity() {
+      return this.cartItems.reduce((total, item) => total + item.quantity, 0);
+    },
+    // Tính tổng giá trị các sản phẩm trong giỏ hàng
+    total() {
+      return this.cartItems.reduce(
+        (total, item) => total + (item.quantity || 0) * (item.price || 0),
+        0
+      );
+    },
   },
-  // Tính tổng số lượng sản phẩm trong giỏ hàng
-  totalQuantity() {
-    return this.cartItems.reduce((total, item) => total + item.quantity, 0);
-  },
-  // Tính tổng giá trị các sản phẩm trong giỏ hàng
-  total() {
-    return this.cartItems.reduce(
-      (total, item) => total + (item.quantity || 0) * (item.price || 0),
-      0
-    );
-  },
-},
-methods: {
+  methods: {
     // Chọn địa chỉ giao hàng
     async updateAddressInfo() {
-    const selectedAddress = this.addresses.find(address => address.id === this.selectedAddress);
+      const selectedAddress = this.addresses.find(address => address.id === this.selectedAddress);
 
-    if (selectedAddress) {
-      // Lưu thông tin địa chỉ đã chọn
-      this.selectedAddressInfo = { ...selectedAddress };
+      if (selectedAddress) {
+        // Lưu thông tin địa chỉ đã chọn
+        this.selectedAddressInfo = { ...selectedAddress };
 
-      // Gọi API tính phí vận chuyển cho giỏ hàng
-      await this.updateShippingFee(selectedAddress);
+        // Gọi API tính phí vận chuyển cho giỏ hàng
+        await this.updateShippingFee(selectedAddress);
+      }
     }
-  }
     ,
     // Tính phí vận chuyển cho giỏ hàng
     async updateShippingFee() {
-    const addressId = this.selectedAddress; // Use this.selectedAddress to get the selected address ID
+      const addressId = this.selectedAddress; // Use this.selectedAddress to get the selected address ID
 
-    const currentUser = JSON.parse(localStorage.getItem("currentUser"));
-    const token = currentUser?.token?.access_token;
-    if (!token) {
-      console.error("Token không tồn tại. Người dùng có thể chưa đăng nhập.");
-    }
-
-    try {
-      const response = await axios.post(
-        'http://127.0.0.1:8000/api/checkout/shipping',
-        { address_id: addressId },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-
-      this.shippingFee = response.data.shipping_fee;  //  API returns shipping fee as `shipping_fee`
-      console.log('Phí vận chuyển:', response.data);
-      
-    } catch (error) {
-      if (error.response?.status === 401) {
-        console.error('Lỗi xác thực: Token không hợp lệ hoặc đã hết hạn');
-      } else {
-        console.error('Lỗi khác:', error);
+      const currentUser = JSON.parse(localStorage.getItem("currentUser"));
+      const token = currentUser?.token?.access_token;
+      if (!token) {
+        console.error("Token không tồn tại. Người dùng có thể chưa đăng nhập.");
       }
-    }
-    
-  },
-  
+
+      try {
+        const response = await axios.post(
+          'http://127.0.0.1:8000/api/checkout/shipping',
+          { address_id: addressId },
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+
+        this.shippingFee = response.data.shipping_fee;  //  API returns shipping fee as `shipping_fee`
+        console.log('Phí vận chuyển:', response.data);
+
+      } catch (error) {
+        if (error.response?.status === 401) {
+          console.error('Lỗi xác thực: Token không hợp lệ hoặc đã hết hạn');
+        } else {
+          console.error('Lỗi khác:', error);
+        }
+      }
+
+    },
+
 
     async loadCart() {
-    try {
-      const response = await CartService.getCart();
-      if (response && response.cart) {
-        this.cartItems = response.cart.items;
-        this.total = response.cart.subtotal || 0;  // Ensure total is set correctly
-      }
-    } catch (error) {
-      console.error('Lỗi khi tải giỏ hàng:', error);
-    }
-  },
-    async loadAddresses() {
-    try {
-      const response = await getAddresses();
-      this.addresses = response.data;
-      if (this.selectedAddress) {
-        const selected = this.addresses.find(address => address.id === this.selectedAddress);
-        if (selected) {
-          this.selectedAddressInfo = selected;
+      try {
+        const response = await CartService.getCart();
+        if (response && response.cart) {
+          this.cartItems = response.cart.items;
+          this.total = response.cart.subtotal || 0;  // Ensure total is set correctly
         }
+      } catch (error) {
+        console.error('Lỗi khi tải giỏ hàng:', error);
       }
-    } catch (error) {
-      console.error("Lỗi khi tải danh sách địa chỉ:", error);
-    }
-  },
+    },
+    async loadAddresses() {
+      try {
+        const response = await getAddresses();
+        this.addresses = response.data;
+        if (this.selectedAddress) {
+          const selected = this.addresses.find(address => address.id === this.selectedAddress);
+          if (selected) {
+            this.selectedAddressInfo = selected;
+          }
+        }
+      } catch (error) {
+        console.error("Lỗi khi tải danh sách địa chỉ:", error);
+      }
+    },
     // Áp dụng mã giảm giá
     async applyDiscount() {
-    if (!this.couponCode) {
-      alert("Vui lòng nhập mã giảm giá.");
-      return;
-    }
-
-    const currentUser = JSON.parse(localStorage.getItem("currentUser"));
-    const token = currentUser?.token?.access_token;
-
-    if (!token) {
-      console.error("Không tìm thấy token. Người dùng cần đăng nhập.");
-      alert("Bạn cần đăng nhập để xem giỏ hàng.");
-      router.push({ name: 'login' });  // Chuyển hướng đến trang đăng nhập
-      return;
-    }
-
-
-    try {
-      const response = await axios.post(
-        'http://127.0.0.1:8000/api/checkout/discount',
-        { code: this.couponCode },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-
-      // Xử lý kết quả từ API
-      this.discount = response.data.discount || 0;
-      console.log(this.discount);
-      this.discount_id = response.data.discount_id;
-      // Lưu giá trị giảm giá
-      alert(`Áp dụng mã giảm giá thành công! Bạn được giảm: ${this.formatCurrency(this.discount)}`);
-      return response.data;
-
-    } catch (error) {
-      console.error("Lỗi khi áp dụng mã giảm giá:", error);
-      if (error.response?.data?.message) {
-        alert(`Lỗi: ${error.response.data.message}`);
-      } else {
-        alert("Không thể áp dụng mã giảm giá. Vui lòng thử lại sau.");
+      if (!this.couponCode) {
+        alert("Vui lòng nhập mã giảm giá.");
+        return;
       }
-    }
-  },
-    async checkoutOrder() {
-    // Kiểm tra xem đã chọn địa chỉ và phương thức thanh toán chưa
-    if (!this.selectedAddress || !this.paymentMethod) {
-      alert("Vui lòng chọn địa chỉ và phương thức thanh toán.");
-      return;
-    }
 
-    const orderData = {
-      address_id: this.selectedAddress,
-      payment_method: this.paymentMethod,
-      shipping_fee: this.shippingFee,
-      discount_id: this.discount_id,
-      total_discount: parseFloat(this.discount),
-      total_amount: this.total_amount,
-      items: this.cartItems.map(item => ({
-        product_id: item.book.id,
-        quantity: item.quantity,
-        price: item.price,
-      })),
-    };
-    console.log(orderData);
+      const currentUser = JSON.parse(localStorage.getItem("currentUser"));
+      const token = currentUser?.token?.access_token;
 
-    const currentUser = JSON.parse(localStorage.getItem("currentUser"));
-    const token = currentUser?.token?.access_token;
-    if (!token) {
-      alert("Bạn cần đăng nhập để thực hiện thanh toán.");
-      this.$router.push({ name: 'login' });  // Chuyển hướng đến trang đăng nhập
-      return;
-    }
+      if (!token) {
+        console.error("Không tìm thấy token. Người dùng cần đăng nhập.");
+        alert("Bạn cần đăng nhập để xem giỏ hàng.");
+        router.push({ name: 'login' });  // Chuyển hướng đến trang đăng nhập
+        return;
+      }
 
-    try {
-      const response = await axios.post(
-        'http://127.0.0.1:8000/api/checkout',
-        orderData,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+
+      try {
+        const response = await axios.post(
+          'http://127.0.0.1:8000/api/checkout/discount',
+          { code: this.couponCode },
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+
+        // Xử lý kết quả từ API
+        this.discount = response.data.discount || 0;
+        console.log(this.discount);
+        this.discount_id = response.data.discount_id;
+        // Lưu giá trị giảm giá
+        alert(`Áp dụng mã giảm giá thành công! Bạn được giảm: ${this.formatCurrency(this.discount)}`);
+        return response.data;
+
+      } catch (error) {
+        console.error("Lỗi khi áp dụng mã giảm giá:", error);
+        if (error.response?.data?.message) {
+          alert(`Lỗi: ${error.response.data.message}`);
+        } else {
+          alert("Không thể áp dụng mã giảm giá. Vui lòng thử lại sau.");
         }
-      );
+      }
+    },
+    async checkoutOrder() {
+      // Kiểm tra xem đã chọn địa chỉ và phương thức thanh toán chưa
+      if (!this.selectedAddress || !this.paymentMethod) {
+        alert("Vui lòng chọn địa chỉ và phương thức thanh toán.");
+        return;
+      }
+
+      const orderData = {
+        address_id: this.selectedAddress,
+        payment_method: this.paymentMethod,
+        shipping_fee: this.shippingFee,
+        discount_id: this.discount_id,
+        discount: parseFloat(this.discount),
+        total_amount: this.total_amount,
+        items: this.cartItems.map(item => ({
+          product_id: item.book.id,
+          quantity: item.quantity,
+          price: item.price,
+        })),
+      };
       console.log(orderData);
- 
-        alert("Đặt hàng thành công!");
-      
-    } catch (error) {
-      console.error("Lỗi khi đặt hàng:", error);
-      alert("Đặt hàng không thành công. Vui lòng thử lại sau.");
+
+      const currentUser = JSON.parse(localStorage.getItem("currentUser"));
+      const token = currentUser?.token?.access_token;
+      if (!token) {
+        alert("Bạn cần đăng nhập để thực hiện thanh toán.");
+        this.$router.push({ name: 'login' });  // Chuyển hướng đến trang đăng nhập
+        return;
+      }
+
+      try {
+        const response = await axios.post(
+          'http://127.0.0.1:8000/api/checkout',
+          orderData,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+
+        // Kiểm tra phản hồi từ backend
+        if (response.data.vnpUrl) {
+          // Redirect đến VNPay
+          console.log('Redirecting to VNPay...');
+          window.location.href = response.data.vnpUrl;
+          router.push({ name: 'order' });  // Chuyển hướng đến trang đăng nhập
+        } else if (response.data.momoUrl) {
+          // Redirect đến MoMo
+          console.log('Redirecting to MoMo...');
+          window.location.href = response.data.momoUrl;
+        } else {
+          // Xử lý thanh toán COD hoặc thông báo lỗi
+          console.log('Xử lý thanh toán COD hoặc thông báo lỗi...');
+          //alert('Đơn hàng của bạn đã được xác nhận. Vui lòng kiểm tra email hoặc liên hệ CSKH.');
+        }
+      } catch (error) {
+        console.error("Lỗi khi đặt hàng:", error);
+        alert("Đặt hàng không thành công. Vui lòng thử lại sau.");
+      }
+    },
+
+
+
+
+    // Định dạng số tiền thành dạng 'x.xxx đ'
+    formatCurrency(value) {
+      // Hàm format tiền (ví dụ chuyển sang VND)
+      return value.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' });
+    },
+
+  },
+  created() {
+    this.loadCart();  // Call loadCart when component is created
+    this.loadAddresses();
+    if (this.selectedAddress) {
+      this.updateShippingFee(this.selectedAddress);
     }
   },
-
-
-
-  // Định dạng số tiền thành dạng 'x.xxx đ'
-  formatCurrency(value) {
-    // Hàm format tiền (ví dụ chuyển sang VND)
-    return value.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' });
-  },
-
-},
-created() {
-  this.loadCart();  // Call loadCart when component is created
-  this.loadAddresses();
-  if (this.selectedAddress) {
-    this.updateShippingFee(this.selectedAddress);
-  }
-},
 
 };
 </script>

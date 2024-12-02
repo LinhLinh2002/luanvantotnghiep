@@ -1,6 +1,6 @@
     <template>
         <HeaderComponent />
-
+        <Toast />
         <div v-if="book" class="book-details-container">
             <div class="book-image-description">
                 <div class="book-image">
@@ -91,8 +91,9 @@
 <script>
 import BookService from '@/service/BookService';
 import CartService from '@/service/CartService';
-import HeaderComponent from './Header.vue';
+import { useToast } from 'primevue/usetoast'; // Import useToast
 import FooterComponent from './Footer.vue';
+import HeaderComponent from './Header.vue';
 
 export default {
     name: 'BookDetails',
@@ -113,14 +114,32 @@ export default {
             console.error('Error loading book details:', error);
         }
     },
+    setup() {
+        const toast = useToast(); // Khai báo useToast
+        return {
+            toast, // Trả về để dùng trong methods
+        };
+    },
     methods: {
         async addToCart(bookId) {
             try {
-                await CartService.addToCart(bookId,  this.quantity);
-                alert("Sản phẩm đã được thêm vào giỏ hàng thành công!");
+                await CartService.addToCart(bookId, this.quantity);
+                this.toast.add({ // Truy cập toast từ setup()
+                    severity: 'success',
+                    summary: 'Thành công',
+                    detail: 'Sản phẩm đã được thêm vào giỏ hàng.',
+                    life: 3000,
+                });
                 window.location.reload();
+
             } catch (error) {
-                console.error("Lỗi khi thêm sản phẩm vào giỏ hàng:", error);
+                console.error('Lỗi khi thêm sản phẩm vào giỏ hàng:', error);
+                this.toast.add({
+                    severity: 'error',
+                    summary: 'Lỗi',
+                    detail: 'Không thể thêm sản phẩm vào giỏ hàng.',
+                    life: 3000,
+                });
             }
         },
         increaseQuantity() {
@@ -138,10 +157,21 @@ export default {
 </script>
 
 
+
 <style>
 body {
     background-color: #fff;
 }
+
+.p-toast {
+    font-size: 16px;
+    background-color: #f8f9fa;
+}
+
+.p-toast-message {
+    color: #495057;
+}
+
 
 .book-details-container {
     display: flex;

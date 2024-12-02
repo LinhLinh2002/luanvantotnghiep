@@ -87,7 +87,7 @@
                         <label>Giới Hạn Sử Dụng</label>
                         <input v-model="discountForm.usage_limit" type="number" required />
                     </div>
-                    
+
                     <div class="form-group checkbox-group">
                         <input v-model="discountForm.is_active" type="checkbox" id="isActive" />
                         <label for="isActive">Trạng Thái</label>
@@ -152,14 +152,17 @@ export default {
         };
 
         const createDiscount = async () => {
+            console.log('Sending data:', discountForm.value); // Kiểm tra dữ liệu gửi đi
             try {
-                await DiscountService.createDiscount(discountForm.value);
+                const response = await DiscountService.createDiscount(discountForm.value);
+                console.log('API response:', response.data); // Kiểm tra phản hồi từ API
                 await fetchDiscounts();
                 closeModal();
             } catch (error) {
-                console.error(error.message);
+                console.error('Error creating discount:', error.response?.data || error.message);
             }
         };
+
 
         const updateDiscount = async () => {
             try {

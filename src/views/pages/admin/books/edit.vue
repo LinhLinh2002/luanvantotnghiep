@@ -14,13 +14,24 @@
             </div>
             <div class="form-row">
                 <div class="form-group">
-                    <label for="author">Tác Giả:</label>
-                    <select v-model="book.author_id" class="form-control" required>
-                        <option v-for="author in authors" :key="author.id" :value="author.id">
-                            {{ author.name }}
-                        </option>
-                    </select>
+                    <label for="authors">Tác Giả:</label>
+                    <div class="dropdown">
+                        <button class="dropdown-toggle" @click.stop="toggleDropdown">
+                            Chọn Tác Giả
+                            <span class="caret"></span>
+                        </button>
+                        <div v-if="isDropdownOpen" class="dropdown-menu" @click.stop>
+                            <div v-for="author in authors" :key="author.id" class="dropdown-item">
+                                <label>
+                                    <input type="checkbox" :value="author.id" v-model="book.authors" />
+                                    {{ author.name }}
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    <p>Đã chọn: {{ selectedAuthors }}</p>
                 </div>
+
                 <div class="form-group">
                     <label for="translator">Dịch Giả:</label>
                     <select v-model="book.translator_id" class="form-control">
@@ -39,7 +50,7 @@
                         </option>
                     </select>
                 </div>
-                
+
             </div>
             <div class="form-row">
                 <div class="form-group">
@@ -105,8 +116,16 @@
                     <input type="number" v-model="book.number_pages" class="form-control" required />
                 </div>
                 <div class="form-group">
-                    <label for="size">Kích Thước:</label>
-                    <input type="text" v-model="book.size" class="form-control" required />
+                    <label for="size">Length:</label>
+                    <input type="text" v-model="book.length" class="form-control" required />
+                </div>
+                <div class="form-group">
+                    <label for="size">Width:</label>
+                    <input type="text" v-model="book.width" class="form-control" required />
+                </div>
+                <div class="form-group">
+                    <label for="size">Height:</label>
+                    <input type="text" v-model="book.height" class="form-control" required />
                 </div>
                 <div class="form-group">
                     <label for="weight">Trọng Lượng:</label>
@@ -125,6 +144,7 @@
 </template>
 
 <script setup>
+import { useRouter } from 'vue-router'; // Import useRouter correctly
 import AttributeService from '@/service/AttributeService';
 import AuthorService from '@/service/AuthorService';
 import BookService from '@/service/BookService';
@@ -132,8 +152,9 @@ import CategoryService from '@/service/CategoryService';
 import PublisherService from '@/service/PublisherService';
 import TranslatorService from '@/service/TranslatorService';
 import { useToast } from 'primevue/usetoast';
-import { onMounted, ref } from 'vue';
-import { useRouter } from 'vue-router';
+import { computed, onMounted, onUnmounted, ref } from 'vue';
+
+const isDropdownOpen = ref(false); // Trạng thái của dropdown
 
 const router = useRouter();
 const toast = useToast();
@@ -150,8 +171,19 @@ const languages = ref([]);
 const fetchBook = async (id) => {
     try {
         const response = await BookService.getBookById(id);
-        Object.assign(book.value, response.data);
-        imagePreview.value = response.data.image;
+        const bookData = response.data;
+
+        // Nếu API trả về danh sách authors dưới dạng object, map thành array các ID
+        if (Array.isArray(bookData.authors) && bookData.authors.length > 0 && typeof bookData.authors[0] === 'object') {
+            bookData.authors = bookData.authors.map((author) => author.id);
+        }
+
+        Object.assign(book.value, bookData);
+        // Kiểm tra các trường length, width, height
+        book.value.length = response.data.length || '';
+        book.value.width = response.data.width || '';
+        book.value.height = response.data.height || '';
+        imagePreview.value = bookData.image;
     } catch (error) {
         alert('Lỗi khi tải thông tin sách: ' + error.message);
     }
@@ -162,7 +194,7 @@ const updateBook = async () => {
         isbn: book.value.isbn,
         publisher_id: book.value.publisher_id,
         translator_id: book.value.translator_id,
-        author_id: book.value.author_id,
+        authors: book.value.authors, // Phải là một mảng các ID tác giả
         category_id: book.value.category_id,
         cover_type_id: book.value.cover_type_id,
         genre_id: book.value.genre_id,
@@ -173,7 +205,9 @@ const updateBook = async () => {
         discount_price: book.value.discount_price,
         published_year: book.value.published_year,
         number_pages: book.value.number_pages,
-        size: book.value.size,
+        length: book.value.length,
+        width: book.value.width,
+        height: book.value.height,
         weight: book.value.weight,
         status: book.value.status,
     };
@@ -181,19 +215,19 @@ const updateBook = async () => {
     if (book.value.image instanceof File) {
         payload.image = book.value.image;
     }
+
+    console.log('Payload:', payload);
+
     try {
         await BookService.updateBook(book.value.id, payload);
         toast.add({ severity: 'success', summary: 'Thành công', detail: 'Cập nhật sách thành công!', life: 3000 });
         router.push('/books');
     } catch (error) {
-        if (error.response) {
-            console.error('Lỗi dữ liệu:', error.response.data);
-            alert('Lỗi khi cập nhật sách: ' + JSON.stringify(error.response.data));
-        } else {
-            alert('Lỗi không xác định: ' + error.message);
-        }
+        console.error('Lỗi khi cập nhật sách:', error.response ? error.response.data : error.message);
+        alert('Lỗi khi cập nhật sách: ' + (error.response ? JSON.stringify(error.response.data) : error.message));
     }
 };
+
 
 
 
@@ -212,6 +246,22 @@ const fetchAuthors = async () => {
         authors.value = response.data;
     } catch (error) {
         alert('Lỗi khi tải danh sách tác giả: ' + error.message);
+    }
+};
+const toggleDropdown = (event) => {
+    event.stopPropagation(); // Ngăn không cho sự kiện click bên ngoài đóng ngay lập tức
+    isDropdownOpen.value = !isDropdownOpen.value;
+};
+const selectedAuthors = computed(() => {
+    return authors.value
+        .filter((author) => book.value.authors?.includes(author.id))
+        .map((author) => author.name)
+        .join(', ');
+});
+const handleClickOutside = (event) => {
+    // Kiểm tra xem sự kiện click có xảy ra ngoài dropdown không
+    if (!event.target.closest('.dropdown')) {
+        isDropdownOpen.value = false;
     }
 };
 
@@ -283,11 +333,16 @@ onMounted(() => {
     fetchCoverTypes();
     fetchLanguages();
 });
+onUnmounted(() => {
+    document.removeEventListener('click', handleClickOutside);
+});
+
 </script>
 
 <style scoped>
 .container {
     max-width: 100%;
+    /* Đặt chiều rộng tối đa là 100% */
     margin: auto;
     padding: 20px;
     border: 1px solid #ccc;
@@ -295,6 +350,7 @@ onMounted(() => {
     background-color: #ffffff;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
+
 
 h1 {
     text-align: center;
@@ -310,6 +366,73 @@ h1 {
     display: flex;
     flex-direction: column;
     flex: 1;
+    margin-right: 10px;
+}
+
+.dropdown {
+    position: relative;
+    width: 100%;
+}
+
+.dropdown-toggle {
+    width: 100%;
+    padding: 10px;
+    background-color: #f8f9fa;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    cursor: pointer;
+    text-align: left;
+}
+
+.dropdown-menu {
+    display: block;
+    /* Đảm bảo hiển thị */
+    position: absolute;
+    width: 100%;
+    background-color: white;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    max-height: 200px;
+    overflow-y: auto;
+    z-index: 1000;
+}
+
+.dropdown-item {
+    padding: 10px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.dropdown-item label {
+    margin: 0;
+    cursor: pointer;
+}
+
+.dropdown-item input[type="checkbox"] {
+    cursor: pointer;
+}
+
+.caret {
+    float: right;
+    margin-top: 5px;
+    border-top: 5px solid #333;
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
+}
+
+.dropdown-toggle:hover {
+    background-color: #e9ecef;
+}
+
+.dropdown-menu::-webkit-scrollbar {
+    width: 6px;
+}
+
+.dropdown-menu::-webkit-scrollbar-thumb {
+    background-color: #ccc;
+    border-radius: 4px;
 }
 
 .form-control {
@@ -321,7 +444,13 @@ h1 {
 
 .form-row {
     display: flex;
+    /* Sử dụng flexbox để sắp xếp các trường */
     justify-content: space-between;
+    /* Căn giữa các trường */
+}
+
+.form-group:last-child {
+    margin-right: 0;
 }
 
 .btn {

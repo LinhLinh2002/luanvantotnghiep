@@ -65,9 +65,9 @@ const router = createRouter({
                     component: () => import('@/views/pages/admin/users/index.vue')
                 },
                 {
-                    path: '/buys',
-                    name: 'buys',
-                    component: () => import('@/views/pages/admin/buys/index.vue')
+                    path: '/orders',
+                    name: 'orders',
+                    component: () => import('@/views/pages/admin/orders/index.vue')
                 },
 
                 //Form
@@ -204,6 +204,12 @@ const router = createRouter({
             path: '/order',
             name: 'order',
             component: () => import('@/views/pages/Home/Order.vue'),
+
+        },
+        {
+            path: '/order/:id',
+            name: 'orderdetails',
+            component: () => import('@/views/pages/Home/OrderDetails.vue'),
 
         },
         {

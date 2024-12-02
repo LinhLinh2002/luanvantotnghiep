@@ -113,17 +113,18 @@ const model = ref([
                 to: '/discount'
             },
             {
+                label: 'Orders',
+                icon: 'pi pi-fw pi-calendar',
+                to: '/orders'
+            },
+
+            {
                 label: 'Users',
                 icon: 'pi pi-fw pi-sign-in',
                 to: '/users'
             },
            
-            {
-                label: 'Orders',
-                icon: 'pi pi-fw pi-calendar',
-                to: '/buys'
-            },
-
+           
         ]
     },
 ]);

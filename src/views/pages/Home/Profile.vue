@@ -74,7 +74,7 @@
             <input v-model="newAddress.phone" type="text" id="phone" required />
           </div>
           <div>
-            <label for="phone">Email:</label>
+            <label for="email">Email:</label>
             <input v-model="newAddress.email" type="text" id="email" required />
           </div>
           <div>
@@ -116,7 +116,6 @@
           <button type="submit">{{ isEditing ? "Lưu Thay Đổi" : "Thêm Địa Chỉ" }}</button>
         </form>
         <button @click="cancelAddAddress" class="cancel-button">Hủy</button>
-
       </div>
     </div>
   </div>
@@ -146,7 +145,7 @@ export default {
     return {
       activeForm: "account",
       user: { name: "", email: "", password: '' },
-      addresses: [],  // stores the list of addresses
+      addresses: [],
       provinces: [],
       districts: [],
       wards: [],
@@ -169,7 +168,7 @@ export default {
   mounted() {
     this.loadUserInfo();
     this.loadProvinces();
-    this.loadAddresses();  // Load addresses after mounting the component
+    this.loadAddresses();
   },
   methods: {
     showForm(form) {
@@ -229,39 +228,56 @@ export default {
           id: ward.id,
           name: ward.name
         }));
-        this.newAddress.ward_id = null;
       } catch (error) {
         console.error("Lỗi khi tải danh sách phường/xã:", error);
       }
     },
-    async saveAddress() {
-      if (this.isEditing) {
-        await updateAddress(this.editingAddressId, this.newAddress);
-      } else {
-        await addAddress(this.newAddress);
-      }
-      this.loadAddresses();
-      this.cancelAddAddress();
-    },
-
-    cancelAddAddress() {
-      this.showAddAddressForm = false;
-      this.newAddress = { name: "", phone: "", street: "", email: "", address_type: "Home", is_default: false, province_id: null, district_id: null, ward_id: null };
-    },
-
     editAddress(address) {
       this.isEditing = true;
+      this.showAddAddressForm = true;
       this.editingAddressId = address.id;
       this.newAddress = { ...address };
-      this.showAddAddressForm = true;
     },
-    async deleteAddress(addressId) {
+    async saveAddress() {
       try {
-        await deleteAddress(addressId);
-        this.loadAddresses();  // Reload addresses after deletion
+        console.log("Saving address:", this.newAddress);
+        if (this.isEditing) {
+          await updateAddress(this.editingAddressId, this.newAddress);
+        } else {
+          await addAddress(this.newAddress);
+        }
+        this.loadAddresses();
+        this.cancelAddAddress();
       } catch (error) {
-        console.error("Lỗi khi xóa địa chỉ:", error);
+        console.error("Error saving address:", error);
       }
+    },
+    cancelAddAddress() {
+      this.showAddAddressForm = false;
+      this.isEditing = false;
+      this.newAddress = {
+        name: "",
+        phone: "",
+        street: "",
+        email: "",
+        address_type: "Home",
+        is_default: false,
+        province_id: null,
+        district_id: null,
+        ward_id: null,
+      };
+    },
+    async deleteAddress(id) {
+      try {
+        await deleteAddress(id);
+        this.loadAddresses();
+      } catch (error) {
+        console.error("Error deleting address:", error);
+      }
+    },
+    updateUserInfo() {
+      console.log("Updating user info:", this.user);
+      // Handle updating user info logic here
     }
   }
 };

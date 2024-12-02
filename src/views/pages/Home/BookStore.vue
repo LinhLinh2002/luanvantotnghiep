@@ -599,6 +599,7 @@ import BookService from '@/service/BookService';
 import HeaderComponent from './Header.vue';
 import FooterComponent from './Footer.vue';
 import CartService from '/src/service/CartService.js';
+import { useToast } from 'primevue/usetoast';
 
 export default {
     name: 'bookstores',
@@ -610,6 +611,7 @@ export default {
         const books = ref([]);
         const bestsellerBooks = ref([]);
         const currentUser = ref(null); // Thêm biến currentUser
+        const toast = useToast();
 
         const addToCart = async (bookId) => {
             if (!currentUser.value) {
@@ -618,7 +620,7 @@ export default {
             }
             try {
                 await CartService.addToCart(bookId, 1);
-                alert('Sản phẩm đã được thêm vào giỏ hàng!');
+                toast.add({ severity: 'success', summary: 'Thành công', detail: 'Tác giả đã được thêm', life: 3000 });
                 window.location.reload();
 
             } catch (error) {

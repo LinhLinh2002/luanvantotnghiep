@@ -55,7 +55,7 @@ class CartService {
                 }
             });
             console.log("Thêm vào giỏ hàng thành công:", response.data);
-            alert("Sản phẩm đã được thêm vào giỏ hàng!");
+            //alert("Sản phẩm đã được thêm vào giỏ hàng!");
         } catch (error) {
             console.error('Lỗi khi thêm vào giỏ hàng:', error.response?.data || error.message);
             alert("Không thể thêm sản phẩm vào giỏ hàng. Vui lòng thử lại.");
@@ -158,6 +158,7 @@ class CartService {
             throw error;
         }
     }
+    
 }
 
 export default new CartService();
