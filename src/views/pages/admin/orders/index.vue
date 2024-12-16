@@ -109,19 +109,19 @@ const formatOrderStatus = (status) => ({
 const fetchOrders = async () => {
     try {
         const currentUser = JSON.parse(localStorage.getItem("currentUser"));
-        if (!currentUser) {
+        if (!currentUser || !currentUser.token) {
             throw new Error("User is not logged in");
         }
 
-        // Gọi API lấy danh sách đơn hàng của admin
+        // Call API to fetch orders
         const response = await OrderService.getAdminOrders();
         orders.value = response;
-
     } catch (error) {
         console.error('Lỗi khi tải danh sách đơn hàng:', error);
-        toast.add({ severity: 'error', summary: 'Lỗi', detail: 'Không thể tải danh sách đơn hàng', life: 3000 });
+        toast.add({ severity: 'error', summary: 'Lỗi', detail: error.message, life: 3000 });
     }
 };
+
 
 // Mở modal sửa
 const openEditModal = (order) => {

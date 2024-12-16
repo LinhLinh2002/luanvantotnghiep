@@ -45,10 +45,10 @@
                             <span class="label">Số trang : </span>
                             <span class="value">{{ book.number_pages }}</span>
                         </li>
-                        <li>
+                        <!-- <li>
                             <span class="label">Tác giả : </span>
-                            <span class="value">{{ book.author }}</span>
-                        </li>
+                            <span class="value">{{ book.author.id }}</span>
+                        </li> -->
                         <li>
                             <span class="label">Dịch giả : </span>
                             <span class="value">{{ book.translator.name }}</span>
@@ -81,6 +81,11 @@
                     <button class="buy-button" @click="addToCart(book.id)">
                         <i class="bx bxs-cart"></i> Chọn Mua
                     </button>
+
+                    <button class="wishlist-button" @click="toggleWishlist(book.id)"
+                        :class="{ 'active-wishlist': isInWishlist }">
+                        <i class="bx bxs-heart"></i> Thêm vào yêu thích
+                    </button>
                 </div>
             </div>
         </div>
@@ -91,6 +96,7 @@
 <script>
 import BookService from '@/service/BookService';
 import CartService from '@/service/CartService';
+import WishlistService from '@/service/WishlistService'; // Import WishlistService
 import { useToast } from 'primevue/usetoast'; // Import useToast
 import FooterComponent from './Footer.vue';
 import HeaderComponent from './Header.vue';
@@ -103,6 +109,8 @@ export default {
             book: null,
             activeTab: 'description',
             quantity: 1, // Số lượng mặc định
+            isInWishlist: false, // Trạng thái yêu thích
+
         };
     },
     async mounted() {
@@ -110,6 +118,9 @@ export default {
         try {
             const response = await BookService.getBookById(bookId);
             this.book = response.data;
+
+            // Kiểm tra trạng thái yêu thích khi trang được load lại
+            await this.checkWishlistStatus(bookId);
         } catch (error) {
             console.error('Error loading book details:', error);
         }
@@ -142,6 +153,62 @@ export default {
                 });
             }
         },
+        async addToWishlist(bookId) {
+            try {
+                await WishlistService.addToWishlist(bookId); // Gọi API thêm vào danh sách yêu thích
+                this.isInWishlist = true; // Cập nhật trạng thái yêu thích
+                this.toast.add({
+                    severity: 'success',
+                    summary: 'Thành công',
+                    detail: 'Sách đã được thêm vào danh sách yêu thích.',
+                    life: 3000,
+                });
+            } catch (error) {
+                console.error('Lỗi khi thêm sản phẩm vào danh sách yêu thích:', error);
+                this.toast.add({
+                    severity: 'error',
+                    summary: 'Lỗi',
+                    detail: 'Không thể thêm sản phẩm vào danh sách yêu thích.',
+                    life: 3000,
+                });
+            }
+        },
+        async removeFromWishlist(bookId) {
+            try {
+                await WishlistService.removeFromWishlist(bookId); // Gọi API xóa khỏi danh sách yêu thích
+                this.isInWishlist = false; // Cập nhật trạng thái yêu thích
+                this.toast.add({
+                    severity: 'success',
+                    summary: 'Thành công',
+                    detail: 'Sách đã bị xóa khỏi danh sách yêu thích.',
+                    life: 3000,
+                });
+            } catch (error) {
+                console.error('Lỗi khi xóa sản phẩm khỏi danh sách yêu thích:', error);
+                this.toast.add({
+                    severity: 'error',
+                    summary: 'Lỗi',
+                    detail: 'Không thể xóa sản phẩm khỏi danh sách yêu thích.',
+                    life: 3000,
+                });
+            }
+        },
+        async toggleWishlist(bookId) {
+            if (this.isInWishlist) {
+                await this.removeFromWishlist(bookId); // Nếu sách đã có trong danh sách yêu thích, xóa nó
+            } else {
+                await this.addToWishlist(bookId); // Nếu sách chưa có trong danh sách yêu thích, thêm vào
+            }
+        },
+        async checkWishlistStatus(bookId) {
+            try {
+                const response = await WishlistService.getWishlist(); // Lấy danh sách yêu thích
+                this.isInWishlist = response.data.some(item => item.book_id === bookId); // Kiểm tra nếu sách có trong danh sách yêu thích
+            } catch (error) {
+                console.error('Lỗi khi kiểm tra trạng thái yêu thích:', error);
+            }
+        },
+
         increaseQuantity() {
             if (this.quantity < 99) {
                 this.quantity++;
@@ -366,5 +433,31 @@ body {
     transform: scale(1.05);
     /* Phóng to nhẹ khi hover */
 
+}
+
+.wishlist-button {
+    background-color: white;
+    border: 1px solid #ccc;
+    color: #ccc;
+    cursor: pointer;
+    padding: 10px;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+.wishlist-button.active-wishlist {
+    background-color: #f44336;
+    color: white;
+}
+
+.wishlist-button i {
+    margin-right: 5px;
+}
+
+.wishlist-button:hover {
+    background-color: #f0f0f0;
+}
+
+.wishlist-button.active-wishlist:hover {
+    background-color: #f44336;
 }
 </style>

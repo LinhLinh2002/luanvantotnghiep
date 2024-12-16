@@ -95,7 +95,7 @@
             <div class="form-row">
                 <div class="form-group">
                     <label for="quantity">Số Lượng:</label>
-                    <input type="number" v-model="book.quantity" class="form-control" required />
+                    <input type="number" v-model="book.quantity" class="form-control" required min="0" />
                 </div>
                 <div class="form-group">
                     <label for="original_price">Giá Gốc:</label>
@@ -287,14 +287,20 @@ const createBook = async () => {
 
     for (const key in book.value) {
         if (key === "authors" && Array.isArray(book.value[key])) {
-            formData.append(key, JSON.stringify(book.value[key])); // JSON.stringify để gửi đúng định dạng
+            // Nếu là mảng tác giả, append từng giá trị vào FormData
             book.value.authors.forEach((id) => {
                 formData.append('authors[]', id);
             });
-
         } else if (book.value[key] !== null && book.value[key] !== '') {
+            // Các giá trị khác được append bình thường
             formData.append(key, book.value[key]);
         }
+    }
+
+    // Kiểm tra số lượng trước khi gửi
+    if (book.value.quantity < 0) {
+        alert("Số lượng sản phẩm không thể là số âm!");
+        return;
     }
 
     // Kiểm tra log FormData gửi đi
@@ -303,6 +309,7 @@ const createBook = async () => {
     }
 
     try {
+        // Gửi yêu cầu tạo sách qua API
         await BookService.createBook(formData);
         showToast('Thêm sách thành công!');
         router.push('/books');

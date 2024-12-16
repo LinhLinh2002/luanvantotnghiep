@@ -21,9 +21,12 @@
                 </div>
                 <div class="icon">
                     <div class="hidden-phone">
-                        <a href="" class="like">
+                        <router-link to="/wishlist" class="like">
                             <i class='bx bx-heart'></i>
-                        </a>
+                            <!-- Hiển thị số lượng nếu có -->
+                            <span v-if="wishlistItemCount > 0" class="wishlist-count">{{ wishlistItemCount }}</span>
+                        </router-link>
+
                         <a href="#" class="call">
                             <span><i class='bx bx-phone-call'></i></span> 1900 6656
                         </a>
@@ -38,22 +41,99 @@
                     <i class='bx bx-grid-alt' @click="ShowDrop"></i>
 
                 </div>
-                <ul class="dropd" v-if="drop">
-                    <span>Danh Muc 
-                        <li v-for="category in categories" :key="category.id">
-                        {{ category.name }}
-                    </li>
-                    </span>
-                    <span>Tác Giả
-                        <li v-for="author in authors " :key="author.id">
-                            {{ author.name }}
-                        </li>
-                    </span>
-                </ul>
+                <div id="overlay" class="overlay" @click="closeDropdown"></div>
+
+                <div class="dropd" v-if="drop">
+                    <div class="span-column">
+                        <span @click="selectCategory('categories')">Danh Mục</span>
+                        <span @click="selectCategory('authors')">Tác Giả</span>
+                        <span @click="selectCategory('publishers')">Nhà Xuất Bản</span>
+                        <span @click="selectCategory('translators')">Dịch Giả</span>
+                        <span @click="selectCategory('genres')">Thể Loại</span>
+                        <span @click="selectCategory('languages')">Ngôn Ngữ</span>
+                    </div>
+                    <div class="divider-danhmuc"></div>
+
+                    <div class="li-column">
+
+                        <ul v-if="showSthing">
+                            <li v-for="category in categories" :key="category.id">
+                                <router-link
+                                    :to="{ name: 'FilterBooks', query: { type: 'categories', id: category.id } }"
+                                    class="router-link">
+                                    {{ category.name }}
+                                </router-link>
+                            </li>
+                        </ul>
+
+                        <ul v-if="selectedCategory == 'categories'">
+                            <li v-for="category in categories" :key="category.id">
+                                <router-link
+                                    :to="{ name: 'FilterBooks', query: { type: 'categories', id: category.id } }"
+                                    class="router-link">
+                                    {{ category.name }}
+                                </router-link>
+                            </li>
+                        </ul>
+
+
+                        <ul v-if="selectedCategory === 'authors'">
+                            <li v-for="author in authors" :key="author.id">
+                                <router-link :to="{ name: 'FilterBooks', query: { type: 'authors', id: author.id } }"
+                                    class="router-link">
+                                    {{ author.name }}
+                                </router-link>
+                            </li>
+                        </ul>
+
+                        <ul v-if="selectedCategory === 'publishers'">
+                            <li v-for="publisher in publishers" :key="publisher.id">
+                                <router-link
+                                    :to="{ name: 'FilterBooks', query: { type: 'publishers', id: publisher.id } }"
+                                    class="router-link">
+                                    {{ publisher.name }}
+                                </router-link>
+                            </li>
+                        </ul>
+
+                        <ul v-if="selectedCategory === 'translators'">
+                            <li v-for="translator in translators" :key="translator.id">
+                                <router-link
+                                    :to="{ name: 'FilterBooks', query: { type: 'translators', id: translator.id } }"
+                                    class="router-link">
+                                    {{ translator.name }}
+                                </router-link>
+                            </li>
+                        </ul>
+
+                        <ul v-if="selectedCategory === 'genres'">
+                            <li v-for="genre in genres" :key="genre.id">
+                                <router-link :to="{ name: 'FilterBooks', query: { type: 'genres', id: genre.id } }"
+                                    class="router-link">
+                                    {{ genre.name }}
+                                </router-link>
+                            </li>
+                        </ul>
+
+                        <ul v-if="selectedCategory === 'languages'">
+                            <li v-for="language in languages" :key="language.id">
+                                <router-link
+                                    :to="{ name: 'FilterBooks', query: { type: 'languages', id: language.id } }"
+                                    class="router-link">
+                                    {{ language.name }}
+                                </router-link>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+
 
                 <div class="timkiem">
-                    <input type="text" placeholder="Muôn kiếp nhân sinh" />
-                    <button type="submit" class="btn"><i class='bx bx-search-alt-2'></i></button>
+                    <input v-model="searchQuery" type="text" placeholder="Muôn kiếp nhân sinh" />
+                    <button @click="searchBooks" type="button" class="btn">
+                        <i class='bx bx-search-alt-2'></i>
+                    </button>
                 </div>
 
                 <div class="taikhoan">
@@ -65,7 +145,7 @@
                             <router-link to="/profile" class="account-link">Tài Khoản Của Tôi </router-link>
 
                             <router-link to="/order" class="account-link">Đơn Hàng Của Tôi </router-link>
-                            <router-link to="/" class="account-link">Danh Sách Yêu Thích </router-link>
+                            <router-link to="/wishlist" class="account-link">Danh Sách Yêu Thích </router-link>
                             <div class="order-tracking">
                                 <h6>Theo dõi đơn hàng của tôi</h6>
                                 <div class="order-tracking-input">
@@ -97,11 +177,11 @@
                         <h3>Sản phẩm trong giỏ hàng:</h3>
                         <ul>
                             <li v-for="item in cartItems" :key="item.id">
-                                <img :src="item.book.image" alt="Product Image" class="product-image" />
-                                {{ item.book.title }} - {{ item.quantity }} x {{ item.price }}
+                                <img :src="item.book.image" alt="Product Image" class="product-image" /><br>
+                                {{ item.book.title }} <br> {{ item.quantity }} x {{ item.price }}
                             </li>
                         </ul>
-                        
+
                         <!-- Các nút điều hướng -->
                         <div class="btn-cart">
                             <button @click="goToCart">Xem giỏ hàng</button>
@@ -116,24 +196,49 @@
 </template>
 
 <script>
+import AttributeService from '@/service/AttributeService';
+import AuthorService from '@/service/AuthorService';
 import CartService from '@/service/CartService';
 import CategoryService from '@/service/CategoryService';
-import AuthorService from '@/service/AuthorService';
+import PublisherService from '@/service/PublisherService';
+import TranslatorService from '@/service/TranslatorService';
 import axios from 'axios';
 import { onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
+import WishlistService from '@/service/WishlistService';
+
+
 export default {
     name: "HeaderComponent",
     setup() {
+        const searchQuery = ref(''); // Make searchQuery reactive
         const router = useRouter();
         const drop = ref(false);
         const cartItems = ref([]);
         const dropcart = ref(false);
         const cartItemCount = ref(0); // Thêm biến này để lưu số lượng sản phẩm trong giỏ hàng
+        const selectedCategory = ref(""); // Dùng để lưu trữ danh mục được chọn
+        const selectedAuthor = ref(""); // Dùng để lưu trữ danh mục được chọn
 
         const categories = ref([]);
         const authors = ref([]);
+        const publishers = ref([]);
+        const translators = ref([]);
+        const genres = ref([]);
+        const languages = ref([]);
 
+        const wishlistItemCount = ref(0); // Biến này lưu trữ số lượng sách yêu thích
+
+        // Hàm lấy danh sách yêu thích và cập nhật số lượng
+        const loadWishlist = async () => {
+            try {
+                const response = await WishlistService.getWishlist();
+                wishlistItemCount.value = wishlist.length; // Cập nhật số lượng sách yêu thích
+            } catch (error) {
+                console.error("Error loading wishlist:", error);
+            }
+        };
+        
         const dropuser = ref(false);
         const isLoggedIn = ref(false);
         const user = ref(null);
@@ -142,52 +247,102 @@ export default {
             drop.value = !drop.value;
             console.log("Dropdown visible:", drop.value);
         };
+        const currentUser = JSON.parse(localStorage.getItem("currentUser"));
+        const token = currentUser?.token?.access_token;
+
         const showcart = () => {
-            dropcart.value = !dropcart.value;
+            if (currentUser) {
+                dropcart.value = !dropcart.value;
+
+            } else {
+                alert("Bạn cần đăng nhập để xem giỏ hàng!");
+            }
+
             console.log("Giỏ hàng hiển thị:", dropcart.value);
         };
+
         const showuser = () => {
             dropuser.value = !dropuser.value;
         }
+
         const goToBookstore = () => {
             router.push({ name: "bookstore" }); // Navigate to the bookstore route
         };
+
         const loadCategories = async () => {
             try {
                 const response = await CategoryService.getAllCategories();
-                categories.value = response.data;  // Gán đúng dữ liệu trả về từ API
-                console.log("Categories loaded:", categories.value);  // Kiểm tra xem danh mục có được tải về không
+                categories.value = response.data;
+                console.log("Categories loaded:", categories.value);
             } catch (error) {
                 console.error("Error loading categories:", error);
             }
         };
+
         const loadAuthors = async () => {
             try {
                 const response = await AuthorService.getAllAuthors();
-                categories.value = response.data;  // Gán đúng dữ liệu trả về từ API
-                console.log("Authors loaded:", authors.value);  // Kiểm tra xem danh mục có được tải về không
+                authors.value = response.data;
+                console.log("Authors loaded:", authors.value);
             } catch (error) {
                 console.error("Error loading authors:", error);
             }
         };
 
-        // URL API
+        const loadPublishers = async () => {
+            try {
+                const response = await PublisherService.getAllPublishers();
+                publishers.value = response.data;
+                console.log("Publishers loaded:", publishers.value);
+            } catch (error) {
+                console.error("Error loading publishers:", error);
+            }
+        };
+
+        const loadTranslators = async () => {
+            try {
+                const response = await TranslatorService.getAllTranslators();
+                translators.value = response.data;
+                console.log("Translators loaded:", translators.value);
+            } catch (error) {
+                console.error("Error loading translators:", error);
+            }
+        };
+
+        const loadGenres = async () => {
+            try {
+                const response = await AttributeService.getAllGenres();
+                genres.value = response.data;
+                console.log("Genres loaded:", genres.value);
+            } catch (error) {
+                console.error("Error loading genres:", error);
+            }
+        };
+
+        const loadLanguages = async () => {
+            try {
+                const response = await AttributeService.getAllLanguages();
+                languages.value = response.data;
+                console.log("Languages loaded:", languages.value);
+            } catch (error) {
+                console.error("Error loading languages:", error);
+            }
+        };
+
         const API_URL = 'http://127.0.0.1:8000/api/auth';
 
-        // Kiểm tra trạng thái đăng nhập
         const checkLoginStatus = () => {
             const currentUser = localStorage.getItem("currentUser");
             console.log('line 156:', currentUser)
             if (currentUser) {
                 isLoggedIn.value = true;
-                user.value = JSON.parse(currentUser);  // Lấy thông tin người dùng từ localStorage
+                user.value = JSON.parse(currentUser);
             } else {
                 isLoggedIn.value = false;
                 user.value = null;
             }
         };
 
-        // Hàm đăng xuất
         const logout = async () => {
             try {
                 const currentUser = localStorage.getItem("currentUser");
@@ -220,7 +375,7 @@ export default {
                 if (error.response?.status === 401) {
                     alert("Phiên đăng nhập đã hết hạn, vui lòng đăng nhập lại.");
                     localStorage.removeItem("currentUser");
-                    router.push({ name: "login" }); //web đang out ở trạng thái này
+                    router.push({ name: "login" });
                 } else {
                     console.error("Lỗi không xác định:", error);
                     alert("Đăng xuất không thành công. Vui lòng thử lại.");
@@ -228,8 +383,6 @@ export default {
             }
         };
 
-
-        // Hàm tải giỏ hàng từ API
         const loadCart = async () => {
             try {
                 const response = await CartService.getCart();
@@ -238,35 +391,63 @@ export default {
                 console.log("cartItems:", cartItems, cartItems.value)
                 cartItemCount.value = cartItems.value.reduce((total, item) => total + item.quantity, 0);
             } catch (error) {
-                console.log('215:',error)
-                // console.error("Error loading cart:", {
-                //     message: error.message,
-                //     response: error.response ? error.response.data : "No response data",
-                //     config: error.config,
-                // });
-                //alert("Không thể tải giỏ hàng. Vui lòng thử lại sau!");
+                console.log('215:', error)
             }
         };
 
-        // Điều hướng đến trang giỏ hàng
         const goToCart = () => {
             window.location.href = '/cart';
         };
 
-        // Xử lý thanh toán
         const checkout = () => {
             window.location.href = '/checkout';
         };
+        const searchBooks = async () => {
+            if (!searchQuery.value.trim()) {
+                console.log("Từ khóa tìm kiếm trống!");
+                return; // Nếu từ khóa tìm kiếm trống thì không thực hiện tìm kiếm
+            }
+
+            try {
+                const response = await axios.get(`http://127.0.0.1:8000/api/books/search`, {
+                    params: { query: searchQuery.value }
+                });
+                console.log("Kết quả tìm kiếm:", response.data.data); // Kiểm tra dữ liệu trả về
+                // Redirect to the search result page or display the results
+                router.push({ name: "SearchResults", query: { query: searchQuery.value } });
+            } catch (error) {
+                console.error("Lỗi khi tìm kiếm sách:", error); // Hiển thị lỗi nếu có
+            }
+        };
 
         onMounted(() => {
+            loadWishlist();
             loadCart();
             loadCategories();
-            loadAuthors ();
+            loadAuthors();
+            loadPublishers();
+            loadTranslators();
+            loadGenres();
+            loadLanguages();
             checkLoginStatus();
-
+            searchBooks();
         });
+        const showSthing = ref("true")
+        // Thêm hàm để xử lý sự kiện chọn danh mục
+        const selectCategory = (category) => {
+            selectedCategory.value = category;
+            showSthing.value = false;
+        };
+        const selectAuthor = (author) => {
+            selectedAuthor.value = author;
+            showSthing.value = false;
+        };
 
         return {
+            wishlistItemCount: 0,  // Khai báo biến để lưu trữ số lượng sách yêu thích
+            searchBooks: '', // Biến lưu trữ từ khóa tìm kiếm
+            searchQuery,
+            showSthing,
             goToBookstore,
             drop,
             ShowDrop,
@@ -277,20 +458,27 @@ export default {
             showcart,
             dropuser,
             showuser,
-            cartItemCount, // Trả về biến này để sử dụng trong template
-            categories,
-            authors,
+            cartItemCount,
             isLoggedIn,
+            currentUser,
+            token,
             user,
             logout,
+            languages,
+            genres,
+            translators,
+            publishers,
+            categories,
+            authors,
+            selectedCategory,
+            selectCategory, // Trả về hàm để sử dụng trong template
+            selectedAuthor,
+            selectAuthor
         };
     }
 };
-
-// const cart = ref();
-// api => cart.value
-
 </script>
+
 
 <style>
 .wrapper-header {
@@ -393,15 +581,123 @@ export default {
     border-radius: 10px;
     padding: 0px 2px;
 }
-
+.wishlist-count {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    background-color: red;
+    color: white;
+    border-radius: 50%;
+    padding: 5px;
+    font-size: 12px;
+}
+/* Dropdown menu styling */
 .dropd {
-    background-color: rgb(238, 235, 241);
-    width: 400px;
-    height: auto;
+    display: flex;
     position: absolute;
     left: 132px;
     top: 235px;
+    background-color: #ffffff;
+    border-radius: 8px;
+    padding: 15px;
+    overflow: hidden;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+    width: 800px;
+    z-index: 1000;
+    transition: all 0.3s ease;
+    text-align: center;
 }
+
+.dropd .divider-danhmuc {
+    width: 1px;
+    background-color: #6c6bc2;
+    /* Màu sắc của đường gạch */
+    margin: 0 15px;
+    /* Khoảng cách bên trái và bên phải của đường gạch */
+}
+
+/* Styling for the columns inside the dropdown */
+.dropd .span-column,
+.dropd .li-column {
+    flex: 1;
+    /* Equal width for both columns */
+    padding: 10px;
+}
+
+.drop .span-column {
+    border-right: 3px dashed #999;
+    /* Đường thẳng phân cách */
+
+}
+
+/* Styling for individual span items */
+.dropd .span-column span {
+    display: block;
+    padding: 10px 15px;
+    background-color: #f9f9f9;
+    margin-bottom: 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+
+}
+
+/* Hover effect for span items */
+.dropd .span-column span:hover {
+    background-color: #034784;
+    /* Blue background on hover */
+    color: white;
+    transform: translateX(5px);
+    /* Slight right shift on hover */
+}
+
+/* Hover effect for li items */
+.dropd .li-column li {
+    padding: 10px 15px;
+    cursor: pointer;
+    background-color: #ffffff;
+    border-bottom: 1px solid #eaeaea;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+}
+
+.dropd .li-column li:hover {
+    background-color: #f1f1f1;
+    transform: translateX(5px);
+    /* Slight right shift on hover */
+}
+
+/* Adjusting padding for dropdown items */
+.dropd .span-column span,
+.dropd .li-column li {
+    border-radius: 6px;
+    padding: 8px 16px;
+}
+
+
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+    .dropd {
+        width: 90%;
+        /* Make dropdown take up more width on smaller screens */
+        left: 5%;
+        display: block;
+    }
+
+    .dropd .span-column,
+    .dropd .li-column {
+        flex: none;
+        width: 100%;
+    }
+
+    .dropd .divider {
+        display: none;
+        /* Hide divider on small screens */
+    }
+}
+
+
+
 
 .divider {
     margin: 20px auto;
@@ -429,6 +725,7 @@ export default {
 
 
 }
+
 /* .taikhoan {
     background-color: #3f4895;
 } */
@@ -473,12 +770,14 @@ export default {
     /* Căn ô nhập và nút trên một dòng */
     width: 100%;
 }
+
 h3 {
-  text-align: center;
-  margin-bottom: 20px;
-  font-size: 24px;
-  color: #333;
+    text-align: center;
+    margin-bottom: 20px;
+    font-size: 24px;
+    color: #333;
 }
+
 .order-tracking input {
     flex: 1;
     padding: 5px;

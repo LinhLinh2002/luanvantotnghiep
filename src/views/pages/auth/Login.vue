@@ -1,50 +1,53 @@
-    <template>
-        <div class="login-page">
-            <div class="container">
-                <div class="img-login">
-                    <img src="https://img.freepik.com/free-vector/gradient-glossary-illustration_23-2150261251.jpg?t=st=1728623406~exp=1728627006~hmac=8c4fa9967947c37a81c1931bc9b3ef70fb6bf9942a23aaf0fa4e2cc676afb893&w=740"
-                        alt="" class="img">
-                </div>
-                <div class="signin-page">
-                    <form @submit.prevent="loginUser">
-                        <h6>Not A Member? <a @click.prevent="goToRegister" class="Signuplink">Register now</a></h6>
-                        <h1>Hello Again! Login</h1>
-                        <!-- <h4> Wellcome back you been missed</h4> -->
+<template>
+    <div class="login-page">
+        <div class="container">
+            <div class="img-login">
+                <img src="https://img.freepik.com/free-vector/gradient-glossary-illustration_23-2150261251.jpg?t=st=1728623406~exp=1728627006~hmac=8c4fa9967947c37a81c1931bc9b3ef70fb6bf9942a23aaf0fa4e2cc676afb893&w=740"
+                    alt="login-image" class="img">
+            </div>
+            <div class="signin-page">
+                <form @submit.prevent="loginUser">
+                    <h6>Not A Member? <a @click.prevent="goToRegister" class="Signuplink">Register now</a></h6>
+                    <h1>Hello Again! Login</h1>
 
-                        <div class="input-group">
-                            <input type="email" v-model="login.email" class="textname" placeholder="Email" required>
-                        </div>
-                        <div class="input-group">
-                            <input type="password" v-model="login.password" class="pass" placeholder="Password"
-                                required>
-                        </div>
-                        <div class="forgot">
-                            <router-link to="/auth/forgot">Forgot Password ?</router-link>
-                        </div>
+                    <div class="input-group">
+                        <input type="email" v-model="login.email" class="input-field" placeholder="Email" required>
+                    </div>
+                    <div class="input-group">
+                        <input type="password" v-model="login.password" class="input-field" placeholder="Password"
+                            required>
+                    </div>
 
-                        <div class="btn-container">
-                            <button class="btn-In">Sign In</button>
-                        </div>
+                    <div class="forgot">
+                        <router-link to="/auth/forgot">Forgot Password ?</router-link>
+                    </div>
 
-                        <div class="conti-wit">
-                            <h5> Or continue with</h5>
-                            <div class="icon-container">
-                                <div class="icon-item">
-                                    <img src="https://nhasachphuongnam.com/design/themes/responsive/media/images/addons/hybrid_auth/icons/flat_32x32/google.png"
-                                        alt="" class="">
-                                </div>
+                    <div class="btn-container">
+                        <button class="btn-signin">Sign In</button>
+                    </div>
 
+                    <div class="conti-wit">
+                        <h5> Or continue with</h5>
+                        <div class="icon-container">
+                            <div class="icon-item">
+                                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/Google_%22G%22_logo.svg/800px-Google_%22G%22_logo.svg.png"
+                                    alt="google-login" class="social-icon" @click="loginWithGoogle">
+                            </div>
+                            <div class="icon-item">
+                                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/05/Facebook_Logo_%282019%29.png/768px-Facebook_Logo_%282019%29.png"
+                                    alt="facebook-login" class="social-icon" @click="loginWithFacebook">
                             </div>
                         </div>
-                    </form>
-
-                </div>
+                    </div>
+                </form>
             </div>
         </div>
-    </template>
+    </div>
+</template>
 
 <script>
 import AuthService from '@/service/AuthService';
+import axios from 'axios';
 
 export default {
     name: 'Login',
@@ -76,7 +79,7 @@ export default {
                 // Call the login function from authService
                 const response = await AuthService.login(this.login);
                 console.log("Đăng nhập thành công:", response);
-                
+
                 // Navigate to the bookstore page after login
                 this.$router.push({ name: 'bookstore' });
             } catch (error) {
@@ -84,6 +87,85 @@ export default {
                 alert("Đăng nhập thất bại! Vui lòng thử lại.");
             }
         },
+        loginWithGoogle() {
+            // Call backend to get the Google login URL
+            axios.get('http://127.0.0.1:8000/api/auth/google')
+                .then(response => {
+                    // Redirect user to Google login URL
+                    window.location.href = response.data.url;
+
+
+
+                })
+                .catch(error => {
+                    console.error("Error during Google login:", error);
+                });
+        },
+        handleGoogleCallback() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const code = urlParams.get('code'); // Lấy mã code từ URL
+            if (code) {
+                axios
+                    .post('http://localhost:8000/api/auth/google/callback', { code })
+                    .then((response) => {
+                        console.log('Login Response:', response.data);
+
+                        // Lưu token và thông tin user vào localStorage
+                        localStorage.setItem(
+                            'access_token',
+                            response.data.access_token.access_token
+                        );
+                        localStorage.setItem('user', JSON.stringify(response.data.user));
+                        aler('ok, 120')
+                        // Chuyển hướng tới trang bookstore
+                        next('/bookstore');
+                    })
+                    .catch((error) => {
+                        console.error('Error during login:', error);
+                        alert('Login failed!');
+                    });
+            }
+        },
+
+
+        loginWithFacebook() {
+            // Gửi yêu cầu đến backend để lấy URL đăng nhập Facebook
+            axios.get('http://127.0.0.1:8000/api/auth/facebook')
+                .then(response => {
+                    // Chuyển hướng người dùng đến URL đăng nhập của Facebook
+                    window.location.href = response.data.url;
+                })
+                .catch(error => {
+                    console.error("Lỗi khi đăng nhập bằng Facebook:", error);
+                });
+        },
+
+
+        async handleFacebookCallback() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const code = urlParams.get('code'); // Lấy mã code từ URL
+
+            if (code) {
+                try {
+                    const response = await axios.post('http://127.0.0.1:8000/api/auth/facebook/callback', { code });
+                    const { accessToken, user } = response.data;
+
+                    // Lưu token và thông tin user vào localStorage
+                    localStorage.setItem('access_token', accessToken);
+                    localStorage.setItem('user', JSON.stringify(user));
+
+                    // Chuyển hướng tới trang bookstore
+                    this.$router.push({ name: 'bookstore' });
+                } catch (error) {
+                    console.error('Error during Facebook login:', error);
+                    alert('Login failed!');
+                }
+            } else {
+                alert('Mã code không tồn tại!');
+            }
+        },
+
+
         goToRegister() {
             this.$router.push({ name: 'register' });
         },
@@ -91,72 +173,75 @@ export default {
             const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
             return re.test(email);
         }
-    }
+
+    },
+    mounted() {
+        this.handleGoogleCallback(); // Gọi khi component load
+    },
+
 }
 </script>
 
-
-<style>
+<style scoped>
 /* Reset mặc định */
 body {
     margin: 0;
-    font-family: Verdana, Geneva, Tahoma, sans-serif;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     display: flex;
     justify-content: center;
     align-items: center;
     min-height: 100vh;
-    background-color: #80a9e2;
-
+    background-color: #f1f5f9;
 }
 
 .login-page {
-
     width: 100%;
     padding: 20px;
 }
 
 .container {
     display: flex;
-    flex-wrap: wrap; /* Đảm bảo phần tử xuống dòng khi không đủ không gian */
+    flex-wrap: wrap;
     justify-content: center;
     align-items: center;
-    background-color: rgb(218, 228, 237);
+    background-color: #ffffff;
     border: 2px solid #3b92c5;
     border-radius: 20px;
     padding: 20px;
-    gap: 20px; /* Khoảng cách giữa các phần tử */
+    gap: 20px;
     max-width: 1200px;
     margin: auto;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
 }
 
 .img-login {
-    flex: 1; /* Chia đều không gian giữa hình và form */
+    flex: 1;
     display: flex;
     justify-content: center;
     align-items: center;
-    max-width: 500px; /* Giới hạn chiều rộng tối đa */
+    max-width: 500px;
 }
 
 .img-login img {
-    width: 100%; /* Hình ảnh tự động co giãn */
-    max-width: 500px; /* Giới hạn chiều rộng tối đa */
-    aspect-ratio: 1; /* Giữ tỉ lệ vuông */
-    object-fit: cover; /* Đảm bảo hình không bị méo */
+    width: 100%;
+    max-width: 500px;
     border-radius: 20px;
+    object-fit: cover;
+    aspect-ratio: 1;
 }
 
 .signin-page {
-    flex: 1; /* Chia đều không gian giữa hình và form */
-    max-width: 500px; /* Giới hạn chiều rộng tối đa */
+    flex: 1;
+    max-width: 500px;
     background-color: transparent;
     border-radius: 20px;
     padding: 20px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
 }
 
 h1 {
     text-align: center;
-    color: black;
-    font-weight: normal;
+    color: #333;
     font-size: 28px;
     margin-bottom: 20px;
 }
@@ -177,31 +262,24 @@ h6 a:hover {
 }
 
 .input-group {
-    display: flex;
-    justify-content: center;
-    margin: 10px 0;
-
+    margin: 15px 0;
 }
 
-.textname,
-.pass {
+.input-field {
     width: 100%;
-    max-width: 400px;
     padding: 15px;
     border: 1px solid #ccc;
-    border-radius: 20px;
-    outline: none;
+    border-radius: 30px;
     font-size: 16px;
-    transition: border-color 0.3s ease, box-shadow 0.3s ease; /* Thêm hiệu ứng mượt */
+    background-color: #f9f9f9;
+    outline: none;
+    transition: border-color 0.3s, box-shadow 0.3s;
 }
 
-.textname:focus,
-.pass:focus {
-    border-color: #4c5bb6; /* Viền màu xanh */
-    box-shadow: 0 0 5px rgba(76, 91, 182, 0.5); /* Ánh sáng nhẹ */
-    outline: none; /* Bỏ viền mặc định */
+.input-field:focus {
+    border-color: #3b92c5;
+    box-shadow: 0 0 5px rgba(59, 146, 197, 0.5);
 }
-
 
 .forgot {
     text-align: end;
@@ -210,7 +288,7 @@ h6 a:hover {
 
 .forgot router-link {
     text-decoration: none;
-    color: black;
+    color: #333;
     font-size: 15px;
 }
 
@@ -223,63 +301,75 @@ h6 a:hover {
     margin: 20px 0;
 }
 
-.btn-In {
+.btn-signin {
     padding: 15px;
     background-color: #4554b3;
     border: 1px solid #e756b5;
     cursor: pointer;
-    border-radius: 20px;
+    border-radius: 30px;
     width: 100%;
     max-width: 400px;
     font-size: 17px;
     color: #fff;
+    transition: background-color 0.3s;
 }
 
-.btn-In:hover {
+.btn-signin:hover {
     background-color: #e756b5;
 }
 
 h5 {
     text-align: center;
+    margin-top: 20px;
+    color: #333;
 }
 
 .conti-wit {
-    margin-top: 15px;
+    margin-top: 20px;
 }
 
 .icon-container {
     display: flex;
     justify-content: center;
-    gap: 15px;
+    gap: 20px;
     margin-top: 15px;
 }
 
-.icon-item img {
-    height: 45px;
-    width: 45px;
+.icon-item {
+    cursor: pointer;
+}
+
+.social-icon {
+    width: 40px;
+    height: 40px;
+    object-fit: contain;
+    transition: transform 0.3s;
+}
+
+.social-icon:hover {
+    transform: scale(1.1);
 }
 
 /* Responsive design */
 @media (min-width: 768px) {
     .container {
-        flex-direction: row; /* Hiển thị ngang khi màn hình lớn */
+        flex-direction: row;
     }
 
-    .img-login, 
+    .img-login,
     .signin-page {
-        flex: 1; /* Chia đều không gian giữa hình ảnh và form */
-        max-width: none; /* Cho phép tự co giãn */
+        flex: 1;
     }
 }
 
 @media (max-width: 768px) {
     .container {
-        flex-direction: column; /* Hiển thị dọc khi màn hình nhỏ */
+        flex-direction: column;
     }
 
-    .img-login img, 
+    .img-login img,
     .signin-page {
-        max-width: 100%; /* Đảm bảo chiếm toàn bộ chiều ngang */
+        max-width: 100%;
     }
 }
 
@@ -292,14 +382,12 @@ h5 {
         font-size: 10px;
     }
 
-    .textname,
-    .pass {
+    .input-field {
         font-size: 14px;
     }
 
-    .btn-In {
+    .btn-signin {
         font-size: 15px;
     }
 }
-
 </style>

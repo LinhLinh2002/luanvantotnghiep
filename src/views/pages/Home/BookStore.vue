@@ -139,12 +139,9 @@
                     <a href="">Thiếu Nhi</a>
                 </div>
                 <div class="product-list-sell">
-                    <router-link 
-                        v-for="book in bestsellerBooks" 
-                        :key="book.id" 
-                        :to="{ name: 'bookdetails', params: { id: book.id } }" 
-                        class="product-card-sell">
-                        
+                    <router-link v-for="book in bestsellerBooks" :key="book.id"
+                        :to="{ name: 'bookdetails', params: { id: book.id } }" class="product-card-sell">
+
                         <div class="cart-icon-sell"></div>
                         <img :src="book.image" alt="Product Image" class="product-image">
                         <p class="product-name-sell">{{ book.title }}</p>
@@ -166,12 +163,9 @@
                     <a href="">Tuổi Mới Lớn</a>
                 </div>
                 <div class="product-list-sell-1">
-                    <router-link 
-                        v-for="book in books" 
-                        :key="book.id"
-                        :to="{ name: 'bookdetails', params: { id: book.id } }" 
-                        class="product-card-sell-1">
-                         
+                    <router-link v-for="book in books" :key="book.id"
+                        :to="{ name: 'bookdetails', params: { id: book.id } }" class="product-card-sell-1">
+
                         <div class="cart-icon-sell"></div>
                         <img :src="book.image" alt="Product Image" />
                         <p class="product-name-sell">{{ book.title }}</p>
@@ -179,9 +173,9 @@
                         <button class="product-button-sell" @click.prevent="addToCart(book.id)">
                             <i class="bx bxs-cart"></i> Chọn Mua
                         </button>
-                    
+
                     </router-link>
-                   
+
                 </div>
 
             </div>
@@ -231,12 +225,9 @@
                     <a href="">Sách Tham Khảo</a>
                 </div>
                 <div class="product-list-sell">
-                    <router-link 
-                        v-for="book in bestsellerBooks" 
-                        :key="book.id" 
-                        :to="{ name: 'bookdetails', params: { id: book.id } }" 
-                        class="product-card-sell">
-                        
+                    <router-link v-for="book in bestsellerBooks" :key="book.id"
+                        :to="{ name: 'bookdetails', params: { id: book.id } }" class="product-card-sell">
+
                         <div class="cart-icon-sell"></div>
                         <img :src="book.image" alt="Product Image" class="product-image">
                         <p class="product-name-sell">{{ book.title }}</p>
@@ -245,7 +236,7 @@
                             <i class="bx bxs-cart"></i> Chọn Mua
                         </button>
                     </router-link>
-                </div>  
+                </div>
             </div>
             <div class="pic">
                 <img src="https://nhasachphuongnam.com/images/promo/292/0655fcef07fca1a2f8ed.jpg" alt="" class="">
@@ -588,18 +579,18 @@
 
     </div>
 
-            <FooterComponent />
+    <FooterComponent />
 
 
 </template>
 
 <script>
-import { onMounted, ref } from 'vue';
 import BookService from '@/service/BookService';
-import HeaderComponent from './Header.vue';
-import FooterComponent from './Footer.vue';
-import CartService from '/src/service/CartService.js';
 import { useToast } from 'primevue/usetoast';
+import { onMounted, ref } from 'vue';
+import FooterComponent from './Footer.vue';
+import HeaderComponent from './Header.vue';
+import CartService from '/src/service/CartService.js';
 
 export default {
     name: 'bookstores',
@@ -614,10 +605,7 @@ export default {
         const toast = useToast();
 
         const addToCart = async (bookId) => {
-            if (!currentUser.value) {
-                alert('Bạn cần đăng nhập để thêm sản phẩm vào giỏ hàng.');
-                return;
-            }
+
             try {
                 await CartService.addToCart(bookId, 1);
                 toast.add({ severity: 'success', summary: 'Thành công', detail: 'Tác giả đã được thêm', life: 3000 });

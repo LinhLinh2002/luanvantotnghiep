@@ -18,6 +18,7 @@ export default {
   removeToken() {
     localStorage.removeItem('currentUser');
   },
+  
   setToken(token) {
     localStorage.setItem('token', token);  // Lưu token vào localStorage
   },
@@ -42,6 +43,7 @@ export default {
     } catch (error) {
       throw error; // Propagate the error so it can be handled in the component
     }
-  }
-};
+  },
 
+  
+};

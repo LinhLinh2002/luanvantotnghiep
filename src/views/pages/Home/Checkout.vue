@@ -195,6 +195,12 @@
           </div>
         </form>
 
+        <div v-if="isPaymentSuccess" class="payment-success">
+          <h2>Thanh toán thành công!</h2>
+          <p>Đơn hàng của bạn đã được xác nhận.</p>
+          <button @click="goToOrderPage" class="btn-success">Xem đơn hàng</button>
+        </div>
+
         <!-- Cột bên phải -->
         <div class="checkout-summary">
           <!-- Mã giảm giá -->
@@ -242,6 +248,7 @@
 
 <script>
 import axios from 'axios';
+import router from '@/router';
 
 import {
   getAddresses
@@ -264,6 +271,7 @@ export default {
       shippingFee: 0,  // Phí vận chuyển
       discount: 0,
       couponCode: '', // Mã giảm giá nhập từ người dùng
+      isPaymentSuccess: false, // Trạng thái thanh toán thành công
 
       paymentMethod: 'cod',// Mặc định chọn COD
       selectedAddress: '',
@@ -335,7 +343,7 @@ export default {
 
       try {
         const response = await axios.post(
-          'http://127.0.0.1:8000/api/checkout/shipping',
+          'http://127.0.0.1:8000/api/auth/checkout/shipping',
           { address_id: addressId },
           {
             headers: {
@@ -403,7 +411,7 @@ export default {
 
       try {
         const response = await axios.post(
-          'http://127.0.0.1:8000/api/checkout/discount',
+          'http://127.0.0.1:8000/api/auth/checkout/discount',
           { code: this.couponCode },
           {
             headers: {
@@ -429,6 +437,7 @@ export default {
         }
       }
     },
+
     async checkoutOrder() {
       // Kiểm tra xem đã chọn địa chỉ và phương thức thanh toán chưa
       if (!this.selectedAddress || !this.paymentMethod) {
@@ -453,6 +462,7 @@ export default {
 
       const currentUser = JSON.parse(localStorage.getItem("currentUser"));
       const token = currentUser?.token?.access_token;
+
       if (!token) {
         alert("Bạn cần đăng nhập để thực hiện thanh toán.");
         this.$router.push({ name: 'login' });  // Chuyển hướng đến trang đăng nhập
@@ -461,7 +471,7 @@ export default {
 
       try {
         const response = await axios.post(
-          'http://127.0.0.1:8000/api/checkout',
+          'http://127.0.0.1:8000/api/auth/checkout',
           orderData,
           {
             headers: {
@@ -470,20 +480,21 @@ export default {
           }
         );
 
-        // Kiểm tra phản hồi từ backend
         if (response.data.vnpUrl) {
           // Redirect đến VNPay
           console.log('Redirecting to VNPay...');
           window.location.href = response.data.vnpUrl;
-          router.push({ name: 'order' });  // Chuyển hướng đến trang đăng nhập
+          this.isPaymentSuccess = false; // Trạng thái thanh toán đang chờ xử lý
+
         } else if (response.data.momoUrl) {
           // Redirect đến MoMo
           console.log('Redirecting to MoMo...');
-          window.location.href = response.data.momoUrl;
+          //window.location.href = response.data.momoUrl;
+          this.isPaymentSuccess = false; // Trạng thái thanh toán đang chờ xử lý
+
         } else {
           // Xử lý thanh toán COD hoặc thông báo lỗi
-          console.log('Xử lý thanh toán COD hoặc thông báo lỗi...');
-          //alert('Đơn hàng của bạn đã được xác nhận. Vui lòng kiểm tra email hoặc liên hệ CSKH.');
+          alert('Đơn hàng của bạn đã được xác nhận. Vui lòng kiểm tra email hoặc liên hệ CSKH.');
         }
       } catch (error) {
         console.error("Lỗi khi đặt hàng:", error);
@@ -491,7 +502,53 @@ export default {
       }
     },
 
+    // Xử lý callback VNPay
+    async handleVNPayCallback(urlParams) {
+      try {
+        
+        const response = await this.$axios.get('http://127.0.0.1:8000/api/vnpay/callback', { params: urlParams });
 
+        if (response.data.RspCode === '00') {
+          // Thanh toán thành công
+          this.isPaymentSuccess = true;
+          console.log(this.isPaymentSuccess);
+          this.$router.push({ name: 'order' }); // Chuyển đến trang xác nhận đơn hàng
+
+        } else {
+          console.log('Thanh toán thất bại:', response.data.Message);
+          alert('Thanh toán thất bại. Vui lòng thử lại.');
+        }
+      } catch (error) {
+        console.error('Lỗi callback VNPay:', error);
+      }
+    },
+
+    async handleMoMoCallback(urlParams) {
+      try {
+        const response = await axios.get(
+          'http://127.0.0.1:8000/momo/callback',
+          { params: urlParams }
+        );
+
+        if (response.data.resultCode === '0') {
+          // Thanh toán thành công
+          alert("Thanh toán thành công!");
+          this.isPaymentSuccess = true;
+          console.log(this.isPaymentSuccess);
+          this.$router.push({ name: 'order' });  // Chuyển đến trang xác nhận đơn hàng
+
+        } else {
+          alert("Thanh toán thất bại hoặc bị hủy. Vui lòng thử lại.");
+        }
+      } catch (error) {
+        console.error("Lỗi callback MoMo:", error);
+        alert("Lỗi khi xử lý callback. Vui lòng thử lại sau.");
+      }
+    },
+
+    goToOrderPage() {
+      this.$router.push('/order');
+    },
 
 
     // Định dạng số tiền thành dạng 'x.xxx đ'
@@ -501,9 +558,26 @@ export default {
     },
 
   },
+
+  mounted() {
+    // Lấy các tham số từ URL
+    const urlParams = new URLSearchParams(window.location.search);
+
+    // Kiểm tra callback từ VNPay
+    if (urlParams.has('vnp_SecureHash')) {
+      this.handleVNPayCallback(urlParams);
+    }
+
+    // Kiểm tra callback từ MoMo
+    if (urlParams.has('resultCode')) {
+      this.handleMoMoCallback(urlParams);
+    }
+  },
+
   created() {
     this.loadCart();  // Call loadCart when component is created
     this.loadAddresses();
+
     if (this.selectedAddress) {
       this.updateShippingFee(this.selectedAddress);
     }
@@ -597,7 +671,7 @@ h2 {
 }
 
 .checkout-container {
-  width: 1180px;
+  width: 1280px;
   margin: 20px auto;
   padding: 20px;
   background-color: #fff;

@@ -29,15 +29,7 @@
                         <button class="btn-In" value="Save">Sign Up</button>
                     </div>
 
-                    <div class="conti-wit">
-                        <h5>Or continue with</h5>
-                        <div class="icon-container">
-                            <div class="icon-item">
-                                <img src="https://nhasachphuongnam.com/design/themes/responsive/media/images/addons/hybrid_auth/icons/flat_32x32/google.png"
-                                    alt="">
-                            </div>
-                        </div>
-                    </div>
+                    
                 </form>
 
             </div>

@@ -24,6 +24,7 @@ const router = createRouter({
                     name: 'books',
                     component: () => import('@/views/pages/admin/books/index.vue')
                 },
+
                 {
                     path: '/books/add',
                     name: 'book_add',
@@ -171,6 +172,16 @@ const router = createRouter({
             component: () => import('@/views/pages/Home/BookStore.vue')
         },
         {
+            path: '/filter-books',
+            name: 'FilterBooks',
+            component: () => import('@/views/pages/Home/FilterBooks.vue')
+            ,
+            props: (route) => ({
+                type: route.query.type || null,
+                id: route.query.id || null,
+            }),
+        },
+        {
             path: '/index2',
             name: 'index',
             component: () => import('@/views/pages/Home/index.vue')
@@ -213,6 +224,12 @@ const router = createRouter({
 
         },
         {
+            path: '/wishlist',
+            name: 'wishlist',
+            component: () => import('@/views/pages/Home/WishlistPage.vue'),
+
+        },
+        {
             path: '/pages/notfound',
             name: 'notfound',
             component: () => import('@/views/pages/NotFound.vue')
@@ -228,6 +245,11 @@ const router = createRouter({
             path: '/auth/forgot',
             name: 'forgot',
             component: () => import('@/views/pages/auth/Forgot.vue')
+        },
+        {
+            path: '/auth/reset',
+            name: 'resertpassword',
+            component: () => import('@/views/pages/auth/Resetpassword.vue')
         },
         {
             path: '/auth/register',
