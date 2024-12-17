@@ -84,8 +84,11 @@
 
                     <button class="wishlist-button" @click="toggleWishlist(book.id)"
                         :class="{ 'active-wishlist': isInWishlist }">
-                        <i class="bx bxs-heart"></i> Thêm vào yêu thích
+                        <i class="bx bxs-heart"></i>
+                        <span v-if="isInWishlist">Bỏ yêu thích</span>
+                        <span v-else>Thêm vào yêu thích</span>
                     </button>
+
                 </div>
             </div>
         </div>
@@ -155,8 +158,9 @@ export default {
         },
         async addToWishlist(bookId) {
             try {
-                await WishlistService.addToWishlist(bookId); // Gọi API thêm vào danh sách yêu thích
-                this.isInWishlist = true; // Cập nhật trạng thái yêu thích
+                await WishlistService.addToWishlist(bookId);
+                this.isInWishlist = true;
+                localStorage.setItem('wishlist_' + bookId, true); // Lưu vào localStorage
                 this.toast.add({
                     severity: 'success',
                     summary: 'Thành công',
@@ -165,49 +169,89 @@ export default {
                 });
             } catch (error) {
                 console.error('Lỗi khi thêm sản phẩm vào danh sách yêu thích:', error);
-                this.toast.add({
-                    severity: 'error',
-                    summary: 'Lỗi',
-                    detail: 'Không thể thêm sản phẩm vào danh sách yêu thích.',
-                    life: 3000,
-                });
             }
         },
+
         async removeFromWishlist(bookId) {
             try {
-                await WishlistService.removeFromWishlist(bookId); // Gọi API xóa khỏi danh sách yêu thích
-                this.isInWishlist = false; // Cập nhật trạng thái yêu thích
-                this.toast.add({
-                    severity: 'success',
-                    summary: 'Thành công',
-                    detail: 'Sách đã bị xóa khỏi danh sách yêu thích.',
-                    life: 3000,
-                });
+                console.log("Gửi yêu cầu xóa sách với ID:", bookId);
+
+                const response = await WishlistService.removeFromWishlist(bookId);
+
+                console.log("Kết quả từ API:", response);
+
+                // Nếu API trả về thành công
+                if (response.status === 200) {
+                    this.isInWishlist = false;
+                    this.toast.add({
+                        severity: "success",
+                        summary: "Thành công",
+                        detail: "Sách đã bị xóa khỏi danh sách yêu thích.",
+                        life: 3000,
+                    });
+                }
             } catch (error) {
-                console.error('Lỗi khi xóa sản phẩm khỏi danh sách yêu thích:', error);
-                this.toast.add({
-                    severity: 'error',
-                    summary: 'Lỗi',
-                    detail: 'Không thể xóa sản phẩm khỏi danh sách yêu thích.',
-                    life: 3000,
-                });
+                if (error.response) {
+                    console.error("Lỗi API:", error.response.data);
+
+                    // Nếu lỗi 404
+                    if (error.response.status === 404) {
+                        this.toast.add({
+                            severity: "warn",
+                            summary: "Không tìm thấy",
+                            detail: `Sách với ID ${bookId} không tồn tại trong danh sách yêu thích.`,
+                            life: 3000,
+                        });
+                    }
+                } else {
+                    console.error("Lỗi không xác định:", error);
+                    this.toast.add({
+                        severity: "error",
+                        summary: "Lỗi",
+                        detail: "Không thể kết nối với server.",
+                        life: 3000,
+                    });
+                }
             }
         },
+
+
+        async updateWishlist() {
+            try {
+                const response = await WishlistService.getWishlist();
+                this.wishlist = response.data; // Cập nhật danh sách yêu thích
+                console.log("Danh sách yêu thích được cập nhật:", this.wishlist);
+            } catch (error) {
+                console.error("Lỗi khi lấy danh sách yêu thích:", error);
+            }
+        },
+
+
         async toggleWishlist(bookId) {
             if (this.isInWishlist) {
-                await this.removeFromWishlist(bookId); // Nếu sách đã có trong danh sách yêu thích, xóa nó
+                await this.removeFromWishlist(bookId); // Xóa khỏi danh sách yêu thích
             } else {
-                await this.addToWishlist(bookId); // Nếu sách chưa có trong danh sách yêu thích, thêm vào
+                await this.addToWishlist(bookId); // Thêm vào danh sách yêu thích
             }
+            await this.checkWishlistStatus(bookId); // Xác minh trạng thái sau thay đổi
         },
+
         async checkWishlistStatus(bookId) {
             try {
                 const response = await WishlistService.getWishlist(); // Lấy danh sách yêu thích
-                this.isInWishlist = response.data.some(item => item.book_id === bookId); // Kiểm tra nếu sách có trong danh sách yêu thích
+                console.log('Dữ liệu trả về từ API:', response.data);
+                console.log('Book ID cần kiểm tra:', bookId);
+
+                // Kiểm tra trạng thái yêu thích
+                this.isInWishlist = response.data.some(item => Number(item.book_id) === Number(bookId));
+                console.log('isInWishlist sau khi kiểm tra:', this.isInWishlist);
             } catch (error) {
                 console.error('Lỗi khi kiểm tra trạng thái yêu thích:', error);
             }
         },
+
+
+
 
         increaseQuantity() {
             if (this.quantity < 99) {

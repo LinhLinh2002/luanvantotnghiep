@@ -182,6 +182,12 @@ const router = createRouter({
             }),
         },
         {
+            path: '/search',
+            name: 'SearchResults',
+            component: () => import('@/views/pages/Home/SearchResults.vue'),
+            props: (route) => ({ query: route.query.query }) // Truyền query dưới dạng props
+          },
+        {
             path: '/index2',
             name: 'index',
             component: () => import('@/views/pages/Home/index.vue')

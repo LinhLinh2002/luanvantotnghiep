@@ -3,6 +3,7 @@ import router from '../router';
 
 const API_URL = 'http://127.0.0.1:8000/api/auth/orders'; // URL API cho đơn hàng
 const ADMIN_API_URL = 'http://127.0.0.1:8000/api/admin/orders'; // URL API cho đơn hàng của admin
+const DASHBOARD_API_URL = 'http://127.0.0.1:8000/api/admin/dashboard'; // URL API cho dashboard
 
 class OrderService {
     // Helper method to get token from localStorage
@@ -157,6 +158,31 @@ class OrderService {
             throw error;  // Ném lỗi để xử lý ở nơi gọi
         }
     }
+
+    // Lấy thống kê Dashboard cho admin
+    async getDashboard() {
+        const token = this._getAuthToken();
+
+        if (!token) {
+            console.error("Bạn cần đăng nhập để xem thống kê.");
+            this._handleUnauthorizedAccess();
+            return;
+        }
+
+        try {
+            const response = await axios.get(DASHBOARD_API_URL, {
+                headers: {
+                    Authorization: `Bearer ${token}` // Gửi token trong header
+                }
+            });
+            console.log('Dữ liệu dashboard:', response.data);
+            return response.data;
+        } catch (error) {
+            console.error('Lỗi khi lấy dữ liệu dashboard:', error);
+            throw error;
+        }
+    }
+    
 }
 
 export default new OrderService();

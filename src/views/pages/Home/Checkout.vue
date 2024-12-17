@@ -247,8 +247,8 @@
 </template>
 
 <script>
-import axios from 'axios';
 import router from '@/router';
+import axios from 'axios';
 
 import {
   getAddresses
@@ -465,7 +465,7 @@ export default {
 
       if (!token) {
         alert("Bạn cần đăng nhập để thực hiện thanh toán.");
-        this.$router.push({ name: 'login' });  // Chuyển hướng đến trang đăng nhập
+        //this.$router.push({ name: 'login' });  // Chuyển hướng đến trang đăng nhập
         return;
       }
 
@@ -486,10 +486,11 @@ export default {
           window.location.href = response.data.vnpUrl;
           this.isPaymentSuccess = false; // Trạng thái thanh toán đang chờ xử lý
 
-        } else if (response.data.momoUrl) {
+        }
+        else if (response.data.momoUrl.original.momoUrl) {
           // Redirect đến MoMo
           console.log('Redirecting to MoMo...');
-          //window.location.href = response.data.momoUrl;
+          window.location.href = response.data.momoUrl.original.momoUrl;
           this.isPaymentSuccess = false; // Trạng thái thanh toán đang chờ xử lý
 
         } else {
@@ -505,19 +506,19 @@ export default {
     // Xử lý callback VNPay
     async handleVNPayCallback(urlParams) {
       try {
-        
+
         const response = await this.$axios.get('http://127.0.0.1:8000/api/vnpay/callback', { params: urlParams });
 
-        if (response.data.RspCode === '00') {
-          // Thanh toán thành công
-          this.isPaymentSuccess = true;
-          console.log(this.isPaymentSuccess);
-          this.$router.push({ name: 'order' }); // Chuyển đến trang xác nhận đơn hàng
+        // if (response.data.RspCode === '00') {
+        //   // Thanh toán thành công
+        //   this.isPaymentSuccess = true;
+        //   console.log(this.isPaymentSuccess);
+        //   this.$router.push({ name: 'order' }); // Chuyển đến trang xác nhận đơn hàng
 
-        } else {
-          console.log('Thanh toán thất bại:', response.data.Message);
-          alert('Thanh toán thất bại. Vui lòng thử lại.');
-        }
+        // } else {
+        //   console.log('Thanh toán thất bại:', response.data.Message);
+        //   alert('Thanh toán thất bại. Vui lòng thử lại.');
+        // }
       } catch (error) {
         console.error('Lỗi callback VNPay:', error);
       }
@@ -525,10 +526,12 @@ export default {
 
     async handleMoMoCallback(urlParams) {
       try {
-        const response = await axios.get(
-          'http://127.0.0.1:8000/momo/callback',
-          { params: urlParams }
-        );
+
+        const response = await this.$axios.get('http://127.0.0.1:8000/api/momo/callback', { params: urlParams });
+        console.log(response.data)
+
+
+
 
         if (response.data.resultCode === '0') {
           // Thanh toán thành công

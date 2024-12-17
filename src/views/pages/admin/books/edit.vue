@@ -23,7 +23,12 @@
                         <div v-if="isDropdownOpen" class="dropdown-menu" @click.stop>
                             <div v-for="author in authors" :key="author.id" class="dropdown-item">
                                 <label>
-                                    <input type="checkbox" :value="author.id" v-model="book.authors" />
+                                    <input 
+                                        type="checkbox" 
+                                        :value="author.id" 
+                                        v-model="book.authors" 
+                                        @click="handleAuthorSelect(author.id)" 
+                                    />
                                     {{ author.name }}
                                 </label>
                             </div>
@@ -50,7 +55,6 @@
                         </option>
                     </select>
                 </div>
-
             </div>
             <div class="form-row">
                 <div class="form-group">
@@ -143,6 +147,7 @@
     </div>
 </template>
 
+
 <script setup>
 import { useRouter } from 'vue-router'; // Import useRouter correctly
 import AttributeService from '@/service/AttributeService';
@@ -188,6 +193,7 @@ const fetchBook = async (id) => {
         alert('Lỗi khi tải thông tin sách: ' + error.message);
     }
 };
+
 const updateBook = async () => {
     const payload = {
         title: book.value.title,
@@ -228,9 +234,6 @@ const updateBook = async () => {
     }
 };
 
-
-
-
 const onFileChange = (event) => {
     const file = event.target.files[0];
     if (file) {
@@ -240,7 +243,6 @@ const onFileChange = (event) => {
 };
 
 const fetchAuthors = async () => {
-    // Fetch authors data
     try {
         const response = await AuthorService.getAllAuthors();
         authors.value = response.data;
@@ -248,25 +250,41 @@ const fetchAuthors = async () => {
         alert('Lỗi khi tải danh sách tác giả: ' + error.message);
     }
 };
+
 const toggleDropdown = (event) => {
     event.stopPropagation(); // Ngăn không cho sự kiện click bên ngoài đóng ngay lập tức
     isDropdownOpen.value = !isDropdownOpen.value;
 };
+
+const handleAuthorSelect = (authorId) => {
+    if (!Array.isArray(book.value.authors)) {
+        book.value.authors = [];  // Đảm bảo là một mảng
+    }
+
+    const index = book.value.authors.indexOf(authorId);
+    if (index === -1) {
+        book.value.authors.push(authorId);
+    } else {
+        book.value.authors.splice(index, 1);
+    }
+    // Để dropdown mở hoặc không đóng ngay
+    // Bạn có thể loại bỏ dòng isDropdownOpen.value = false; nếu muốn giữ dropdown mở
+};
+
 const selectedAuthors = computed(() => {
     return authors.value
         .filter((author) => book.value.authors?.includes(author.id))
         .map((author) => author.name)
         .join(', ');
 });
+
 const handleClickOutside = (event) => {
-    // Kiểm tra xem sự kiện click có xảy ra ngoài dropdown không
     if (!event.target.closest('.dropdown')) {
         isDropdownOpen.value = false;
     }
 };
 
 const fetchPublishers = async () => {
-    // Fetch publishers data
     try {
         const response = await PublisherService.getAllPublishers();
         publishers.value = response.data;
@@ -274,8 +292,6 @@ const fetchPublishers = async () => {
         alert('Lỗi khi tải danh sách nhà xuất bản: ' + error.message);
     }
 };
-
-
 
 const fetchTranslators = async () => {
     try {
@@ -332,12 +348,15 @@ onMounted(() => {
     fetchCategories();
     fetchCoverTypes();
     fetchLanguages();
+
+    document.addEventListener('click', handleClickOutside);
 });
+
 onUnmounted(() => {
     document.removeEventListener('click', handleClickOutside);
 });
-
 </script>
+
 
 <style scoped>
 .container {

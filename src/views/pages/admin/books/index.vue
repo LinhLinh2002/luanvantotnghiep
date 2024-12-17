@@ -16,7 +16,7 @@
       </thead>
       <tbody>
         <tr v-for="book in books" :key="book.id">
-          <td><img :src="book.image || 'placeholder.jpg'" alt="Book cover" class="book-image" /></td>
+          <td><img :src="book.image || require('@/assets/placeholder.jpg')" alt="Book cover" class="book-image" /></td>
           <td>{{ book.title }}</td>
           <td>{{ book.isbn }}</td>
           <td>{{ book.quantity }}</td>
@@ -61,6 +61,7 @@ const router = useRouter();
 const showConfirmModal = ref(false);
 const toast = useToast();
 
+// Fetch books list using BookService
 const fetchBooks = async () => {
   try {
     const response = await BookService.getAllBooks();
@@ -69,9 +70,11 @@ const fetchBooks = async () => {
     toast.add({ severity: 'error', summary: 'Lỗi', detail: 'Lỗi khi lấy danh sách sách: ' + error.message, life: 3000 });
   }
 };
+
 const openEditBook = (id) => {
   router.push(`/books/${id}/edit`);
 };
+
 const formatPrice = (price) => {
   return price.toLocaleString('vi-VN');
 };

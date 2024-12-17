@@ -13,7 +13,6 @@
                 </div>
             </div>
             <div class="form-row">
-
                 <div class="form-group">
                     <label for="authors">Tác Giả:</label>
                     <div class="dropdown">
@@ -32,7 +31,6 @@
                     </div>
                     <p>Đã chọn: {{ selectedAuthors }}</p>
                 </div>
-
                 <div class="form-group">
                     <label for="translator">Dịch Giả:</label>
                     <select v-model="book.translator_id" class="form-control">
@@ -51,7 +49,6 @@
                         </option>
                     </select>
                 </div>
-
             </div>
             <div class="form-row">
                 <div class="form-group">
@@ -87,7 +84,6 @@
                     </select>
                 </div>
             </div>
-
             <div class="form-group">
                 <label for="description">Mô Tả:</label>
                 <textarea v-model="book.description" class="form-control" required></textarea>
@@ -106,7 +102,6 @@
                     <input type="number" v-model="book.discount_price" class="form-control" />
                 </div>
             </div>
-
             <div class="form-row">
                 <div class="form-group">
                     <label for="published_year">Năm Xuất Bản:</label>
@@ -138,32 +133,30 @@
                 <input type="file" @change="onFileChange" class="form-control" required />
                 <img v-if="book.image" :src="imagePreview" alt="Preview" class="img-preview" />
             </div>
-
             <button type="submit" class="btn btn-primary">Thêm Sách</button>
         </form>
     </div>
 </template>
 
 <script setup>
+import CategoryService from '@/service/CategoryService';
+
 import router from '@/router';
 import AttributeService from '@/service/AttributeService';
 import AuthorService from '@/service/AuthorService';
 import BookService from '@/service/BookService';
-import CategoryService from '@/service/CategoryService';
 import PublisherService from '@/service/PublisherService';
 import TranslatorService from '@/service/TranslatorService';
 import { useToast } from 'primevue/usetoast';
-import { computed, onMounted, onUnmounted, ref } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 
-const isDropdownOpen = ref(false); // Trạng thái của dropdown
-
+const isDropdownOpen = ref(false);
 const authors = ref([]);
 const publishers = ref([]);
 const translators = ref([]);
 const genres = ref([]);
 const categories = ref([]);
 const coverTypes = ref([]);
-const toast = useToast();
 const languages = ref([]);
 const imagePreview = ref(null);
 const book = ref({
@@ -190,21 +183,44 @@ const book = ref({
     weight: 0,
 });
 
-const fetchAuthors = async () => {
-    try {
-        const response = await AuthorService.getAllAuthors();
-        authors.value = response.data;
-        console.log('Authors loaded:', authors.value);
+const toast = useToast();
 
-    } catch (error) {
-        alert('Lỗi khi lấy danh sách tác giả: ' + error.message);
-    }
+const fetchAuthors = async () => {
+    const response = await AuthorService.getAllAuthors();
+    authors.value = response.data;};
+
+const fetchPublishers = async () => {
+    const response = await PublisherService.getAllPublishers();
+    publishers.value = response.data;
 };
+
+const fetchTranslators = async () => {
+    const response = await TranslatorService.getAllTranslators();
+    translators.value = response.data;
+};
+
+const fetchCategories = async () => {
+    const response = await CategoryService.getAllCategories();
+        categories.value = response.data;
+    };
+
+const fetchGenres = async () => {
+    const response = await AttributeService.getAllGenres();
+    genres.value = response.data;};
+
+const fetchCoverTypes = async () => {
+    const response = await AttributeService.getAllCoverTypes ();
+    coverTypes.value = response.data;};
+
+const fetchLanguages = async () => {
+    const response = await AttributeService.getAllLanguages();
+    languages.value = response.data;};
 
 const toggleDropdown = (event) => {
-    event.stopPropagation(); // Ngăn không cho sự kiện click bên ngoài đóng ngay lập tức
+    event.stopPropagation();
     isDropdownOpen.value = !isDropdownOpen.value;
 };
+
 const selectedAuthors = computed(() => {
     return authors.value.length > 0 && book.value.authors.length > 0
         ? authors.value
@@ -213,66 +229,6 @@ const selectedAuthors = computed(() => {
             .join(', ')
         : 'Chưa chọn tác giả nào';
 });
-const handleClickOutside = (event) => {
-    // Kiểm tra xem sự kiện click có xảy ra ngoài dropdown không
-    if (!event.target.closest('.dropdown')) {
-        isDropdownOpen.value = false;
-    }
-};
-
-const fetchPublishers = async () => {
-    try {
-        const response = await PublisherService.getAllPublishers();
-        publishers.value = response.data;
-    } catch (error) {
-        alert('Lỗi khi lấy danh sách nhà xuất bản: ' + error.message);
-    }
-};
-
-
-const fetchTranslator = async () => {
-    try {
-        const response = await TranslatorService.getAllTranslators();
-        translators.value = response.data;
-    } catch (error) {
-        alert('Lỗi khi lấy danh sách dịch giả: ' + error.message);
-    }
-};
-const fetchCategory = async () => {
-    try {
-        const response = await CategoryService.getAllCategories();
-        categories.value = response.data;
-    } catch (error) {
-        alert('Lỗi khi lấy danh sách dịch giả: ' + error.message);
-    }
-};
-
-const fetchGenres = async () => {
-    try {
-        const response = await AttributeService.getAllGenres();
-        genres.value = response.data;
-    } catch (error) {
-        alert('Lỗi khi lấy danh sách thể loại: ' + error.message);
-    }
-};
-
-const fetchCoverTypes = async () => {
-    try {
-        const response = await AttributeService.getAllCoverTypes();
-        coverTypes.value = response.data;
-    } catch (error) {
-        alert('Lỗi khi lấy danh sách loại bìa: ' + error.message);
-    }
-};
-
-const fetchLanguages = async () => {
-    try {
-        const response = await AttributeService.getAllLanguages();
-        languages.value = response.data;
-    } catch (error) {
-        alert('Lỗi khi lấy danh sách ngôn ngữ: ' + error.message);
-    }
-};
 
 const onFileChange = (event) => {
     const file = event.target.files[0];
@@ -286,66 +242,43 @@ const createBook = async () => {
     const formData = new FormData();
 
     for (const key in book.value) {
-        if (key === "authors" && Array.isArray(book.value[key])) {
-            // Nếu là mảng tác giả, append từng giá trị vào FormData
+        if (key === 'authors' && Array.isArray(book.value[key])) {
             book.value.authors.forEach((id) => {
                 formData.append('authors[]', id);
             });
         } else if (book.value[key] !== null && book.value[key] !== '') {
-            // Các giá trị khác được append bình thường
             formData.append(key, book.value[key]);
         }
     }
 
-    // Kiểm tra số lượng trước khi gửi
     if (book.value.quantity < 0) {
-        alert("Số lượng sản phẩm không thể là số âm!");
+        alert('Số lượng sản phẩm không thể là số âm!');
         return;
     }
 
-    // Kiểm tra log FormData gửi đi
-    for (let pair of formData.entries()) {
-        console.log(pair[0], pair[1]);
-    }
-
     try {
-        // Gửi yêu cầu tạo sách qua API
         await BookService.createBook(formData);
         showToast('Thêm sách thành công!');
-        router.push('/books');
+        this.$router.push('/books');
     } catch (error) {
         console.error('Lỗi khi thêm sách:', error.response?.data || error.message);
         alert('Lỗi: ' + (error.response?.data.message || error.message));
     }
 };
 
-
-
-const resetForm = () => {
-    for (const key in book.value) {
-        book.value[key] = null;
-    }
-    imagePreview.value = null; // Reset đường dẫn hình ảnh
-};
 const showToast = (detail) => {
     toast.add({ severity: 'success', summary: 'Thành công', detail, life: 3000 });
 };
 
 onMounted(() => {
     fetchAuthors();
-    fetchCategory();
     fetchPublishers();
-    fetchTranslator();
+    fetchTranslators();
+    fetchCategories();
     fetchGenres();
     fetchCoverTypes();
     fetchLanguages();
-    document.addEventListener('click', handleClickOutside);
-
 });
-onUnmounted(() => {
-    document.removeEventListener('click', handleClickOutside);
-});
-
 </script>
 
 <style scoped>

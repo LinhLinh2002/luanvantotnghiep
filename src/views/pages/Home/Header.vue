@@ -196,6 +196,7 @@
 </template>
 
 <script>
+  import BookSearchService from '@/service/BookSearchService';
 import AttributeService from '@/service/AttributeService';
 import AuthorService from '@/service/AuthorService';
 import CartService from '@/service/CartService';
@@ -227,18 +228,18 @@ export default {
         const genres = ref([]);
         const languages = ref([]);
 
-        const wishlistItemCount = ref(0); // Biến này lưu trữ số lượng sách yêu thích
+        // const wishlistItemCount = ref(0); // Biến này lưu trữ số lượng sách yêu thích
 
-        // Hàm lấy danh sách yêu thích và cập nhật số lượng
-        const loadWishlist = async () => {
-            try {
-                const response = await WishlistService.getWishlist();
-                wishlistItemCount.value = wishlist.length; // Cập nhật số lượng sách yêu thích
-            } catch (error) {
-                console.error("Error loading wishlist:", error);
-            }
-        };
-        
+        // // Hàm lấy danh sách yêu thích và cập nhật số lượng
+        // const loadWishlist = async () => {
+        //     try {
+        //         const response = await WishlistService.getWishlist();
+        //         wishlistItemCount.value = wishlist.length; // Cập nhật số lượng sách yêu thích
+        //     } catch (error) {
+        //         console.error("Error loading wishlist:", error);
+        //     }
+        // };
+
         const dropuser = ref(false);
         const isLoggedIn = ref(false);
         const user = ref(null);
@@ -402,6 +403,7 @@ export default {
         const checkout = () => {
             window.location.href = '/checkout';
         };
+
         const searchBooks = async () => {
             if (!searchQuery.value.trim()) {
                 console.log("Từ khóa tìm kiếm trống!");
@@ -409,19 +411,24 @@ export default {
             }
 
             try {
-                const response = await axios.get(`http://127.0.0.1:8000/api/books/search`, {
-                    params: { query: searchQuery.value }
-                });
-                console.log("Kết quả tìm kiếm:", response.data.data); // Kiểm tra dữ liệu trả về
-                // Redirect to the search result page or display the results
-                router.push({ name: "SearchResults", query: { query: searchQuery.value } });
+                // Gọi service để tìm kiếm sách
+                const response = await BookSearchService.searchBooks(searchQuery.value);
+                console.log("Kết quả tìm kiếm:", response.data);
+                if (response.data.length > 0) {
+                    // Điều hướng đến trang kết quả tìm kiếm
+                    router.push({ name: "SearchResults", query: { query: searchQuery.value } });
+                } else {
+                    console.log("Không tìm thấy sách.");
+                    // Tùy chọn: Hiển thị thông báo không tìm thấy sách
+                }
             } catch (error) {
-                console.error("Lỗi khi tìm kiếm sách:", error); // Hiển thị lỗi nếu có
+                console.error("Lỗi khi tìm kiếm sách:", error);
             }
         };
 
+
         onMounted(() => {
-            loadWishlist();
+            //loadWishlist();
             loadCart();
             loadCategories();
             loadAuthors();
@@ -444,7 +451,7 @@ export default {
         };
 
         return {
-            wishlistItemCount: 0,  // Khai báo biến để lưu trữ số lượng sách yêu thích
+           // wishlistItemCount: 0,  // Khai báo biến để lưu trữ số lượng sách yêu thích
             searchBooks: '', // Biến lưu trữ từ khóa tìm kiếm
             searchQuery,
             showSthing,
@@ -581,6 +588,7 @@ export default {
     border-radius: 10px;
     padding: 0px 2px;
 }
+
 .wishlist-count {
     position: absolute;
     top: -5px;
@@ -591,6 +599,7 @@ export default {
     padding: 5px;
     font-size: 12px;
 }
+
 /* Dropdown menu styling */
 .dropd {
     display: flex;

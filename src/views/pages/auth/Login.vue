@@ -80,13 +80,25 @@ export default {
                 const response = await AuthService.login(this.login);
                 console.log("Đăng nhập thành công:", response);
 
-                // Navigate to the bookstore page after login
-                this.$router.push({ name: 'bookstore' });
+                // Lưu thông tin người dùng và token vào localStorage
+                localStorage.setItem('access_token', response.data.access_token);
+                localStorage.setItem('user', JSON.stringify(response.data.user));
+
+                // Kiểm tra vai trò của người dùng và chuyển hướng
+                const user = response.data.user;
+                if (user.role === 'admin') {
+                    // Chuyển hướng đến trang admin nếu là quản trị viên
+                    this.$router({ name: '/admin' });
+                } else {
+                    // Chuyển hướng đến trang bookstore nếu là người dùng bình thường
+                    this.$router.push({ name: 'bookstore' });
+                }
             } catch (error) {
                 console.error("Lỗi khi đăng nhập:", error);
                 alert("Đăng nhập thất bại! Vui lòng thử lại.");
             }
         },
+
         loginWithGoogle() {
             // Call backend to get the Google login URL
             axios.get('http://127.0.0.1:8000/api/auth/google')
@@ -106,7 +118,7 @@ export default {
             const code = urlParams.get('code'); // Lấy mã code từ URL
             if (code) {
                 axios
-                    .post('http://localhost:8000/api/auth/google/callback', { code })
+                    .get('http://localhost:8000/api/auth/google/callback', { code })
                     .then((response) => {
                         console.log('Login Response:', response.data);
 
