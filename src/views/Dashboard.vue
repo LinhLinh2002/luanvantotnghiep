@@ -381,7 +381,6 @@ watch([getPrimary, getSurface, isDarkTheme], () => {
         </div>
     </div>
 </template>
-
 <script>
 import OrderService from '@/service/OrderService';
 
@@ -389,14 +388,14 @@ export default {
     data() {
         return {
             statistics: {
-                totalOrders: 40,
-                totalRevenue: 507000.0,
-                pendingOrders: 36,
-                canceledOrders: 1,
+                totalOrders: 0,
+                totalRevenue: 0,
+                pendingOrders: 0,
+                canceledOrders: 0,
                 returnedOrders: 0,
                 ordersByMonth: []
             },
-            loading: false // Tắt loading để xem trước
+            loading: true
         };
     },
     mounted() {
