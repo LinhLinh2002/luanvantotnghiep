@@ -127,6 +127,7 @@ h2 {
   object-fit: cover;
   border-radius: 5px;
   margin-bottom: 8px;
+  margin-left:50px;
 }
 
 .wishlist-item-details {

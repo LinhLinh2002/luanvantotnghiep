@@ -134,6 +134,7 @@
                     <button @click="searchBooks" type="button" class="btn">
                         <i class='bx bx-search-alt-2'></i>
                     </button>
+
                 </div>
 
                 <div class="taikhoan">
@@ -143,7 +144,7 @@
                         <template v-if="isLoggedIn">
                             <h3 v-if="user">Xin chào, {{ user.name }}</h3>
                             <router-link to="/profile" class="account-link">Tài Khoản Của Tôi </router-link>
-
+                            <router-link to="/cart" class="account-link">Xem Giỏ Hàng</router-link>
                             <router-link to="/order" class="account-link">Đơn Hàng Của Tôi </router-link>
                             <router-link to="/wishlist" class="account-link">Danh Sách Yêu Thích </router-link>
                             <div class="order-tracking">
@@ -196,7 +197,6 @@
 </template>
 
 <script>
-  import BookSearchService from '@/service/BookSearchService';
 import AttributeService from '@/service/AttributeService';
 import AuthorService from '@/service/AuthorService';
 import CartService from '@/service/CartService';
@@ -206,7 +206,6 @@ import TranslatorService from '@/service/TranslatorService';
 import axios from 'axios';
 import { onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
-import WishlistService from '@/service/WishlistService';
 
 
 export default {
@@ -404,31 +403,23 @@ export default {
             window.location.href = '/checkout';
         };
 
-        const searchBooks = async () => {
+        const searchBooks = () => {
+            console.log("Button clicked! Search query:", searchQuery.value);
             if (!searchQuery.value.trim()) {
-                console.log("Từ khóa tìm kiếm trống!");
-                return; // Nếu từ khóa tìm kiếm trống thì không thực hiện tìm kiếm
+                alert("Vui lòng nhập từ khóa tìm kiếm!");
+                return;
             }
-
-            try {
-                // Gọi service để tìm kiếm sách
-                const response = await BookSearchService.searchBooks(searchQuery.value);
-                console.log("Kết quả tìm kiếm:", response.data);
-                if (response.data.length > 0) {
-                    // Điều hướng đến trang kết quả tìm kiếm
-                    router.push({ name: "SearchResults", query: { query: searchQuery.value } });
-                } else {
-                    console.log("Không tìm thấy sách.");
-                    // Tùy chọn: Hiển thị thông báo không tìm thấy sách
-                }
-            } catch (error) {
-                console.error("Lỗi khi tìm kiếm sách:", error);
-            }
+            console.log("Navigating to search results...");
+            router.push({ name: "SearchResults", query: { query: searchQuery.value } })
+                .then(() => {
+                    console.log("Successfully navigated to search results.");
+                })
+                .catch((error) => {
+                    console.error("Error during navigation:", error);
+                });
         };
 
-
         onMounted(() => {
-            //loadWishlist();
             loadCart();
             loadCategories();
             loadAuthors();
@@ -437,8 +428,8 @@ export default {
             loadGenres();
             loadLanguages();
             checkLoginStatus();
-            searchBooks();
         });
+
         const showSthing = ref("true")
         // Thêm hàm để xử lý sự kiện chọn danh mục
         const selectCategory = (category) => {
@@ -451,9 +442,9 @@ export default {
         };
 
         return {
-           // wishlistItemCount: 0,  // Khai báo biến để lưu trữ số lượng sách yêu thích
-            searchBooks: '', // Biến lưu trữ từ khóa tìm kiếm
+            // wishlistItemCount: 0,  // Khai báo biến để lưu trữ số lượng sách yêu thích
             searchQuery,
+            searchBooks,
             showSthing,
             goToBookstore,
             drop,
@@ -493,6 +484,14 @@ export default {
     color: #42596d;
     font-size: 15px;
     padding: 5px 0;
+    position: sticky;
+    /* Đặt vị trí sticky */
+    top: 0;
+    /* Đảm bảo nó dính lên đầu khi cuộn */
+    z-index: 1000;
+    /* Đảm bảo header luôn ở trên các phần tử khác */
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    /* Thêm bóng đổ để nổi bật */
 }
 
 .header-top .container {

@@ -15,8 +15,8 @@ class Publisherservice {
 
     // Helper method to handle unauthorized access
     _handleUnauthorizedAccess() {
-        alert("Bạn cần đăng nhập để tiếp tục.");
-        router.push({ name: 'login' });  // Chuyển hướng đến trang đăng nhập
+      //  alert("Bạn cần đăng nhập để tiếp tục.");
+//router.push({ name: 'login' });  // Chuyển hướng đến trang đăng nhập
     }
 
     // Get all publishers

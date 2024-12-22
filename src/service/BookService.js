@@ -1,5 +1,4 @@
 import axios from 'axios';
-import router from '@/router'; 
 
 const API_BASE_URL = 'http://127.0.0.1:8000/api/admin/books';
 
@@ -12,8 +11,8 @@ class BookService {
 
     // Helper method to handle unauthorized access
     _handleUnauthorizedAccess() {
-        alert("Bạn cần đăng nhập để tiếp tục.");
-        router.push({ name: 'login' });  // Chuyển hướng đến trang đăng nhập
+        // alert("Bạn cần đăng nhập để tiếp tục.");
+        // router.push({ name: 'login' });  // Chuyển hướng đến trang đăng nhập
     }
 
     // Get all books

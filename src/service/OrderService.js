@@ -15,7 +15,7 @@ class OrderService {
     // Helper method to handle unauthorized access
     _handleUnauthorizedAccess() {
         alert("Bạn cần đăng nhập để tiếp tục.");
-        router.push({ name: 'login' });  // Chuyển hướng đến trang đăng nhập
+        //router.push({ name: 'login' });  // Chuyển hướng đến trang đăng nhập
     }
 
     // Lấy danh sách đơn hàng cho user

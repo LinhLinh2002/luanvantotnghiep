@@ -259,7 +259,7 @@ const createBook = async () => {
     try {
         await BookService.createBook(formData);
         showToast('Thêm sách thành công!');
-        this.$router.push('/books');
+        router.push('/books');
     } catch (error) {
         console.error('Lỗi khi thêm sách:', error.response?.data || error.message);
         alert('Lỗi: ' + (error.response?.data.message || error.message));

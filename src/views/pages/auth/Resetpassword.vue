@@ -37,13 +37,15 @@
       </div>
   </div>
 </template>
+
 <script>
+import AuthService from '@/service/AuthService'; // Import AuthService
 
 export default {
   name: 'ResetPassword',
   data() {
       return {
-        email: '',
+          email: '',
           password: '',
           confirmPassword: '',
           token: '', // Mã token người dùng nhận được qua email
@@ -51,44 +53,32 @@ export default {
   },
   methods: {
     async resetPassword() {
-  if (!this.token || !this.password || !this.confirmPassword) {
-      alert("Please fill in all fields!");
-      return;
-  }
-
-  if (this.password !== this.confirmPassword) {
-      alert("Passwords do not match!");
-      return;
-  }
-
-  try {
-      // Lấy token người dùng từ localStorage
-      const currentUser = JSON.parse(localStorage.getItem('currentUser'));
-      const token = currentUser ? currentUser.token : null;
-
-      if (!token) {
-          alert("Invalid or expired token.");
-          return;
+      if (!this.token || !this.password || !this.confirmPassword) {
+        alert("Please fill in all fields!");
+        return;
       }
 
-      const response = await axios.post('http://127.0.0.1:8000/api/auth/password/reset', {
-        email: this.email,
-        password: this.password,
-        password_confirmation: this.password_confirmation,
-        token: this.token,
-      }, {
-          headers: {
-              Authorization: `Bearer ${token}`,  // Gửi token để xác thực
-          }
-      });
-
-      alert("Password reset successfully!");
-      this.$router.push({ name: 'login' });
-  } catch (error) {
-      console.error("Error resetting password:", error);
-      alert("Failed to reset password. Please try again.");
-          }
+      if (this.password !== this.confirmPassword) {
+        alert("Passwords do not match!");
+        return;
       }
+
+      try {
+        // Gọi phương thức resetPassword từ AuthService
+        const response = await AuthService.resetPassword(
+          this.email,
+          this.password,
+          this.confirmPassword,
+          this.token
+        );
+
+        alert("Password reset successfully!");
+        this.$router.push({ name: 'login' });
+      } catch (error) {
+        console.error("Error resetting password:", error);
+        alert("Failed to reset password. Please try again.");
+      }
+    }
   }
 }
 </script>

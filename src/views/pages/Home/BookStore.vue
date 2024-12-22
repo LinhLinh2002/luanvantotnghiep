@@ -10,27 +10,27 @@
                         <img src="https://nhasachphuongnam.com/images/promo/294/Banner-L%E1%BB%8Bch-2025-890x396.jpg"
                             alt="">
                     </div>
-                    <div class="item-2 ">
+                    <a class="item-2 " href="http://localhost:5173/books/20">
                         <img src="https://nhasachphuongnam.com/images/promo/287/1.jpg" alt="">
-                    </div>
-                    <div class="item-3 ">
+                    </a>
+                    <a class="item-3 " href="http://localhost:5173/books/21">
                         <img src="https://nhasachphuongnam.com/images/promo/287/2.jpg" alt="">
-                    </div>
+                    </a>
                 </div>
 
                 <div class="list-1">
                     <div class="item-4 ">
                         <img src="https://nhasachphuongnam.com/images/promo/279/1__3_.jpg" alt="">
                     </div>
-                    <div class="item-5 ">
+                    <a class="item-5 " href="http://localhost:5173/books/22">
                         <img src="https://nhasachphuongnam.com/images/promo/279/2__3_.jpg" alt="">
-                    </div>
-                    <div class="item-6 ">
+                    </a>
+                    <a class="item-6 " href="">
                         <img src="https://nhasachphuongnam.com/images/promo/279/3__4_.jpg" alt="">
-                    </div>
-                    <div class="item-7 ">
-                        <img src="https://nhasachphuongnam.com/images/promo/287/s%C3%A1o-recorder.jpg" alt="">
-                    </div>
+                    </a>
+                    <a class="item-7 " href="http://localhost:5173/books/23">
+                        <img src="https://nhasachphuongnam.com/images/promo/296/Banner-S%E1%BB%A8-%C4%90O%C3%80N-IWAKURA-%C4%91%E1%BA%A1t-gi%E1%BA%A3i-288x187.jpg" alt="">
+                    </a>
                 </div>
 
                 <div class="list-2">
@@ -216,16 +216,16 @@
                 </div>
             </div>
             <div class="textbook">
-                <h5 class="textbook-1">Sách Giáo Khoa</h5>
-                <div class="textbook-2">
+                <h5 class="textbook-1">Sách Tình Cảm/ Lãng Mạng</h5>
+                <!-- <div class="textbook-2">
                     <a href="">Bộ Chân Trời Sáng Tạo</a>
                     <a href="">Bộ Cánh Diều Vàng</a>
                     <a href="">Bộ Kết Nối Tri Thức</a>
                     <a href="">Sách Tiếng Anh</a>
                     <a href="">Sách Tham Khảo</a>
-                </div>
+                </div> -->
                 <div class="product-list-sell">
-                    <router-link v-for="book in bestsellerBooks" :key="book.id"
+                    <router-link v-for="book in loveBooks" :key="book.id"
                         :to="{ name: 'bookdetails', params: { id: book.id } }" class="product-card-sell">
 
                         <div class="cart-icon-sell"></div>
@@ -601,6 +601,7 @@ export default {
     setup() {
         const books = ref([]);
         const bestsellerBooks = ref([]);
+        const loveBooks = ref ([]);
         const currentUser = ref(null); // Thêm biến currentUser
         const toast = useToast();
 
@@ -628,6 +629,10 @@ export default {
                 const response = await BookService.getAllBooks();
                 books.value = response.data;
 
+                loveBooks.value = books.value.filter(book => book.id >= 16 && book.id <= 19);
+
+                // loveBooks.value = books.value.filter(book => book.category === 'Tình cảm / Lãng mạn');
+
                 // Lọc sách Bestseller với ID từ 12 đến 16
                 bestsellerBooks.value = books.value.filter(book => book.id >= 12 && book.id <= 16);
             } catch (error) {
@@ -637,6 +642,7 @@ export default {
 
         return {
             books,
+            loveBooks,
             bestsellerBooks,
             addToCart,
             currentUser, // Trả về để sử dụng trong template

@@ -28,17 +28,14 @@
                     <div class="btn-container">
                         <button class="btn-In" value="Save">Sign Up</button>
                     </div>
-
-                    
                 </form>
-
             </div>
         </div>
     </div>
 </template>
 
 <script>
-import axios from 'axios';
+import AuthService from '@/service/AuthService'; // Import your AuthService
 
 export default {
     name: 'Register',
@@ -50,37 +47,47 @@ export default {
                 password: '',
                 c_password: ''
             }
-        }
+        };
     },
     methods: {
         async saveData() {
+            // Validate fields
             if (!this.register.name || !this.register.email || !this.register.password || !this.register.c_password) {
-                alert("Vui lòng điền tất cả các trường!");
+                alert("Please fill out all fields!");
                 return;
             }
             if (!this.validateEmail(this.register.email)) {
-                alert("Địa chỉ email không hợp lệ!");
+                alert("Invalid email address!");
                 return;
             }
             if (this.register.password.length < 8) {
-                alert("Mật khẩu phải có ít nhất 8 ký tự!");
+                alert("Password must be at least 8 characters!");
                 return;
             }
             if (this.register.password !== this.register.c_password) {
-                alert("Mật khẩu xác nhận không khớp!");
+                alert("Passwords do not match!");
                 return;
             }
 
             try {
-                const response = await axios.post("http://127.0.0.1:8000/api/auth/register", this.register);
-                console.log("Đăng ký thành công:", response.data);
-                alert("Đăng ký thành công!");
-                this.$router.push({ name: 'login' });
+                // Check if c_password is included correctly
+                const response = await AuthService.register({
+                    name: this.register.name,
+                    email: this.register.email,
+                    password: this.register.password,
+                    c_password: this.register.c_password // Ensure this is being sent correctly
+                });
+                console.log("Registration successful:", response);
+                alert("Registration successful!");
+                this.$router.push({ name: 'login' }); // Redirect to login page
             } catch (error) {
-                console.error("Lỗi khi đăng ký:", error);
-                alert("Đăng ký thất bại! Vui lòng thử lại.");
+                console.error("Registration failed:", error);
+                //alert("Registration failed! Please try again.");
+                this.$router.push({ name: 'login' }); // Redirect to login page
+
             }
         },
+
         goToLogin() {
             this.$router.push({ name: 'login' });
         },
@@ -89,7 +96,7 @@ export default {
             return re.test(email);
         }
     }
-}
+};
 </script>
 
 <style>
@@ -120,12 +127,14 @@ body {
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
     width: 90%;
     max-width: 1200px;
-    min-height: 600px; /* Đảm bảo container luôn giữ chiều cao */
+    min-height: 600px;
+    /* Đảm bảo container luôn giữ chiều cao */
 }
 
 /* Hình ảnh */
 .img-login {
-    flex: 1; /* Phần hình ảnh chiếm một nửa chiều rộng */
+    flex: 1;
+    /* Phần hình ảnh chiếm một nửa chiều rộng */
     display: flex;
     justify-content: center;
     align-items: center;
@@ -135,14 +144,17 @@ body {
 .img-login img {
     width: 100%;
     height: auto;
-    max-height: 100%; /* Đảm bảo hình không vượt quá chiều cao container */
+    max-height: 100%;
+    /* Đảm bảo hình không vượt quá chiều cao container */
     border-radius: 20px;
-    object-fit: cover; /* Đảm bảo ảnh không bị méo */
+    object-fit: cover;
+    /* Đảm bảo ảnh không bị méo */
 }
 
 /* Form */
 .signin-page {
-    flex: 1; /* Phần form chiếm một nửa chiều rộng */
+    flex: 1;
+    /* Phần form chiếm một nửa chiều rộng */
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -188,7 +200,8 @@ h6 a:hover {
     padding: 15px;
     border: 1px solid #ccc;
     border-radius: 20px;
-    width: 400px; /* Tăng chiều rộng */
+    width: 400px;
+    /* Tăng chiều rộng */
     outline: none;
     font-size: 16px;
     transition: border-color 0.3s;
@@ -212,7 +225,8 @@ h6 a:hover {
     background-color: #4554b3;
     border: none;
     border-radius: 20px;
-    width: 400px;    font-size: 16px;
+    width: 400px;
+    font-size: 16px;
     color: #fff;
     cursor: pointer;
     transition: background-color 0.3s, transform 0.2s;
@@ -253,7 +267,8 @@ h6 a:hover {
         align-items: center;
     }
 
-    .img-login, .signin-page {
+    .img-login,
+    .signin-page {
         flex: unset;
         width: 100%;
     }
@@ -299,5 +314,4 @@ h6 a:hover {
         width: 40px;
     }
 }
-
 </style>

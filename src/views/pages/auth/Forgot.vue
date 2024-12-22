@@ -4,24 +4,33 @@
       <div class="img-login">
         <img
           src="https://img.freepik.com/free-vector/gradient-glossary-illustration_23-2150261251.jpg?t=st=1728623406~exp=1728627006~hmac=8c4fa9967947c37a81c1931bc9b3ef70fb6bf9942a23aaf0fa4e2cc676afb893&w=740"
-          alt="" class="img">
+          alt="Login illustration" class="img">
       </div>
       <div class="signin-page">
         <form @submit.prevent="forgotPassword">
-            <h1>Forgot Your Password?</h1>
-            <h4>Enter your email address and we will send you a link to reset your password.</h4>
+          <h1>Forgot Your Password?</h1>
+          <h4>Enter your email address and we will send you a link to reset your password.</h4>
 
-            <div class="input-group">
-              <input type="email" v-model="email" class="textname" placeholder="Email" required>
-            </div>
+          <div class="input-group">
+            <input
+              type="email"
+              v-model="email"
+              class="textname"
+              placeholder="Email"
+              required
+              :class="{'input-error': emailError}" 
+            />
+          </div>
 
-            <div class="btn-container">
-              <button class="btn-In">Send Reset Link</button>
-            </div>
+          <div v-if="emailError" class="error-message">Please enter a valid email address.</div>
 
-            <div class="back-to-login">
-              <router-link to="/auth/login">Back to Login</router-link>
-            </div>
+          <div class="btn-container">
+            <button class="btn-In" type="submit">Send Reset Link</button>
+          </div>
+
+          <div class="back-to-login">
+            <router-link to="/auth/login">Back to Login</router-link>
+          </div>
         </form>
       </div>
     </div>
@@ -29,49 +38,35 @@
 </template>
 
 <script>
-import axios from 'axios';
+import AuthService from '@/service/AuthService';
 
 export default {
   name: 'ForgotPassword',
   data() {
     return {
-      email: ''
+      email: '',
+      emailError: false
     };
   },
   methods: {
     async forgotPassword() {
-      if (!this.email) {
-        alert("Please enter your email address!");
+      if (!this.validateEmail(this.email)) {
+        this.emailError = true;
         return;
       }
-
+      this.emailError = false;
 
       try {
-        // Lấy token từ currentUser trong localStorage
-        const currentUser = JSON.parse(localStorage.getItem('currentUser'));
-        const token = currentUser ? currentUser.token : null;
-
-
-        // Gửi yêu cầu API trực tiếp bằng axios
-        const response = await axios.post(
-          'http://127.0.0.1:8000/api/auth/password/forgot',
-          { email: this.email },
-          {
-            headers: {
-              Authorization: `Bearer ${token}`
-            }
-          }
-        );
-
+        const response = await AuthService.forgotPassword(this.email);
         alert("Check your email for the reset link.");
-        this.$router.push({ name: 'resertpassword' }); // Chuyển hướng về trang đăng nhập
-      
+        this.$router.push({ name: 'resetpassword' }); // Chuyển hướng đến trang reset mật khẩu
       } catch (error) {
-        alert('Error sending reset link');
+        alert("Error sending reset link: " + error.message);
         console.error(error);
       }
     },
 
+    // Kiểm tra tính hợp lệ của email
     validateEmail(email) {
       const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       return re.test(email);
@@ -102,7 +97,6 @@ body {
   flex-wrap: wrap;
   justify-content: center;
   align-items: center;
-  /* background-color: rgb(218, 228, 237); */
   border: 2px solid #3b92c5;
   border-radius: 20px;
   padding: 30px;
@@ -169,6 +163,17 @@ h4 {
   border-color: #4c5bb6;
 }
 
+.input-error {
+  border-color: red;
+}
+
+.error-message {
+  color: red;
+  font-size: 12px;
+  text-align: center;
+  margin-top: 5px;
+}
+
 .btn-container {
   display: flex;
   justify-content: center;
@@ -204,5 +209,4 @@ h4 {
 .back-to-login router-link:hover {
   color: #80e4fc;
 }
-
 </style>

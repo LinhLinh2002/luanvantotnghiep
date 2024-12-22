@@ -487,7 +487,7 @@ export default {
           this.isPaymentSuccess = false; // Trạng thái thanh toán đang chờ xử lý
 
         }
-        else if (response.data.momoUrl.original.momoUrl) {
+        else if (response.data.momoUrl && response.data.momoUrl.original && response.data.momoUrl.original.momoUrl) {
           // Redirect đến MoMo
           console.log('Redirecting to MoMo...');
           window.location.href = response.data.momoUrl.original.momoUrl;
@@ -529,9 +529,6 @@ export default {
 
         const response = await this.$axios.get('http://127.0.0.1:8000/api/momo/callback', { params: urlParams });
         console.log(response.data)
-
-
-
 
         if (response.data.resultCode === '0') {
           // Thanh toán thành công

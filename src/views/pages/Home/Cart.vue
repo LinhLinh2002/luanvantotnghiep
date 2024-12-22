@@ -10,13 +10,13 @@
         <img :src="item.book.image" alt="Product Image" class="product-image" />
         <div class="product-info">
           <span class="product-title">{{ item.book.title }}</span>
-          <span class="product-price">{{ formatCurrency (item.price) }}   </span>
+          <span class="product-price">{{ formatCurrency(item.price) }} </span>
           <div class="quantity-controls">
             <button @click="decreaseQuantity(item.id)">-</button>
             <span>{{ item.quantity }}</span>
             <button @click="increaseQuantity(item.id)">+</button>
           </div>
-          <span class="product-total">{{ formatCurrency (item.price * item.quantity) }} </span>
+          <span class="product-total">{{ formatCurrency(item.price * item.quantity) }} </span>
           <button @click="removeItem(item.id)" class="remove-button">Xóa</button>
         </div>
       </div>
@@ -29,7 +29,7 @@
 
     <!-- Cart footer with total and coupon section -->
     <div class="cart-footer" v-if="cartItems.length">
-      <p class="total">Tổng Cộng: {{ formatCurrency (total) }} </p>
+      <p class="total">Tổng Cộng: {{ formatCurrency(total) }} </p>
 
       <div class="button-group">
         <!-- Nhóm nút bên trái -->

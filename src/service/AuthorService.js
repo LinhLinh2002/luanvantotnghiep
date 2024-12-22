@@ -12,8 +12,8 @@ class AuthorService {
 
     // Helper method: Xử lý truy cập trái phép
     _handleUnauthorizedAccess() {
-        alert("Bạn cần đăng nhập để tiếp tục.");
-        router.push({ name: 'login' });
+        //alert("Bạn cần đăng nhập để tiếp tục.");
+        //router.push({ name: 'login' });
     }
 
     // Thêm axios headers chứa token

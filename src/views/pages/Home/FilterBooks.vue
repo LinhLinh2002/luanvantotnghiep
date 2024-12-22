@@ -63,6 +63,9 @@
                         <p class="book-status">
                             {{ book.status ? 'Có sẵn' : 'Hết hàng' }}
                         </p>
+                        <button class="product-button-sell" @click.prevent="addToCart(book.id)">
+                            <i class="bx bxs-cart"></i> Chọn Mua
+                        </button>
                     </rotuer-link>
                 </div>
                 <div v-else>
@@ -78,6 +81,7 @@
 import axios from 'axios';
 import FooterComponent from './Footer.vue';
 import HeaderComponent from './Header.vue';
+import CartService from '/src/service/CartService.js';
 
 export default {
     name: 'FilterBooks',
@@ -105,12 +109,24 @@ export default {
     },
 
     methods: {
+        async addToCart(bookId) {
+            try {
+                await CartService.addToCart(bookId, 1);
+                toast.add({ severity: 'success', summary: 'Thành công', detail: 'Tác giả đã được thêm', life: 3000 });
+                window.location.reload();
+            } catch (error) {
+                console.error('Error adding to cart:', error);
+                window.location.reload();
+
+            }
+        },
+
         formatTooltip(value) {
             return `${value.toLocaleString()} đ`;
         },
 
         selectCategory(category) {
-            console.log('113:',category);
+            console.log('113:', category);
             this.selectedCategoryId = category.id; // Gán danh mục được chọn
             this.filteredBooks = this.books.filter(book => book.category_id === category.id); // Lọc danh sách sách
 
@@ -124,11 +140,21 @@ export default {
             this.fetchBooksByQuery();
         },
 
-
         selectPublisher(publisher) {
-            this.selectedPublisherId = publisher.id;
-            this.filteredBooks = this.books.filter(book => book.publisher_id === publisher.id);
+            console.log('113:', publisher);
+            this.selectedPublisherId = publisher.id; // Gán danh mục được chọn
+            this.filteredBooks = this.books.filter(book => book.publisher_id === publisher.id); // Lọc danh sách sách
+
+            // Thay đổi URL khi người dùng chọn danh mục
+            this.$router.push({
+                name: 'FilterBooks', // Tên route
+                query: { type: 'publisher', id: publisher.id }, // Cập nhật query params
+            });
+
+            // Fetch sách nếu cần dữ liệu từ API
+            this.fetchBooksByQuery();
         },
+
         async fetchBooksByQuery() {
             const { type, id } = this.$route.query;
 
@@ -477,7 +503,7 @@ export default {
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    height: 300px;
+    height: 420px;
     /* Giới hạn chiều cao để không quá dài */
 }
 
@@ -533,6 +559,21 @@ export default {
 
 .book-status.out-of-stock {
     color: #f44336;
+}
+
+.product-button-sell {
+    background-color: #0056b3;
+    color: white;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 20px;
+    cursor: pointer;
+    text-transform: uppercase;
+    font-size: 15px;
+}
+
+.product-button-sell:hover {
+    background-color: #5b91cc;
 }
 
 /* Footer */

@@ -103,42 +103,13 @@ export default {
             // Call backend to get the Google login URL
             axios.get('http://127.0.0.1:8000/api/auth/google')
                 .then(response => {
-                    // Redirect user to Google login URL
                     window.location.href = response.data.url;
-
-
-
                 })
                 .catch(error => {
                     console.error("Error during Google login:", error);
                 });
         },
-        handleGoogleCallback() {
-            const urlParams = new URLSearchParams(window.location.search);
-            const code = urlParams.get('code'); // Lấy mã code từ URL
-            if (code) {
-                axios
-                    .get('http://localhost:8000/api/auth/google/callback', { code })
-                    .then((response) => {
-                        console.log('Login Response:', response.data);
-
-                        // Lưu token và thông tin user vào localStorage
-                        localStorage.setItem(
-                            'access_token',
-                            response.data.access_token.access_token
-                        );
-                        localStorage.setItem('user', JSON.stringify(response.data.user));
-                        aler('ok, 120')
-                        // Chuyển hướng tới trang bookstore
-                        next('/bookstore');
-                    })
-                    .catch((error) => {
-                        console.error('Error during login:', error);
-                        alert('Login failed!');
-                    });
-            }
-        },
-
+       
 
         loginWithFacebook() {
             // Gửi yêu cầu đến backend để lấy URL đăng nhập Facebook
@@ -153,29 +124,33 @@ export default {
         },
 
 
-        async handleFacebookCallback() {
-            const urlParams = new URLSearchParams(window.location.search);
-            const code = urlParams.get('code'); // Lấy mã code từ URL
+        handleGoogleCallback() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const code = urlParams.get('code'); // Lấy mã code từ URL
+    if (code) {
+        axios
+            .get('http://localhost:8000/api/auth/google/callback', {
+                params: { code: code }  // Truyền mã code trong params
+            })
+            .then((response) => {
+                console.log('Login Response:', response.data);
 
-            if (code) {
-                try {
-                    const response = await axios.post('http://127.0.0.1:8000/api/auth/facebook/callback', { code });
-                    const { accessToken, user } = response.data;
+                // Lưu token và thông tin user vào localStorage
+                localStorage.setItem('access_token', response.data.access_token.access_token);
+                localStorage.setItem('user', JSON.stringify(response.data.user));
 
-                    // Lưu token và thông tin user vào localStorage
-                    localStorage.setItem('access_token', accessToken);
-                    localStorage.setItem('user', JSON.stringify(user));
+                // Chuyển hướng tới trang chủ
+                window.location.href = response.data.redirect_url; // Đảm bảo sử dụng redirect_url trả về
+            })
+            .catch((error) => {
+                console.error('Error during login:', error);
+                alert('Login failed!');
+            });
+    } else {
+        console.error("Code not found in URL params.");
+    }
+},
 
-                    // Chuyển hướng tới trang bookstore
-                    this.$router.push({ name: 'bookstore' });
-                } catch (error) {
-                    console.error('Error during Facebook login:', error);
-                    alert('Login failed!');
-                }
-            } else {
-                alert('Mã code không tồn tại!');
-            }
-        },
 
 
         goToRegister() {

@@ -344,7 +344,7 @@ a {
     width: calc(20% - 20px); /* Fit 5 cards per row */
     padding: 15px;
     margin-top: 15px;
-    min-height: 250px; /* Set a minimum height for consistency */
+    height: 400px; /* Set a minimum height for consistency */
     display: flex;
     flex-direction: column;
     justify-content: space-between;
@@ -479,8 +479,9 @@ a {
     margin-bottom: 10px;
 }
 .product-name-sell {
-    font-size: 14px;
+    font-size: 15px;
     margin: 10px 0;
+   font-family:  Inter,-apple-system,sans-serif;
 }
 .product-price-sell {
     color: #FF5733;

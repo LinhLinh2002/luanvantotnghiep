@@ -81,7 +81,7 @@
                     <button class="buy-button" @click="addToCart(book.id)">
                         <i class="bx bxs-cart"></i> Chọn Mua
                     </button>
-
+                    
                     <button class="wishlist-button" @click="toggleWishlist(book.id)"
                         :class="{ 'active-wishlist': isInWishlist }">
                         <i class="bx bxs-heart"></i>
@@ -256,6 +256,10 @@ export default {
         increaseQuantity() {
             if (this.quantity < 99) {
                 this.quantity++;
+                if (this.quantity > this.book.quantity) {
+                    alert("so luong vuot qua san pham")
+                    this.quantity = this.book.quantity;// gán dữ liệu của kho vào sl
+                }
             }
         },
         decreaseQuantity() {

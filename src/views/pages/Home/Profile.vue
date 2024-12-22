@@ -11,11 +11,11 @@
     </div>
 
     <!-- Account Info Form -->
-    <form v-if="activeForm === 'account'" class="profile-form">
+    <form v-if="activeForm === 'account'" class="profile-form" @submit.prevent="updateUserInfo">
       <div class="form-section">
         <h3>Thông Tin Tài Khoản</h3>
         <label for="name">Tên Người Dùng *</label>
-        <input type="text" id="name" v-model="user.name" placeholder="Nhập họ và tên" />
+        <input type="text" id="name" v-model="user.name" placeholder="Nhập họ và tên" required />
 
         <label for="email">E-mail *</label>
         <input type="email" id="email" v-model="user.email" disabled />
@@ -26,7 +26,7 @@
         <label for="confirm-password">Xác nhận mật khẩu *</label>
         <input type="password" id="confirm-password" v-model="user.password" placeholder="Nhập lại mật khẩu" disabled />
 
-        <button @click.prevent="updateUserInfo" class="submit-button">Lưu Thông Tin</button>
+        <button type="submit" class="submit-button">Lưu Thông Tin</button>
       </div>
     </form>
 
@@ -62,7 +62,7 @@
       </div>
 
       <!-- Form to add/edit address -->
-      <div v-if="showAddAddressForm" >
+      <div v-if="showAddAddressForm">
         <h2>{{ isEditing ? "Sửa Địa Chỉ" : "Thêm Địa Chỉ Mới" }}</h2>
         <form @submit.prevent="saveAddress">
           <div>
@@ -135,6 +135,7 @@ import {
   updateAddress,
   deleteAddress
 } from "@/service/AddressService";
+import AuthService from '@/service/AuthService';
 
 export default {
   components: {
@@ -247,7 +248,7 @@ export default {
           await addAddress(this.newAddress);
         }
         this.loadAddresses();
-        this.cancelAddAddress();
+        this.showAddAddressForm = false;
       } catch (error) {
         console.error("Error saving address:", error);
       }
@@ -267,17 +268,28 @@ export default {
         ward_id: null,
       };
     },
-    async deleteAddress(id) {
+    async deleteAddress(addressId) {
       try {
-        await deleteAddress(id);
+        await deleteAddress(addressId);
         this.loadAddresses();
       } catch (error) {
-        console.error("Error deleting address:", error);
+        console.error("Lỗi khi xóa địa chỉ:", error);
       }
     },
-    updateUserInfo() {
-      console.log("Updating user info:", this.user);
-      // Handle updating user info logic here
+    async updateUserInfo() {
+      this.loading = true;
+      this.error = null;
+
+      try {
+        const updatedUser = await AuthService.updateProfile(this.user);  // Gọi hàm updateProfile
+        this.user = updatedUser; // Cập nhật lại thông tin người dùng trong component nếu cần
+        alert("Thông tin tài khoản đã được cập nhật thành công!");
+      } catch (error) {
+        this.error = "Có lỗi xảy ra trong quá trình cập nhật. Vui lòng thử lại!";
+        console.error(error);
+      } finally {
+        this.loading = false;
+      }
     }
   }
 };
@@ -366,24 +378,35 @@ h2 {
 }
 
 .checkbox-group {
-  display: flex; /* Sử dụng flexbox để sắp xếp theo hàng */
-  align-items: center; /* Căn chỉnh checkbox và chữ theo chiều dọc */
-  gap: 5px; /* Khoảng cách nhỏ giữa checkbox và chữ */
+  display: flex;
+  /* Sử dụng flexbox để sắp xếp theo hàng */
+  align-items: center;
+  /* Căn chỉnh checkbox và chữ theo chiều dọc */
+  gap: 5px;
+  /* Khoảng cách nhỏ giữa checkbox và chữ */
   padding-bottom: 20px;
 }
 
 .checkbox-group input[type="checkbox"] {
-  margin: 0; /* Xóa khoảng cách mặc định */
-  padding: 0; /* Loại bỏ padding mặc định nếu có */
-  width: auto; /* Đảm bảo không bị kéo dài bất thường */
+  margin: 0;
+  /* Xóa khoảng cách mặc định */
+  padding: 0;
+  /* Loại bỏ padding mặc định nếu có */
+  width: auto;
+  /* Đảm bảo không bị kéo dài bất thường */
 }
 
 .checkbox-group label {
-  margin: 0; /* Xóa khoảng cách mặc định */
-  padding: 0; /* Xóa padding không cần thiết */
-  font-size: 16px; /* Đặt kích thước chữ phù hợp */
-  color: #333; /* Đảm bảo màu sắc dễ nhìn */
-  cursor: pointer; /* Cho phép click vào chữ để chọn checkbox */
+  margin: 0;
+  /* Xóa khoảng cách mặc định */
+  padding: 0;
+  /* Xóa padding không cần thiết */
+  font-size: 16px;
+  /* Đặt kích thước chữ phù hợp */
+  color: #333;
+  /* Đảm bảo màu sắc dễ nhìn */
+  cursor: pointer;
+  /* Cho phép click vào chữ để chọn checkbox */
 }
 
 
@@ -432,11 +455,13 @@ h2 {
 .address-actions button:hover {
   background-color: #e64a19;
 }
+
 .add-adres form {
   margin-left: 20px;
   position: relative;
   top: -1100px;
 }
+
 .submit-button {
   background-color: #28a745;
   color: #fff;

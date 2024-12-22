@@ -185,8 +185,10 @@ const router = createRouter({
             path: '/search',
             name: 'SearchResults',
             component: () => import('@/views/pages/Home/SearchResults.vue'),
-            props: (route) => ({ query: route.query.query }) // Truyền query dưới dạng props
-          },
+            props: (route) => ({ query: route.query.query }), // Truyền query dưới dạng props
+        }
+        ,
+
         {
             path: '/index2',
             name: 'index',
@@ -254,7 +256,7 @@ const router = createRouter({
         },
         {
             path: '/auth/reset',
-            name: 'resertpassword',
+            name: 'resetpassword',
             component: () => import('@/views/pages/auth/Resetpassword.vue')
         },
         {
