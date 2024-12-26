@@ -35,7 +35,7 @@
                         </li>
                         <li>
                             <span class="label">Kích Thước : </span>
-                            <span class="value">{{ book.size }}</span>
+                            <span class="value">{{ book.length }}x{{ book.width }}x{{ book.height }}</span>
                         </li>
                         <li>
                             <span class="label">Năm xuất bản : </span>
@@ -67,13 +67,24 @@
             </div>
             <div class="book-info">
                 <h2 class="book-title">{{ book.title }}</h2>
-                <p class="book-price">Giá: {{ book.original_price }} đ</p>
+
+                <p v-if="book.discount_price" class="book-price">
+                    <span class="old-price">{{ formatCurrency(book.original_price) }} đ</span>
+                    <span class="discounted-price">{{ formatCurrency(book.discount_price) }} đ</span>
+                </p>
+                <p v-else class="book-price">{{ formatCurrency(book.original_price) }} đ</p>
+
+                <div class="quantity">
+                    <span v-if="book.quantity > 0">Số lượng sách còn {{ book.quantity }} </span>
+                    <span v-else style="color: red;">Hết hàng</span>
+                </div>
+
 
                 <div class="action-container">
                     <!-- Nút số lượng -->
                     <div class="quantity-selector">
                         <button @click="decreaseQuantity" :disabled="quantity <= 1">-</button>
-                        <span class="quantity-display">{{ quantity }}</span>
+                        <input type="number" class="quantity-display" :placeholder="quantity" v-model="quantity" />
                         <button @click="increaseQuantity" :disabled="quantity >= 99">+</button>
                     </div>
 
@@ -81,7 +92,7 @@
                     <button class="buy-button" @click="addToCart(book.id)">
                         <i class="bx bxs-cart"></i> Chọn Mua
                     </button>
-                    
+
                     <button class="wishlist-button" @click="toggleWishlist(book.id)"
                         :class="{ 'active-wishlist': isInWishlist }">
                         <i class="bx bxs-heart"></i>
@@ -125,7 +136,7 @@ export default {
             // Kiểm tra trạng thái yêu thích khi trang được load lại
             await this.checkWishlistStatus(bookId);
         } catch (error) {
-            console.error('Error loading book details:', error);
+            // console.error('Error loading book details:', error);
         }
     },
     setup() {
@@ -135,27 +146,52 @@ export default {
         };
     },
     methods: {
+        formatCurrency(amount) {
+            return new Intl.NumberFormat('vi-VN').format(amount);
+        },
         async addToCart(bookId) {
+            if (this.quantity > this.book.quantity) {
+                this.toast.add({
+                    severity: "warn",
+                    summary: "Lỗi",
+                    detail: `Số lượng trong kho không đủ. Bạn chỉ có thể mua tối đa ${this.book.quantity} sản phẩm.`,
+                    life: 3000,
+                });
+                return;
+            }
+
             try {
-                await CartService.addToCart(bookId, this.quantity);
-                this.toast.add({ // Truy cập toast từ setup()
-                    severity: 'success',
-                    summary: 'Thành công',
-                    detail: 'Sản phẩm đã được thêm vào giỏ hàng.',
+                await CartService.addToCart(bookId, this.quantity); 
+                this.toast.add({
+                    severity: "success",
+                    summary: "Thành công",
+                    detail: "Sản phẩm đã được thêm vào giỏ hàng.",
                     life: 3000,
                 });
                 window.location.reload();
-
             } catch (error) {
-                console.error('Lỗi khi thêm sản phẩm vào giỏ hàng:', error);
-                this.toast.add({
-                    severity: 'error',
-                    summary: 'Lỗi',
-                    detail: 'Không thể thêm sản phẩm vào giỏ hàng.',
-                    life: 3000,
-                });
+                if (error.response) {
+                    if (error.response.status === 400) {
+                        this.toast.add({
+                            severity: "warn",
+                            summary: "Thông báo",
+                            detail: "Sản phẩm đã có trong giỏ hàng hoặc đã đạt số lượng tối đa.",
+                            life: 3000,
+                        });
+                    } else if (error.response.status === 401) {
+                        this.$router.push({ name: "login" });
+                    } else {
+                        this.toast.add({
+                            severity: "error",
+                            summary: "Lỗi",
+                            detail: "Không thể thêm sản phẩm vào giỏ hàng.",
+                            life: 3000,
+                        });
+                    }
+                } 
             }
         },
+
         async addToWishlist(bookId) {
             try {
                 await WishlistService.addToWishlist(bookId);
@@ -168,17 +204,19 @@ export default {
                     life: 3000,
                 });
             } catch (error) {
-                console.error('Lỗi khi thêm sản phẩm vào danh sách yêu thích:', error);
+                // console.error('Lỗi khi thêm sản phẩm vào danh sách yêu thích:', error);
+                this.$router.push({ name: 'login' });
+
             }
         },
 
         async removeFromWishlist(bookId) {
             try {
-                console.log("Gửi yêu cầu xóa sách với ID:", bookId);
+                // console.log("Gửi yêu cầu xóa sách với ID:", bookId);
 
                 const response = await WishlistService.removeFromWishlist(bookId);
-
-                console.log("Kết quả từ API:", response);
+                // hàm này đang sai nha
+                // console.log("Kết quả từ API:", response);
 
                 // Nếu API trả về thành công
                 if (response.status === 200) {
@@ -192,7 +230,7 @@ export default {
                 }
             } catch (error) {
                 if (error.response) {
-                    console.error("Lỗi API:", error.response.data);
+                    // console.error("Lỗi API:", error.response.data);
 
                     // Nếu lỗi 404
                     if (error.response.status === 404) {
@@ -204,7 +242,7 @@ export default {
                         });
                     }
                 } else {
-                    console.error("Lỗi không xác định:", error);
+                    // console.error("Lỗi không xác định:", error);
                     this.toast.add({
                         severity: "error",
                         summary: "Lỗi",
@@ -220,9 +258,9 @@ export default {
             try {
                 const response = await WishlistService.getWishlist();
                 this.wishlist = response.data; // Cập nhật danh sách yêu thích
-                console.log("Danh sách yêu thích được cập nhật:", this.wishlist);
+                // console.log("Danh sách yêu thích được cập nhật:", this.wishlist);
             } catch (error) {
-                console.error("Lỗi khi lấy danh sách yêu thích:", error);
+                // console.error("Lỗi khi lấy danh sách yêu thích:", error);
             }
         },
 
@@ -239,14 +277,12 @@ export default {
         async checkWishlistStatus(bookId) {
             try {
                 const response = await WishlistService.getWishlist(); // Lấy danh sách yêu thích
-                console.log('Dữ liệu trả về từ API:', response.data);
-                console.log('Book ID cần kiểm tra:', bookId);
 
                 // Kiểm tra trạng thái yêu thích
                 this.isInWishlist = response.data.some(item => Number(item.book_id) === Number(bookId));
-                console.log('isInWishlist sau khi kiểm tra:', this.isInWishlist);
+                // console.log('isInWishlist sau khi kiểm tra:', this.isInWishlist);
             } catch (error) {
-                console.error('Lỗi khi kiểm tra trạng thái yêu thích:', error);
+                // console.error('Lỗi khi kiểm tra trạng thái yêu thích:', error);
             }
         },
 
@@ -257,25 +293,41 @@ export default {
             if (this.quantity < 99) {
                 this.quantity++;
                 if (this.quantity > this.book.quantity) {
-                    alert("so luong vuot qua san pham")
-                    this.quantity = this.book.quantity;// gán dữ liệu của kho vào sl
+                    this.toast.add({
+                        severity: "warn",
+                        summary: "Lỗi",
+                        detail: `Số lượng trong kho không đủ. Bạn chỉ có thể mua tối đa ${this.book.quantity} sản phẩm.`,
+                        life: 3000,
+                    });
+                    this.quantity = this.book.quantity; // Đặt lại số lượng về tối đa trong kho
                 }
             }
         },
+
         decreaseQuantity() {
             if (this.quantity > 1) {
                 this.quantity--;
             }
         },
     },
+
 };
 </script>
-
-
 
 <style>
 body {
     background-color: #fff;
+}
+
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+/* Firefox */
+input[type=number] {
+    -moz-appearance: textfield;
 }
 
 .p-toast {
@@ -402,9 +454,10 @@ body {
     /* Bo tròn viền */
     box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
     /* Đổ bóng nhẹ */
-    max-width: 450px;
+    width: 500px;
     /* Chiều rộng tối đa cho thẻ */
     padding: 20px;
+    height: 200px;
 }
 
 .book-title {
@@ -412,6 +465,35 @@ body {
     font-weight: bold;
     margin-bottom: 20px;
     color: #0f1214;
+}
+
+.book-price {
+    font-size: 19px;
+    color: #2e2b2b;
+    margin-bottom: 20px;
+}
+
+.old-price {
+    font-size: 16px;
+    color: #888;
+    text-decoration: line-through;
+    margin-right: 10px;
+}
+
+.discounted-price {
+    font-size: 19px;
+    color: #f44336;
+    font-weight: bold;
+}
+
+.quantity {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: #888;
+    font-size: 15px;
+    text-align: right;
+    /* Align text to the right */
+    margin-bottom: 10px;
+    /* Add some margin for better spacing */
 }
 
 .action-container {
@@ -456,11 +538,7 @@ body {
     border-right: 1px solid #ccc;
 }
 
-.book-price {
-    font-size: 19px;
-    color: #2e2b2b;
-    margin-bottom: 20px;
-}
+
 
 .buy-button {
     background-color: #034784;

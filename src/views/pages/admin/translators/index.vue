@@ -80,7 +80,7 @@ const fetchTranslators = async () => {
         const response = await TranslatorService.getAllTranslators();
         Translators.value = response.data;
     } catch (error) {
-        alert('Lỗi khi lấy danh sách dịch giả: ' + error.message);
+        // alert('Lỗi khi lấy danh sách dịch giả: ' + error.message);
     }
 };
 
@@ -126,7 +126,9 @@ const createTranslator = async () => {
         toast.add({ severity: 'success', summary: 'Thành công', detail: 'dịch giả đã được thêm', life: 3000 });
         closeModal();
     } catch (error) {
-        alert('Lỗi khi tạo dịch giả: ' + error.message);
+        // alert('Lỗi khi tạo dịch giả: ' + error.message);
+        toast.add({ severity: 'error', summary: 'Thất bại', detail: 'Dịch giả bị trùng tên', life: 3000 });
+
     }
 };
 
@@ -142,7 +144,9 @@ const updateTranslator = async () => {
         toast.add({ severity: 'success', summary: 'Thành công', detail: 'dịch giả đã được cập nhật', life: 3000 });
         closeModal();
     } catch (error) {
-        alert('Lỗi khi cập nhật dịch giả: ' + error.message);
+        // alert('Lỗi khi cập nhật dịch giả: ' + error.message);
+        toast.add({ severity: 'error', summary: 'Thất bại', detail: 'Dịch giả bị trùng tên', life: 3000 });
+
     }
 };
 

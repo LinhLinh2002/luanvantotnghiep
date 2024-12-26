@@ -91,41 +91,51 @@
             <div class="form-row">
                 <div class="form-group">
                     <label for="quantity">Số Lượng:</label>
-                    <input type="number" v-model="book.quantity" class="form-control" required min="0" />
+                    <input type="number" v-model="book.quantity" class="form-control" required min="0"
+                        @input="validateNumber('quantity')" />
                 </div>
                 <div class="form-group">
                     <label for="original_price">Giá Gốc:</label>
-                    <input type="number" v-model="book.original_price" class="form-control" required />
+                    <input type="number" v-model="book.original_price" class="form-control" required
+                        @input="validateNumber('original_price')" />
                 </div>
                 <div class="form-group">
                     <label for="discount_price">Giá Khuyến Mãi:</label>
-                    <input type="number" v-model="book.discount_price" class="form-control" />
+                    <input type="number" v-model="book.discount_price" class="form-control"
+                        @input="validateNumber('discount_price')" />
                 </div>
             </div>
             <div class="form-row">
                 <div class="form-group">
                     <label for="published_year">Năm Xuất Bản:</label>
-                    <input type="number" v-model="book.published_year" class="form-control" required />
+                    <input type="number" v-model="book.published_year" class="form-control" required
+                        @input="validateNumber('published_year')" />
                 </div>
                 <div class="form-group">
                     <label for="number_pages">Số Trang:</label>
-                    <input type="number" v-model="book.number_pages" class="form-control" required />
+                    <input type="number" v-model="book.number_pages" class="form-control" required min="50" max="400"
+                        @input="validateNumber('number_pages')" />
+
                 </div>
                 <div class="form-group">
-                    <label for="size">Length:</label>
-                    <input type="text" v-model="book.length" class="form-control" required />
+                    <label for="size">Chiều dài :</label>
+                    <input type="text" v-model="book.length" step="0.01" class="form-control" required
+                        @input="validateNumber('length')" />
                 </div>
                 <div class="form-group">
-                    <label for="size">Width:</label>
-                    <input type="text" v-model="book.width" class="form-control" required />
+                    <label for="size">Chiều rộng :</label>
+                    <input type="text" v-model="book.width" step="0.01" class="form-control" required
+                        @input="validateNumber('width')" />
                 </div>
                 <div class="form-group">
-                    <label for="size">Height:</label>
-                    <input type="text" v-model="book.height" class="form-control" required />
+                    <label for="size">Chiều Cao:</label>
+                    <input type="text" v-model="book.height" step="0.01" class="form-control" required
+                        @input="validateNumber('height')" />
                 </div>
                 <div class="form-group">
                     <label for="weight">Trọng Lượng:</label>
-                    <input type="number" v-model="book.weight" step="0.01" class="form-control" required />
+                    <input type="number" v-model="book.weight" step="0.01" class="form-control" required
+                        @input="validateNumber('weight')" />
                 </div>
             </div>
             <div class="form-group">
@@ -139,6 +149,7 @@
 </template>
 
 <script setup>
+import { reactive, computed, onMounted, ref,watch } from 'vue';
 import CategoryService from '@/service/CategoryService';
 
 import router from '@/router';
@@ -148,7 +159,6 @@ import BookService from '@/service/BookService';
 import PublisherService from '@/service/PublisherService';
 import TranslatorService from '@/service/TranslatorService';
 import { useToast } from 'primevue/usetoast';
-import { computed, onMounted, ref } from 'vue';
 
 const isDropdownOpen = ref(false);
 const authors = ref([]);
@@ -179,15 +189,36 @@ const book = ref({
     length: '',
     width: '',
     height: '',
-    status: 'instock',
-    weight: 0,
+    status: '',
+    weight: 0 ,
+});
+const errors = reactive({
+    number_pages: ''
 });
 
+const validateNumber = (field) => {
+     {
+        if (book.value[field] < 0) {
+            book.value[field] = 0;
+        }
+    }
+};
+watch(
+      () => book.value.quantity,
+      (newQuantity) => {
+        if (newQuantity === 0) {
+          book.value.status = 'out_of_stock';
+        } else if (newQuantity > 0) {
+          book.value.status = 'instock';
+        }
+      }
+    );
 const toast = useToast();
 
 const fetchAuthors = async () => {
     const response = await AuthorService.getAllAuthors();
-    authors.value = response.data;};
+    authors.value = response.data;
+};
 
 const fetchPublishers = async () => {
     const response = await PublisherService.getAllPublishers();
@@ -201,20 +232,23 @@ const fetchTranslators = async () => {
 
 const fetchCategories = async () => {
     const response = await CategoryService.getAllCategories();
-        categories.value = response.data;
-    };
+    categories.value = response.data;
+};
 
 const fetchGenres = async () => {
     const response = await AttributeService.getAllGenres();
-    genres.value = response.data;};
+    genres.value = response.data;
+};
 
 const fetchCoverTypes = async () => {
-    const response = await AttributeService.getAllCoverTypes ();
-    coverTypes.value = response.data;};
+    const response = await AttributeService.getAllCoverTypes();
+    coverTypes.value = response.data;
+};
 
 const fetchLanguages = async () => {
     const response = await AttributeService.getAllLanguages();
-    languages.value = response.data;};
+    languages.value = response.data;
+};
 
 const toggleDropdown = (event) => {
     event.stopPropagation();
@@ -239,6 +273,12 @@ const onFileChange = (event) => {
 };
 
 const createBook = async () => {
+    // Kiểm tra số trang trước khi gửi
+    if (book.value.number_pages < 50 || book.value.number_pages > 400) {
+        alert('Số trang phải nằm trong khoảng từ 50 đến 400.');
+        return;
+    }
+
     const formData = new FormData();
 
     for (const key in book.value) {
@@ -251,7 +291,7 @@ const createBook = async () => {
         }
     }
 
-    if (book.value.quantity < 0) {
+    if (book.value.quantity < 1) {
         alert('Số lượng sản phẩm không thể là số âm!');
         return;
     }
@@ -261,8 +301,14 @@ const createBook = async () => {
         showToast('Thêm sách thành công!');
         router.push('/books');
     } catch (error) {
-        console.error('Lỗi khi thêm sách:', error.response?.data || error.message);
-        alert('Lỗi: ' + (error.response?.data.message || error.message));
+        // console.error('Lỗi khi thêm sách:', error.response?.data || error.message);
+        // alert('Lỗi: ' + (error.response?.data.message || error.message));
+        toast.add({ 
+        severity: 'error',
+        summary: 'Thất bại', 
+        detail: 'Lỗi: ' + (error.response?.data.message || error.message),
+         life: 3000 });
+
     }
 };
 
@@ -284,7 +330,6 @@ onMounted(() => {
 <style scoped>
 .container {
     max-width: 100%;
-    /* Đặt chiều rộng tối đa là 100% */
     margin: auto;
     padding: 20px;
     border: 1px solid #ccc;
@@ -292,7 +337,6 @@ onMounted(() => {
     background-color: #ffffff;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
-
 
 h1 {
     text-align: center;
@@ -328,7 +372,6 @@ h1 {
 
 .dropdown-menu {
     display: block;
-    /* Đảm bảo hiển thị */
     position: absolute;
     width: 100%;
     background-color: white;
@@ -386,9 +429,7 @@ h1 {
 
 .form-row {
     display: flex;
-    /* Sử dụng flexbox để sắp xếp các trường */
     justify-content: space-between;
-    /* Căn giữa các trường */
 }
 
 .form-group:last-child {
@@ -412,5 +453,12 @@ h1 {
     margin-top: 10px;
     max-width: 10%;
     height: auto;
+}
+
+.error-message {
+    color: red;
+    font-size: 14px;
+    margin-top: -10px;
+    margin-bottom: 10px;
 }
 </style>

@@ -2,7 +2,7 @@
     <div class="container">
         <div class="header">
             <h2>Quản Lý Mã Giảm Giá</h2>
-            <button class="new-button" @click="openCreateModal">New +</button>
+            <Button label="New + " @click="openCreateModal" />
         </div>
 
         <table class="table">
@@ -25,15 +25,16 @@
                     <td>{{ discount.id }}</td>
                     <td>{{ discount.code }}</td>
                     <td>{{ discount.discount_type }}</td>
-                    <td>{{ discount.discount_value }}</td>
-                    <td>{{ discount.cart_value }}</td>
+                    <td>{{ formatCurrency(discount.discount_value) }}</td>
+                    <td>{{ formatCurrency(discount.cart_value) }}</td>
                     <td>{{ formatDate(discount.start_date) }}</td>
                     <td>{{ formatDate(discount.end_date) }}</td>
                     <td>{{ discount.usage_limit }}</td>
                     <td>{{ discount.is_active ? 'Hoạt động' : 'Không hoạt động' }}</td>
                     <td>
-                        <button class="edit" @click="openEditModal(discount)">Sửa</button>
-                        <button class="delete" @click="openConfirmDeleteModal(discount.id)">Xóa</button>
+                        <Button icon="pi pi-pencil" outlined rounded class="mr-2" @click="openEditModal(discount)" />
+                        <Button icon="pi pi-trash" outlined rounded severity="danger"
+                            @click="openConfirmDeleteModal(discount.id)" />
                     </td>
                 </tr>
             </tbody>
@@ -93,6 +94,7 @@
                         <label for="isActive">Trạng Thái</label>
                     </div>
 
+
                     <div class="button-group">
                         <button @click="closeModal">Hủy</button>
                         <button type="submit">Lưu</button>
@@ -144,8 +146,10 @@ export default {
         const openEditModal = (discount) => {
             isEditMode.value = true;
             discountForm.value = { ...discount };
+            discountForm.value.is_active = discount.is_active ? true : false;  // Đảm bảo giá trị boolean đúng
             showModal.value = true;
         };
+
 
         const closeModal = () => {
             showModal.value = false;
@@ -210,12 +214,17 @@ export default {
         const formatDate = (date) => {
             return new Date(date).toLocaleDateString();
         };
+        // Hàm định dạng giá trị thành tiền tệ
+        const formatCurrency = (amount) => {
+            return new Intl.NumberFormat('vi-VN').format(amount);
+        };
 
         onMounted(() => {
             fetchDiscounts();
         });
 
         return {
+            formatCurrency,
             discounts,
             showModal,
             showConfirmModal,
@@ -305,6 +314,9 @@ h2 {
 }
 
 .modal {
+    display: flex;
+    justify-content: center;
+    align-items: center;
     position: fixed;
     top: 0;
     left: 0;
@@ -312,20 +324,13 @@ h2 {
     bottom: 0;
     z-index: 1000;
     background: rgba(0, 0, 0, 0.5);
-    display: flex;
-    justify-content: center;
-    align-items: center;
 }
 
 .modal-content {
-    background-color: white;
-    border-radius: 8px;
+    background: white;
     padding: 20px;
-    width: 100%;
-    max-width: 400px;
-    /* Giới hạn chiều rộng modal */
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-    animation: fadeIn 0.3s ease-in-out;
+    border-radius: 5px;
+    width: 400px;
 }
 
 @keyframes fadeIn {

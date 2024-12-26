@@ -5,8 +5,8 @@ const API_URL = 'http://127.0.0.1:8000/api/auth/wishlist';
 const WishlistService = {
     // Lấy token từ localStorage
     getToken() {
-        const currentUser = JSON.parse(localStorage.getItem("currentUser"));
-        return currentUser?.token?.access_token || null;
+        const token = localStorage.getItem("access_token");
+        return token || null;
     },
 
     // Lấy danh sách yêu thích

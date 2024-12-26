@@ -1,13 +1,14 @@
 import axios from 'axios';
 import router from '@/router'; // Import router để chuyển hướng trang
 
-const API_URL = 'http://127.0.0.1:8000/api/admin/authors';
+const API_URL_ADMIN  = 'http://127.0.0.1:8000/api/admin/authors';
+const API_URL = 'http://127.0.0.1:8000/api/authors';
 
 class AuthorService {
     // Helper method: Lấy token từ localStorage
     _getAuthToken() {
-        const currentUser = JSON.parse(localStorage.getItem("currentUser"));
-        return currentUser?.token?.access_token;
+        const token = localStorage.getItem("access_token");
+        return token || null;
     }
 
     // Helper method: Xử lý truy cập trái phép
@@ -52,7 +53,7 @@ class AuthorService {
 
     async createAuthor(data) {
         try {
-            const response = await axios.post(API_URL, data, {
+            const response = await axios.post(API_URL_ADMIN, data, {
                 headers: this._getAuthHeaders(),
             });
             return response.data;
@@ -66,7 +67,7 @@ class AuthorService {
 
     async updateAuthor(id, data) {
         try {
-            const response = await axios.put(`${API_URL}/${id}`, data, {
+            const response = await axios.put(`${API_URL_ADMIN}/${id}`, data, {
                 headers: this._getAuthHeaders(),
             });
             return response.data;
@@ -80,7 +81,7 @@ class AuthorService {
 
     async deleteAuthor(id) {
         try {
-            const response = await axios.delete(`${API_URL}/${id}`, {
+            const response = await axios.delete(`${API_URL_ADMIN}/${id}`, {
                 headers: this._getAuthHeaders(),
             });
             return response.data;

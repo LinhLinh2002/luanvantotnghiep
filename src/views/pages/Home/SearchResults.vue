@@ -9,6 +9,7 @@
             <label for="sortOptions">Sắp xếp:</label>
             <Dropdown id="sortOptions" v-model="selectedSort" :options="sortOptions" optionLabel="label"
                 @change="handleSort" class="sort-dropdown" />
+
         </div>
 
         <!-- Hiển thị trạng thái loading -->
@@ -23,8 +24,19 @@
                     <img :src="book.image" alt="Book Image" class="book-image" />
                     <h3>{{ book.title }}</h3>
                 </router-link>
-                <p>{{ book.status ? 'Có sẵn' : 'Hết hàng' }}</p>
-                <p>{{ book.original_price }} ₫</p>
+                <!-- <   -->
+
+                <p v-if="book.discount_price" class="discounted-price">
+                    {{ formatCurrency(book.discount_price) }} đ
+                </p>
+                <p v-if="book.discount_price" class="original-price">
+                    {{ formatCurrency(book.original_price) }} đ
+                </p>
+                <p v-else class="normal-price">
+                    {{ formatCurrency(book.original_price) }} đ
+                </p>
+
+
                 <button class="product-button-sell" @click.prevent="addToCart(book.id)">
                     <i class="bx bxs-cart"></i> Chọn Mua
                 </button>
@@ -42,14 +54,13 @@
 
 <script>
 import BookSearchService from "@/service/BookSearchService";
-import { ref, watch } from "vue";
-import { useRoute } from "vue-router";
+import Dropdown from 'primevue/dropdown';
 import { useToast } from "primevue/usetoast";
+import { onMounted, ref, watch } from "vue";
+import { useRoute } from "vue-router";
 import FooterComponent from "./Footer.vue";
 import HeaderComponent from "./Header.vue";
 import CartService from "/src/service/CartService.js";
-import Dropdown from 'primevue/dropdown';
-
 export default {
     name: "SearchResults",
     components: {
@@ -65,6 +76,9 @@ export default {
         const route = useRoute();
         const toast = useToast();
 
+        const formatCurrency = (amount) => {
+            return new Intl.NumberFormat('vi-VN').format(amount);
+        };
         // Danh sách tùy chọn sắp xếp
         const sortOptions = [
             { label: "Mới nhất", value: { sortBy: "created_at", sortOrder: "desc" } },
@@ -73,13 +87,16 @@ export default {
             { label: "Tên A-Z", value: { sortBy: "title", sortOrder: "asc" } },
             { label: "Tên Z-A", value: { sortBy: "title", sortOrder: "desc" } },
         ];
+        // console.log("Các tùy chọn sắp xếp:", sortOptions);
+
         const selectedSort = ref(sortOptions[0].value);
+        // console.log("Giá trị mặc định của selectedSort:", selectedSort.value);
 
         // Hàm tìm kiếm sách
         const searchBooks = async (query, authorId = null, sortBy = "created_at", sortOrder = "desc") => {
             if (!query.trim()) {
                 books.value = [];
-                console.log("Từ khóa tìm kiếm rỗng!");
+                // console.log("Từ khóa tìm kiếm rỗng!");
                 return;
             }
 
@@ -88,10 +105,10 @@ export default {
                 const response = await BookSearchService.searchBooks(query, authorId, sortBy, sortOrder);
                 books.value = response?.data || [];
                 if (books.value.length === 0) {
-                    console.log("Không tìm thấy sách nào!");
+                    // console.log("Không tìm thấy sách nào!");
                 }
             } catch (error) {
-                console.error("Lỗi khi tìm kiếm:", error);
+                // console.error("Lỗi khi tìm kiếm:", error);
                 toast.add({
                     severity: "error",
                     summary: "Lỗi",
@@ -105,21 +122,46 @@ export default {
 
         // Xử lý khi người dùng thay đổi tiêu chí sắp xếp
         const handleSort = () => {
-            const { sortBy, sortOrder } = selectedSort.value;
-            searchBooks(searchQuery.value, null, sortBy, sortOrder);
-        };
+            // console.log("Giá trị selectedSort khi chọn:", selectedSort.value);
 
-        // Theo dõi thay đổi URL để tìm kiếm
+            const { sortBy, sortOrder } = selectedSort.value?.value || {};
+            if (sortBy && sortOrder) {
+                searchBooks(searchQuery.value, null, sortBy, sortOrder);
+            } else {
+                // console.error("Giá trị selectedSort không hợp lệ:", selectedSort.value);
+            }
+        };
+        // console.log("Toàn bộ selectedSort:", selectedSort.value); // Proxy Object
+        // console.log("Label:", selectedSort.value?.label); // "Giá tăng dần"
+        // console.log("Value:", selectedSort.value?.value); // { sortBy: 'original_price', sortOrder: 'asc' }
+
+
         watch(
             () => route.query.query,
             (newQuery) => {
                 searchQuery.value = newQuery || "";
+                // console.log("Query mới nhận được:", searchQuery.value);
+
+                // Thực hiện tìm kiếm ngay khi có query
                 if (searchQuery.value) {
-                    handleSort();
+                    const { sortBy, sortOrder } = selectedSort.value?.value || {};
+                    searchBooks(searchQuery.value, null, sortBy, sortOrder);
                 }
             },
-            { immediate: true }
+            { immediate: true } // Thực hiện ngay khi component được mount
         );
+
+        onMounted(() => {
+            const initialQuery = route.query.query || "";
+            searchQuery.value = initialQuery;
+
+            // console.log("Từ khóa tìm kiếm ban đầu:", initialQuery);
+
+            if (initialQuery) {
+                const { sortBy, sortOrder } = selectedSort.value?.value || {};
+                searchBooks(initialQuery, null, sortBy, sortOrder);
+            }
+        });
 
         // Thêm sản phẩm vào giỏ hàng
         const addToCart = async (bookId) => {
@@ -134,7 +176,7 @@ export default {
                 window.location.reload();
 
             } catch (error) {
-                console.error("Lỗi khi thêm sản phẩm vào giỏ hàng:", error);
+                // console.error("Lỗi khi thêm sản phẩm vào giỏ hàng:", error);
                 toast.add({
                     severity: "error",
                     summary: "Lỗi",
@@ -145,6 +187,7 @@ export default {
         };
 
         return {
+            formatCurrency,
             books,
             searchQuery,
             addToCart,
@@ -193,6 +236,51 @@ h2 {
     gap: 20px;
 }
 
+/* Phong cách cho nút */
+.product-button-sell {
+    background-color: #0056b3;
+    color: white;
+    padding: 12px 20px;
+    /* Khoảng cách đều cho các nút */
+    border: none;
+    border-radius: 20px;
+    cursor: pointer;
+    text-transform: uppercase;
+    font-size: 16px;
+    /* Kích thước chữ đồng nhất */
+    width: 100%;
+    /* Nút rộng hết chiều ngang */
+    margin-top: auto;
+    /* Căn chỉnh nút ở dưới cùng */
+    transition: background-color 0.3s ease;
+    /* Hiệu ứng hover mượt mà */
+}
+
+/* Hiệu ứng hover cho nút */
+.product-button-sell:hover {
+    background-color: #5b91cc;
+}
+
+.discounted-price {
+    color: red;
+    font-weight: bold;
+    font-size: 14px;
+}
+
+.original-price {
+    color: gray;
+    text-decoration: line-through;
+    font-size: 12px;
+}
+
+.normal-price {
+    color: rgb(53, 46, 46);
+    font-weight: bold;
+    font-size: 14px;
+}
+
+
+/* Điều chỉnh layout */
 .book-item {
     background-color: #ffffff;
     border-radius: 12px;
@@ -202,9 +290,11 @@ h2 {
     display: flex;
     flex-direction: column;
     text-align: center;
-    padding: 10px;
+    padding: 15px;
+    /* Điều chỉnh padding để tạo không gian hơn */
     width: 240px;
-    height: 450px;
+    height: 100%;
+    /* Đảm bảo các mục có chiều cao đồng nhất */
 }
 
 .book-item:hover {
@@ -225,26 +315,11 @@ h2 {
     color: #333;
     font-weight: 600;
     margin: 0;
+    height: 100px;
 }
 
 .book-item p {
     margin: 5px 0;
     font-size: 14px;
-    color: #666;
-}
-
-.product-button-sell {
-    background-color: #0056b3;
-    color: white;
-    padding: 10px 15px;
-    border: none;
-    border-radius: 20px;
-    cursor: pointer;
-    text-transform: uppercase;
-    font-size: 15px;
-}
-
-.product-button-sell:hover {
-    background-color: #5b91cc;
 }
 </style>

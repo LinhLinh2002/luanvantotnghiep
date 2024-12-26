@@ -1,4 +1,5 @@
 <template>
+        <Toast />
     <div class="login-page">
         <div class="container">
             <div class="img-login">
@@ -27,7 +28,6 @@
                     </div>
 
                     <div class="conti-wit">
-                        <h5> Or continue with</h5>
                         <div class="icon-container">
                             <div class="icon-item">
                                 <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/Google_%22G%22_logo.svg/800px-Google_%22G%22_logo.svg.png"
@@ -48,6 +48,7 @@
 <script>
 import AuthService from '@/service/AuthService';
 import axios from 'axios';
+import { useToast } from 'primevue/usetoast'; // Import useToast
 
 export default {
     name: 'Login',
@@ -59,44 +60,73 @@ export default {
             }
         }
     },
+    setup() {
+        const toast = useToast(); // Khai báo useToast
+        return {
+            toast, // Trả về để dùng trong methods
+        };
+    },
     methods: {
         async loginUser() {
             // Client-side validation
             if (!this.login.email || !this.login.password) {
-                alert("Vui lòng điền tất cả các trường!");
+                // alert("Vui lòng điền tất cả các trường!");
+                this.toast.add({
+                            severity: "warn",
+                            summary: "Warning",
+                            detail: "Vui lòng điền tất cả các trường!",
+                            life: 3000,
+                        });
                 return;
             }
             if (!this.validateEmail(this.login.email)) {
-                alert("Địa chỉ email không hợp lệ!");
+                // alert("Địa chỉ email không hợp lệ!");
+                this.toast.add({
+                            severity: "warn",
+                            summary: "Warning",
+                            detail: "Địa chỉ email không hợp lệ!",
+                            life: 3000,
+                        });
                 return;
             }
             if (this.login.password.length < 8) {
-                alert("Mật khẩu phải có ít nhất 8 ký tự!");
+                // alert("Mật khẩu phải có ít nhất 8 ký tự!");
+                this.toast.add({
+                            severity: "warn",
+                            summary: "Warning",
+                            detail: "Mật khẩu phải có ít nhất 8 ký tự!",
+                            life: 3000,
+                        });
                 return;
             }
 
             try {
                 // Call the login function from authService
                 const response = await AuthService.login(this.login);
-                console.log("Đăng nhập thành công:", response);
+                // console.log("Đăng nhập thành công:", response);
 
                 // Lưu thông tin người dùng và token vào localStorage
-                localStorage.setItem('access_token', response.data.access_token);
-                localStorage.setItem('user', JSON.stringify(response.data.user));
+        
+                localStorage.setItem('access_token', response.data.token.access_token); // Lưu token
+                localStorage.setItem('currentUser', JSON.stringify(response.data.user));
 
                 // Kiểm tra vai trò của người dùng và chuyển hướng
                 const user = response.data.user;
-                if (user.role === 'admin') {
+                if (user.is_admin === 1) {
                     // Chuyển hướng đến trang admin nếu là quản trị viên
-                    this.$router({ name: '/admin' });
+                    this.$router.push({ name: 'dashboard' });
                 } else {
                     // Chuyển hướng đến trang bookstore nếu là người dùng bình thường
                     this.$router.push({ name: 'bookstore' });
                 }
             } catch (error) {
-                console.error("Lỗi khi đăng nhập:", error);
-                alert("Đăng nhập thất bại! Vui lòng thử lại.");
-            }
+                // console.error("Lỗi khi đăng nhập:", error);
+                this.toast.add({
+                        severity: "error",
+                        summary: "Lỗi",
+                        detail: "Đăng nhập thất bại.Vui lòng thử lạilại",
+                        life: 3000,
+                    });            }
         },
 
         loginWithGoogle() {
@@ -109,7 +139,7 @@ export default {
                     console.error("Error during Google login:", error);
                 });
         },
-       
+      
 
         loginWithFacebook() {
             // Gửi yêu cầu đến backend để lấy URL đăng nhập Facebook
@@ -123,36 +153,6 @@ export default {
                 });
         },
 
-
-        handleGoogleCallback() {
-    const urlParams = new URLSearchParams(window.location.search);
-    const code = urlParams.get('code'); // Lấy mã code từ URL
-    if (code) {
-        axios
-            .get('http://localhost:8000/api/auth/google/callback', {
-                params: { code: code }  // Truyền mã code trong params
-            })
-            .then((response) => {
-                console.log('Login Response:', response.data);
-
-                // Lưu token và thông tin user vào localStorage
-                localStorage.setItem('access_token', response.data.access_token.access_token);
-                localStorage.setItem('user', JSON.stringify(response.data.user));
-
-                // Chuyển hướng tới trang chủ
-                window.location.href = response.data.redirect_url; // Đảm bảo sử dụng redirect_url trả về
-            })
-            .catch((error) => {
-                console.error('Error during login:', error);
-                alert('Login failed!');
-            });
-    } else {
-        console.error("Code not found in URL params.");
-    }
-},
-
-
-
         goToRegister() {
             this.$router.push({ name: 'register' });
         },
@@ -163,7 +163,8 @@ export default {
 
     },
     mounted() {
-        this.handleGoogleCallback(); // Gọi khi component load
+  
+
     },
 
 }
@@ -173,7 +174,7 @@ export default {
 /* Reset mặc định */
 body {
     margin: 0;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -290,8 +291,8 @@ h6 a:hover {
 
 .btn-signin {
     padding: 15px;
-    background-color: #4554b3;
-    border: 1px solid #e756b5;
+    background: linear-gradient(135deg, #48c6ef, #6f86d6);
+    box-shadow: 0 5px 15px rgba(72, 198, 239, 0.3);
     cursor: pointer;
     border-radius: 30px;
     width: 100%;
@@ -302,7 +303,7 @@ h6 a:hover {
 }
 
 .btn-signin:hover {
-    background-color: #e756b5;
+    background: linear-gradient(135deg, #6f86d6, #48c6ef);
 }
 
 h5 {

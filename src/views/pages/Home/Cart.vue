@@ -4,56 +4,72 @@
   <div class="cart-container">
     <h2>CHI TIẾT GIỎ HÀNG</h2>
 
-    <!-- Render cart items if available -->
-    <div v-if="cartItems.length > 0" class="cart-items">
-      <div v-for="item in cartItems" :key="item.id" class="cart-item">
-        <img :src="item.book.image" alt="Product Image" class="product-image" />
-        <div class="product-info">
-          <span class="product-title">{{ item.book.title }}</span>
-          <span class="product-price">{{ formatCurrency(item.price) }} </span>
-          <div class="quantity-controls">
-            <button @click="decreaseQuantity(item.id)">-</button>
-            <span>{{ item.quantity }}</span>
-            <button @click="increaseQuantity(item.id)">+</button>
+    <!-- Kiểm tra nếu không có sản phẩm trong giỏ -->
+    <div v-if="cartItems.length">
+      <table class="cart-table">
+        <thead>
+          <tr>
+            <th>Hình Ảnh</th>
+            <th>Tên Sách</th>
+            <th>Giá Sách</th>
+            <th>Số Lượng</th>
+            <th>Thành Tiền</th>
+            <th>Hành Động</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="item in cartItems" :key="item.id">
+            <td>
+              <img :src="item.book.image" alt="Hình ảnh sách" class="product-image" />
+            </td>
+            <td>{{ item.book.title }}</td>
+            <td>{{ formatCurrency(item.price) }} đ</td>
+            <td>
+              <div class="quantity-controls">
+                <button @click="decreaseQuantity(item.id)">-</button>
+                <span>{{ item.quantity }}</span>
+                <button @click="increaseQuantity(item.id)">+</button>
+              </div>
+            </td>
+            <td>{{ formatCurrency(item.price * item.quantity) }} đ</td>
+            <td>
+              <button @click="removeItem(item.id)" class="remove-button">
+                <i class="fa fa-trash"></i> Xóa
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="cart-footer">
+        <p class="total">Tổng Cộng: {{ formatCurrency(total) }} đ</p>
+        <div class="button-group">
+          <div class="left-buttons">
+            <router-link to="/bookstore" class="continue-shopping">
+              Tiếp tục mua hàng
+            </router-link>
+            <button @click="clearCart" class="clear-cart-button">
+              Xóa toàn bộ giỏ hàng
+            </button>
           </div>
-          <span class="product-total">{{ formatCurrency(item.price * item.quantity) }} </span>
-          <button @click="removeItem(item.id)" class="remove-button">Xóa</button>
-        </div>
-      </div>
-    </div>
-
-    <!-- Show message when cart is empty -->
-    <div v-else>
-      <p>Giỏ hàng của bạn trống.</p>
-    </div>
-
-    <!-- Cart footer with total and coupon section -->
-    <div class="cart-footer" v-if="cartItems.length">
-      <p class="total">Tổng Cộng: {{ formatCurrency(total) }} </p>
-
-      <div class="button-group">
-        <!-- Nhóm nút bên trái -->
-        <div class="left-buttons">
-          <router-link to="/bookstore" class="continue-shopping">
-            Tiếp tục mua hàng
+          <router-link to="/checkout" class="checkout">
+            Thanh Toán
           </router-link>
-
-          <button @click="clearCart" class="clear-cart-button">
-            Xóa toàn bộ giỏ hàng
-          </button>
         </div>
-
-        <!-- Nút bên phải -->
-        <router-link to="/checkout" class="checkout">
-          Thanh Toán
-        </router-link>
       </div>
+    </div>
 
+    <!-- Thông báo khi giỏ hàng trống -->
+    <div v-else class="empty-cart">
+      <p>Giỏ hàng của bạn đang trống!</p>
+      <router-link to="/bookstore" class="continue-shopping">Quay lại mua hàng</router-link>
     </div>
   </div>
 
   <FooterComponent />
 </template>
+
+
 
 <script>
 import CartService from '@/service/CartService';
@@ -136,10 +152,7 @@ export default {
       }
     },
     formatCurrency(amount) {
-      if (!amount && amount !== 0) {
-        return "0 đ";
-      }
-      return amount.toLocaleString("vi-VN") + " đ";
+            return new Intl.NumberFormat('vi-VN').format(amount);
     },
   }
 };
@@ -167,80 +180,76 @@ h2 {
   margin-bottom: 20px;
 }
 
-/* Danh sách sản phẩm */
-.cart-items {
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
-}
-
-/* Từng sản phẩm trong danh sách */
-.cart-item {
-  display: flex;
-  align-items: center;
-  padding: 15px 0;
-  gap: 15px;
-}
-
-/* Hình ảnh sản phẩm */
-.product-image {
-  width: 80px;
-  height: 80px;
-  border-radius: 8px;
-  object-fit: cover;
-}
-
-/* Thông tin sản phẩm (Tên, giá, số lượng, tổng tiền) */
-.product-info {
-  display: grid;
-  grid-template-columns: 3fr 1fr 1fr 1fr 0.5fr;
-  align-items: center;
+/* Bảng giỏ hàng */
+.cart-table {
   width: 100%;
-  gap: 15px;
+  border-collapse: collapse;
+  text-align: center;
   font-size: 14px;
 }
 
-/* Tên sản phẩm */
-.product-title {
-  font-weight: bold;
-  color: #333;
-  text-overflow: ellipsis;
-  overflow: hidden;
-  white-space: nowrap;
+.cart-table th,
+.cart-table td {
+  padding: 10px;
+  border: 1px solid #ddd;
 }
 
-/* Giá sản phẩm */
-.product-price,
-.product-total {
-  text-align: center;
+.cart-table th {
+  background-color: #f7f7f7;
   font-weight: bold;
-  color: #034784;
 }
 
-/* Điều chỉnh số lượng sản phẩm */
+.cart-table .product-image {
+  width: 80px;
+  height: 80px;
+  object-fit: cover;
+  border-radius: 4px;
+}
+
+/* Cải tiến điều chỉnh số lượng sản phẩm */
 .quantity-controls {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 5px;
+  border: 1px solid #ddd;
+  border-radius: 20px;
+  overflow: hidden;
+  width: 100px; /* Chiều rộng tổng */
+  height: 36px;
+  background-color: #fff;
+  box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+  margin: 0 auto; /* Đảm bảo căn giữa nằm giữa */
+
 }
 
-/* Nút điều chỉnh số lượng */
+/* Nút tăng/giảm */
 .quantity-controls button {
-  padding: 5px 10px;
-  background-color: #034784;
-  color: #fff;
+  width: 36px;
+  height: 36px;
+  background-color: transparent;
   border: none;
-  border-radius: 4px;
+  font-size: 18px;
+  font-weight: bold;
+  color: #555;
   cursor: pointer;
   transition: all 0.3s ease;
 }
 
 .quantity-controls button:hover {
-  background-color: #022d5a;
+  background-color: #f0f0f0;
 }
 
-/* Nút xóa sản phẩm */
+/* Số lượng */
+.quantity-controls span {
+  flex: 1;
+  text-align: center;
+  font-size: 16px;
+  font-weight: bold;
+  color: #333;
+  line-height: 36px;
+}
+
+/* Nút xóa */
 .remove-button {
   background-color: #d9534f;
   color: #fff;
@@ -248,8 +257,7 @@ h2 {
   border-radius: 4px;
   padding: 5px 10px;
   cursor: pointer;
-  text-align: center;
-  transition: all 0.3s ease;
+  transition: background-color 0.3s ease;
 }
 
 .remove-button:hover {
@@ -390,4 +398,33 @@ h2 {
 .checkout:hover {
   background-color: #1b18a5;
 }
+.empty-cart {
+  text-align: center;
+  padding: 20px;
+  font-size: 18px;
+  color: #333;
+}
+
+.empty-cart p {
+  margin-bottom: 20px;
+  font-weight: bold;
+  font-size: 20px;
+}
+
+.empty-cart .continue-shopping {
+  display: inline-block;
+  padding: 10px 20px;
+  background-color: #034784;
+  color: #fff;
+  text-decoration: none;
+  border-radius: 4px;
+  font-size: 16px;
+  font-weight: bold;
+  transition: all 0.3s ease;
+}
+
+.empty-cart .continue-shopping:hover {
+  background-color: #022d5a;
+}
+
 </style>

@@ -24,7 +24,11 @@ body {
     margin: 0 auto;
     height: auto;
 }
-
+.out-of-stock {
+    color: red;
+    font-weight: bold;
+  }
+  
 .list {
     max-width: 1197px; /* Giới hạn chiều rộng */
     margin: 0 auto;
@@ -75,39 +79,33 @@ body {
     object-fit: cover;
     border-radius: 10%;
 }
-.list-2{
-    /* background-color: rgb(170, 116, 45); */
-    width: 2400px;
-    height: 270px;
-    padding-bottom: 20px;
-    display:grid;
-    grid-template-columns: repeat(4, 1fr);
-    grid-template-rows: repeat(2,30px);
-    gap:10px;
+.list-2 {
+    width: 100%; /* Đảm bảo chiếm toàn bộ chiều rộng container */
+    display: grid;
+    grid-template-columns: repeat(3, 1fr); /* Chia đều thành 3 cột */
+    grid-template-rows: 1fr; /* Một hàng duy nhất */
+    gap: 10px; /* Khoảng cách giữa các mục */
     margin-bottom: 10px;
 }
-/* .list-3 > div {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-} */
-.item-8{
-    grid-column: 1/2;
-    grid-row: 1/3;
+
+.item-9 {
+    grid-column: 1 / 2; /* Cột đầu tiên */
 }
-.item-9{
-    grid-column: 1/2;
-    grid-row: 3/5;
+
+.item-11 {
+    grid-column: 2 / 3; /* Cột thứ hai */
 }
-.item-10{
-    grid-column:2/3 ;
-    grid-row: 1/3;
+
+.item-12 {
+    grid-column: 3 / 4; /* Cột thứ ba */
 }
-.item-11{
-    grid-column: 2/3;
-    grid-row: 3/5;
-    
+
+.list-2 img {
+    width: 100%; /* Hình ảnh chiếm toàn bộ chiều rộng của ô */
+    height:200px; /* Hình ảnh chiếm toàn bộ chiều cao của ô */
+    object-fit: cover; /* Giữ tỷ lệ hình ảnh và cắt vừa khung nếu cần */
 }
+
 
 /* Icon Container */
 .icon-container {
@@ -252,7 +250,7 @@ a {
     width: calc(20% - 20px); /* Fit 5 cards per row */
     padding: 15px;
     margin-top: 15px;
-    min-height: 250px; /* Set a minimum height for consistency */
+    height: 320px; /* Set a minimum height for consistency */
     display: flex;
     flex-direction: column;
     justify-content: space-between;
@@ -264,7 +262,7 @@ a {
     box-shadow: 0 8px 12px rgba(0, 0, 0, 0.15);
 }
 .product-card-sell img {
-    max-height: 200px; /* Adjust image height as needed */
+    height: 130px; /* Adjust image height as needed */
     width:200px;
     margin-bottom: 5px;
 }
@@ -274,11 +272,27 @@ a {
     margin: 10px 0;
 }
 
-.product-card-sell .product-price {
+/* Giá giảm */
+.discounted-price {
     color: red;
-    font-size: 1.2em;
-    margin-bottom: 10px;
+    font-weight: bold;
+    font-size: 14px;
 }
+
+/* Giá thường bị gạch ngang khi có giá giảm */
+.original-price {
+    color: gray;
+    text-decoration: line-through;
+    font-size: 12px;
+}
+
+/* Giá thường (không có giảm giá) */
+.normal-price {
+    color: rgb(53, 46, 46);
+    font-weight: bold;
+    font-size: 14px;
+    padding-bottom: 5px;
+}   
 
 .product-card-sell .buy-button {
     background-color: #0056b3;
@@ -297,6 +311,7 @@ a {
 .product-name-sell {
     font-weight: 400;
     color:#000;
+    height:50px;
 }
 
 .vietnambook {
@@ -391,37 +406,45 @@ a {
     justify-content: space-around;
     align-items: center;
 }
-
 .icon-container-1 {
-    /* background-color: rgb(102, 224, 224); */
-    width: 1197px;
-    margin:0 auto;
-    height: 100%;
-    display: flex;               
-    justify-content: space-around; 
-    align-items: center;           
-    
-}  
+    display: flex;
+    gap: 10px; /* Khoảng cách đều giữa các item */
+    padding: 10px 180px; /* Thêm padding để tránh thanh cuộn bị quá gần các item */
+}
 
 .icon-item {
-    text-align: center;            
-    margin: 10px;  
-    font-size: 12px;   
-    /* background-color: antiquewhite; */
-    
-}  
-.icon-item img{
-    width: 60px;
-    height:60px;
-    margin-bottom: -4px;
-    border-radius: 50%;
+    text-align: center;
+    margin: 10px;
+    font-size: 14px;
+    flex-shrink: 0; /* Ngăn chặn các item co lại */
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* Canh giữa nội dung trong mỗi item */
+}
+
+.icon-item img {
+    width: 60px; /* Kích thước hình ảnh lớn hơn một chút */
+    height: 60px; /* Chiều cao bằng chiều rộng */
+    margin-bottom: 8px; /* Khoảng cách giữa hình ảnh và tên */
+    border-radius: 50%; /* Tạo hình tròn cho hình ảnh */
+    object-fit: cover; /* Đảm bảo hình ảnh vừa vặn trong hình tròn */
+    border: 2px solid #ddd; /* Thêm viền cho hình ảnh */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Hiệu ứng bóng mờ nhẹ cho hình ảnh */
+    transition: transform 0.3s ease, box-shadow 0.3s ease; /* Hiệu ứng chuyển động mượt mà khi hover */
+}
+
+.icon-item img:hover {
+    transform: scale(1.1); /* Phóng to hình ảnh khi hover */
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2); /* Tăng cường hiệu ứng bóng khi hover */
 }
 
 .icon-item p {
     margin: 0;
     font-size: 14px;
     color: #333;
+    word-wrap: break-word; /* Đảm bảo văn bản bọc đúng cách nếu vượt quá dòng */
 }
+
 
 .textbook {
     /* background-color: #e71e54; */
@@ -483,11 +506,11 @@ a {
     margin: 10px 0;
    font-family:  Inter,-apple-system,sans-serif;
 }
-.product-price-sell {
+/* .product-price-sell {
     color: #FF5733;
     font-size: 16px;
     font-weight: bold;
-}
+} */
 .cart-icon-sell{
     position: absolute;
     top: 10px;
@@ -583,11 +606,7 @@ a {
     font-size: 14px;
     margin: 10px 0;
 }
-.product-price-sell {
-    color: #FF5733;
-    font-size: 16px;
-    font-weight: bold;
-}
+
 .cart-icon-sell{
     position: absolute;
     top: 10px;

@@ -144,7 +144,7 @@ export default {
   },
   data() {
     return {
-      activeForm: "account",
+      activeForm: "address",
       user: { name: "", email: "", password: '' },
       addresses: [],
       provinces: [],
@@ -182,29 +182,29 @@ export default {
         this.user.email = user.email;
         this.user.password = "********"; // Hide password
       } else {
-        alert("Bạn chưa đăng nhập!");
+        // alert("Bạn chưa đăng nhập!");
         this.$router.push({ name: 'login' });
       }
     },
     async loadProvinces() {
       try {
         const provinces = await getProvinces();
-        console.log("Provinces loaded:", provinces);
+        // console.log("Provinces loaded:", provinces);
         this.provinces = provinces.map(province => ({
           id: province.id,
           name: province.name
         }));
       } catch (error) {
-        console.error("Lỗi khi tải danh sách tỉnh:", error);
+        // console.error("Lỗi khi tải danh sách tỉnh:", error);
       }
     },
     async loadAddresses() {
       try {
         const response = await getAddresses();
-        console.log("Addresses loaded:", response);  // Debugging line
+        // console.log("Addresses loaded:", response);  // Debugging line   
         this.addresses = response.data; // Assuming the API returns addresses in 'data'
       } catch (error) {
-        console.error("Lỗi khi tải danh sách địa chỉ:", error);
+        // console.error("Lỗi khi tải danh sách địa chỉ:", error);
       }
     },
     async fetchDistricts() {
@@ -215,33 +215,52 @@ export default {
           id: district.id,
           name: district.name
         }));
-        this.newAddress.district_id = null;
-        this.wards = [];
+        // Đảm bảo district_id được duy trì nếu nó còn hợp lệ
+        if (!this.districts.some(d => d.id === this.newAddress.district_id)) {
+          this.newAddress.district_id = null;
+        }
+        this.wards = []; // Xóa danh sách phường/xã cũ
       } catch (error) {
         console.error("Lỗi khi tải danh sách quận/huyện:", error);
       }
     },
     async fetchWards() {
-      if (!this.newAddress.district_id) return;
-      try {
-        const wards = await getWards(this.newAddress.district_id);
-        this.wards = wards.map(ward => ({
-          id: ward.id,
-          name: ward.name
-        }));
-      } catch (error) {
-        console.error("Lỗi khi tải danh sách phường/xã:", error);
-      }
-    },
-    editAddress(address) {
+  if (!this.newAddress.district_id) return;
+  try {
+    const wards = await getWards(this.newAddress.district_id);
+    this.wards = wards.map(ward => ({
+      id: ward.id,
+      name: ward.name
+    }));
+    // Đảm bảo ward_id được duy trì nếu nó còn hợp lệ
+    if (!this.wards.some(w => w.id === this.newAddress.ward_id)) {
+      this.newAddress.ward_id = null;
+    }
+  } catch (error) {
+    console.error("Lỗi khi tải danh sách phường/xã:", error);
+  }
+},
+    async editAddress(address) {
       this.isEditing = true;
       this.showAddAddressForm = true;
       this.editingAddressId = address.id;
-      this.newAddress = { ...address };
+      this.newAddress = { ...address }; // Sao chép dữ liệu địa chỉ cần sửa
+
+      // Tải danh sách tỉnh, quận/huyện, phường/xã
+      if (!this.provinces.length) {
+        await this.loadProvinces();
+      }
+      if (this.newAddress.province_id) {
+        await this.fetchDistricts(); // Tải quận/huyện theo tỉnh
+      }
+      if (this.newAddress.district_id) {
+        await this.fetchWards(); // Tải phường/xã theo quận/huyện
+      }
     },
+
     async saveAddress() {
       try {
-        console.log("Saving address:", this.newAddress);
+        // console.log("Saving address:", this.newAddress);
         if (this.isEditing) {
           await updateAddress(this.editingAddressId, this.newAddress);
         } else {
@@ -250,7 +269,7 @@ export default {
         this.loadAddresses();
         this.showAddAddressForm = false;
       } catch (error) {
-        console.error("Error saving address:", error);
+        // console.error("Error saving address:", error);
       }
     },
     cancelAddAddress() {
@@ -273,7 +292,7 @@ export default {
         await deleteAddress(addressId);
         this.loadAddresses();
       } catch (error) {
-        console.error("Lỗi khi xóa địa chỉ:", error);
+        // console.error("Lỗi khi xóa địa chỉ:", error);
       }
     },
     async updateUserInfo() {
@@ -283,10 +302,10 @@ export default {
       try {
         const updatedUser = await AuthService.updateProfile(this.user);  // Gọi hàm updateProfile
         this.user = updatedUser; // Cập nhật lại thông tin người dùng trong component nếu cần
-        alert("Thông tin tài khoản đã được cập nhật thành công!");
+        // alert("Thông tin tài khoản đã được cập nhật thành công!");
       } catch (error) {
         this.error = "Có lỗi xảy ra trong quá trình cập nhật. Vui lòng thử lại!";
-        console.error(error);
+        // console.error(error);
       } finally {
         this.loading = false;
       }
@@ -425,6 +444,11 @@ h2 {
 }
 
 .address-item {
+  display: flex;
+  flex-wrap: wrap;
+  /* Cho phép các mục xuống dòng nếu không đủ không gian */
+  gap: 15px;
+  /* Khoảng cách giữa các mục */
   margin-bottom: 20px;
   padding: 15px;
   background-color: #fff;
@@ -432,16 +456,31 @@ h2 {
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
+.address-item p {
+  flex: 1 1 calc(33.333% - 15px);
+  /* Mỗi mục chiếm 1/3 chiều rộng */
+  margin: 0;
+  /* Bỏ margin mặc định của thẻ <p> */
+  padding: 5px;
+  box-sizing: border-box;
+}
+
 .address-actions {
   display: flex;
-  justify-content: space-between;
-  gap: 120px;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  /* Khoảng cách giữa các nút */
   padding-top: 20px;
-  padding-right: 10px;
-  padding-left: 10px;
+  padding-left: 320px;
+
 }
 
 .address-actions button {
+  flex: 1;
+  /* Để nút có kích thước đều nhau */
+  max-width: 120px;
+  /* Đặt giới hạn chiều rộng */
   background-color: #ff5722;
   color: #fff;
   border: none;
@@ -455,6 +494,7 @@ h2 {
 .address-actions button:hover {
   background-color: #e64a19;
 }
+
 
 .add-adres form {
   margin-left: 20px;

@@ -1,11 +1,25 @@
 <template>
   <HeaderComponent />
+  <Toast />
+
   <div class="order-container">
     <h2>Chi Tiết Đơn Hàng</h2>
 
     <!-- Hiển thị thông tin đơn hàng -->
     <div v-if="order">
       <table class="order-info-table">
+        <tr>
+          <td><strong>Tên </strong></td>
+          <td>{{ order.name }}</td>
+        </tr>
+        <tr>
+          <td><strong>Số điện thoại </strong></td>
+          <td>{{ order.phone }}</td>
+        </tr>
+        <tr>
+          <td><strong>Địa chỉ </strong></td>
+          <td>{{ order.street }}, {{ order.ward.name }}, {{ order.district.name }}, {{ order.province.name }}</td>
+        </tr>
         <tr>
           <td><strong>Mã Đơn Hàng:</strong></td>
           <td>{{ order.id }}</td>
@@ -17,9 +31,10 @@
         <tr>
           <td><strong>Trạng Thái:</strong></td>
           <td>
-            <span :class="getStatusClass(order.order_status)">
-              {{ order.order_status }}
-            </span>
+            <span class="order-status">
+              {{ translateOrderStatus(order.order_status) }}        
+            
+                </span>
           </td>
         </tr>
         <tr>
@@ -103,6 +118,7 @@ import { mapState } from "vuex";
 import FooterComponent from "./Footer.vue";
 import HeaderComponent from "./Header.vue";
 import OrderService from "@/service/OrderService";
+import { useToast } from 'primevue/usetoast'; // Import useToast
 
 export default {
   name: "OrderDetails",
@@ -116,6 +132,12 @@ export default {
       orderId: this.$route.params.id, // ID đơn hàng từ URL
     };
   },
+  setup() {
+        const toast = useToast(); // Khai báo useToast
+        return {
+            toast, // Trả về để dùng trong methods
+        };
+    },
   computed: {
     ...mapState(["currentUser"]),
   },
@@ -123,7 +145,7 @@ export default {
     try {
       this.order = await OrderService.getOrderById(this.orderId);
     } catch (error) {
-      console.error("Lỗi khi tải chi tiết đơn hàng:", error);
+      // console.error("Lỗi khi tải chi tiết đơn hàng:", error);
     }
   },
   methods: {
@@ -139,29 +161,43 @@ export default {
         try {
           await OrderService.updateOrderStatus(this.orderId, "canceled");
           this.order.order_status = "canceled";
-          alert("Đơn hàng đã được hủy.");
+          // alert("Đơn hàng đã được hủy.");
+          this.toast.add({
+            severity: 'success',
+            summary: 'Thành công',
+            detail: 'Đơn hàng đã được hủy.',
+            life: 3000,
+          });
           this.$router.push({ name: 'order' });
         } catch (error) {
-          console.error("Lỗi khi hủy đơn hàng:", error);
-          alert("Có lỗi xảy ra khi hủy đơn hàng.");
+          // console.error("Lỗi khi hủy đơn hàng:", error);
+          // alert("Có lỗi xảy ra khi hủy đơn hàng.");
+          this.toast.add({
+            severity: 'error',
+            summary: 'Lỗi',
+            detail: 'Có lỗi xảy ra khi hủy đơn hàng.',
+            life: 3000,
+          });
         }
       }
     },
     goToHomePage() {
       this.$router.push({ name: 'bookstore' });
     },
-      getStatusClass(status) {
-        switch (status) {
-          case "canceled":
-            return "status-canceled";
-          case "pending":
-            return "status-pending";
-          case "completed":
-            return "status-completed";
-          default:
-            return "status-default";
-        }
-      },
+    translateOrderStatus(status) {
+  const statusMap = {
+    ordered: "Đã đặt hàng",
+    shipping: "Đang giao hàng",
+    delivered: "Đã giao hàng",
+    rejected: "Đã bị từ chối",
+    returned: "Đã hoàn trả",
+    canceled: "Đã hủy",
+    pending: "Chờ xử lý",
+    completed: "Hoàn thành",
+  };
+  return statusMap[status] || "Không xác định";
+},
+
     getTransactionStatusClass(transaction_status) {
       switch (transaction_status) {
         case "pending":
@@ -170,7 +206,7 @@ export default {
           return "status-paid";
         case "refunded":
           return "status-refunded";
-          case "failed":
+        case "failed":
           return "status-failed";
         default:
           return "status-default";
@@ -178,6 +214,7 @@ export default {
     },
   },
 };
+
 </script>
 
 
@@ -204,6 +241,7 @@ h3 {
   font-size: 24px;
   color: #333;
 }
+
 .transaction-info-table,
 .order-info-table,
 .order-items-table {
@@ -308,8 +346,10 @@ button:hover {
 button:focus {
   outline: none;
 }
+
 .btn-go-home {
-  background-color: #3498db; /* Màu xanh dương */
+  background-color: #3498db;
+  /* Màu xanh dương */
   color: white;
   border: none;
   padding: 12px 25px;
@@ -324,7 +364,8 @@ button:focus {
 }
 
 .btn-go-home:hover {
-  background-color: #2980b9; /* Màu khi hover */
+  background-color: #2980b9;
+  /* Màu khi hover */
 }
 
 .btn-go-home:focus {
@@ -359,6 +400,4 @@ button:focus {
   padding: 3px 5px;
   border-radius: 3px;
 }
-
-
 </style>

@@ -4,18 +4,16 @@ import router from '../router';
 const API_URL = 'http://127.0.0.1:8000/api/auth/cart';
 
 class CartService {
-    // Lấy token người dùng hiện tại
     getToken() {
-        const currentUser = JSON.parse(localStorage.getItem("currentUser"));
-        return currentUser?.token?.access_token || null;
+        const token = localStorage.getItem("access_token");
+        return token || null;
     }
+
 
    // Chuyển hướng nếu không có token
     ensureAuthenticated() {
         const token = this.getToken();
         if (!token) {
-            //alert("Bạn cần đăng nhập để thực hiện hành động này.");
-           // router.push({ name: 'login' });
             throw new Error("Người dùng chưa đăng nhập.");
         }
         return token;
@@ -30,7 +28,7 @@ class CartService {
             });
             return response.data;
         } catch (error) {
-            console.error("Lỗi khi lấy giỏ hàng:", error.response?.data || error.message);
+            // console.error("Lỗi khi lấy giỏ hàng:", error.response?.data || error.message);
             if (error.response?.status === 404) {
                 return { items: [] };
             }
@@ -53,7 +51,7 @@ class CartService {
             );
             return response.data;
         } catch (error) {
-            console.error("Lỗi khi thêm sản phẩm vào giỏ hàng:", error.response?.data || error.message);
+            // console.error("Lỗi khi thêm sản phẩm vào giỏ hàng:", error.response?.data || error.message);
             throw error;
         }
     }
@@ -67,7 +65,7 @@ class CartService {
             });
             return response.data;
         } catch (error) {
-            console.error("Lỗi khi tăng số lượng sản phẩm:", error.response?.data || error.message);
+            // console.error("Lỗi khi tăng số lượng sản phẩm:", error.response?.data || error.message);
             throw error;
         }
     }
@@ -81,7 +79,7 @@ class CartService {
             });
             return response.data;
         } catch (error) {
-            console.error("Lỗi khi giảm số lượng sản phẩm:", error.response?.data || error.message);
+            // console.error("Lỗi khi giảm số lượng sản phẩm:", error.response?.data || error.message);
             throw error;
         }
     }
@@ -95,7 +93,7 @@ class CartService {
             });
             return response.data;
         } catch (error) {
-            console.error("Lỗi khi xóa sản phẩm:", error.response?.data || error.message);
+            // console.error("Lỗi khi xóa sản phẩm:", error.response?.data || error.message);
             throw error;
         }
     }
@@ -109,7 +107,7 @@ class CartService {
             });
             return response.data;
         } catch (error) {
-            console.error("Lỗi khi xóa toàn bộ giỏ hàng:", error.response?.data || error.message);
+            // console.error("Lỗi khi xóa toàn bộ giỏ hàng:", error.response?.data || error.message);
             throw error;
         }
     }

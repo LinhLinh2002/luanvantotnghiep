@@ -7,7 +7,7 @@ class AttributeService {
             const response = await axios.get(`${API_URL}/genres`);
             return response.data;
         } catch (error) {
-            console.error('Error fetching genres:', error);
+            // console.error('Error fetching genres:', error);
             throw error;
         }
     }
@@ -16,7 +16,7 @@ class AttributeService {
             const response = await axios.get(`${API_URL}/languages`);
             return response.data;
         } catch (error) {
-            console.error('Error fetching languages:', error);
+            // console.error('Error fetching languages:', error);
             throw error;
         }
     }
@@ -25,7 +25,7 @@ class AttributeService {
             const response = await axios.get(`${API_URL}/covertypes`);
             return response.data;
         } catch (error) {
-            console.error('Error fetching Cover Types:', error);
+            // console.error('Error fetching Cover Types:', error);
             throw error;
         }
     }

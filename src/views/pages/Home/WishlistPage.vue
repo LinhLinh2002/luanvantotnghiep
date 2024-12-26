@@ -11,7 +11,7 @@
           <div class="wishlist-item-details">
             <h3>{{ item.book.title }}</h3>
             <p>{{ item.book.author }}</p>
-            <p class="price">{{ item.book.original_price }} đ</p>
+            <p class="price">{{formatCurrency(item.book.original_price)  }} đ</p>
           </div>
         </div>
         <button class="remove-button" @click.prevent="removeFromWishlist(item.id)">
@@ -49,6 +49,9 @@ export default {
     await this.loadWishlist();
   },
   methods: {
+    formatCurrency(amount) {
+            return new Intl.NumberFormat('vi-VN').format(amount);
+        },
     async loadWishlist() {
       try {
         const response = await WishlistService.getWishlist();
@@ -127,7 +130,7 @@ h2 {
   object-fit: cover;
   border-radius: 5px;
   margin-bottom: 8px;
-  margin-left:50px;
+  margin-left:10px;
 }
 
 .wishlist-item-details {

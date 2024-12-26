@@ -1,4 +1,6 @@
 <template>
+    <Toast />
+
     <div class="login-page">
         <div class="container">
             <div class="img-login">
@@ -36,6 +38,7 @@
 
 <script>
 import AuthService from '@/service/AuthService'; // Import your AuthService
+import { useToast } from 'primevue/usetoast'; // Import useToast
 
 export default {
     name: 'Register',
@@ -49,24 +52,53 @@ export default {
             }
         };
     },
+    setup() {
+        const { toast } = useToast();
+        return {
+            toast, // Trả về để dùng trong methods
+        };
+    },
     methods: {
         async saveData() {
             // Validate fields
             if (!this.register.name || !this.register.email || !this.register.password || !this.register.c_password) {
-                alert("Please fill out all fields!");
+                // alert("Please fill out all fields!");
+                this.toast.add({
+                    severity: "warn",
+                    summary: "Warning",
+                    detail: "Vui lòng điền tất cả các trường!",
+                    life: 3000,
+                });
                 return;
             }
             if (!this.validateEmail(this.register.email)) {
-                alert("Invalid email address!");
+                // alert("Địa chỉ email không hợp lệ!");
+                this.toast.add({
+                    severity: "warn",
+                    summary: "Warning",
+                    detail: "Địa chỉ email không hợp lệ!",
+                    life: 3000,
+                });
                 return;
             }
             if (this.register.password.length < 8) {
-                alert("Password must be at least 8 characters!");
+                // alert("Mật khẩu phải có ít nhất 8 ký tự!");
+                this.toast.add({
+                    severity: "warn",
+                    summary: "Warning",
+                    detail: "Mật khẩu phải có ít nhất 8 ký tự!",
+                    life: 3000,
+                });
                 return;
             }
             if (this.register.password !== this.register.c_password) {
-                alert("Passwords do not match!");
-                return;
+                this.toast.add({
+                    severity: "warn",
+                    summary: "Warning",
+                    detail: "Mật khẩu không khớp!",
+                    life: 3000,
+                });
+                return;                
             }
 
             try {
@@ -77,8 +109,14 @@ export default {
                     password: this.register.password,
                     c_password: this.register.c_password // Ensure this is being sent correctly
                 });
-                console.log("Registration successful:", response);
-                alert("Registration successful!");
+                // console.log("Registration successful:", response);
+                // alert("Registration successful!");
+                this.toast.add({ 
+                    severity: 'success',
+                    summary: 'Thành công',
+                    detail: "Đăng ký thành công!",
+                    life: 3000,
+                });
                 this.$router.push({ name: 'login' }); // Redirect to login page
             } catch (error) {
                 console.error("Registration failed:", error);
@@ -108,7 +146,7 @@ body {
 
 /* Tổng thể trang */
 .login-page {
-    background-color: #80a9e2;
+    background-color: #ffffff;
     width: 100%;
     min-height: 100vh;
     padding-top: 50px;
@@ -118,12 +156,13 @@ body {
 }
 
 .container {
-    background-color: #e6edf7;
+    background-color: #fcfcfc;
     border: 2px solid #fcfcfc;
     display: flex;
     justify-content: space-between;
     padding: 20px;
     border-radius: 20px;
+    margin-bottom: 150px;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
     width: 90%;
     max-width: 1200px;
@@ -222,7 +261,8 @@ h6 a:hover {
 
 .btn-In {
     padding: 12px;
-    background-color: #4554b3;
+    background: linear-gradient(135deg, #48c6ef, #6f86d6);
+    box-shadow: 0 5px 15px rgba(72, 198, 239, 0.3);
     border: none;
     border-radius: 20px;
     width: 400px;
@@ -233,7 +273,7 @@ h6 a:hover {
 }
 
 .btn-In:hover {
-    background-color: #e756b5;
+    background: linear-gradient(135deg, #6f86d6, #48c6ef);
     transform: scale(1.05);
 }
 

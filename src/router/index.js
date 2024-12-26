@@ -7,7 +7,8 @@ const router = createRouter({
         {
             path: '/',
             name: 'Home',
-            component: () => import('@/views/HomeView.vue')
+            component: () => import('@/views/HomeView.vue'),
+            meta: { title: 'Home' } ,
         },
         {
             path: '/admin',
@@ -16,59 +17,71 @@ const router = createRouter({
                 {
                     path: '/dashboard',
                     name: 'dashboard',
-                    component: () => import('@/views/Dashboard.vue')
+                    component: () => import('@/views/Dashboard.vue'),
+                    meta: { title: 'Admin ' } ,
                 },
                 //Admin
                 {
                     path: '/books',
                     name: 'books',
-                    component: () => import('@/views/pages/admin/books/index.vue')
+                    component: () => import('@/views/pages/admin/books/index.vue'),
+                    meta: { title: 'Admin - Books' } ,
                 },
 
                 {
                     path: '/books/add',
                     name: 'book_add',
-                    component: () => import('@/views/pages/admin/books/create.vue')
+                    component: () => import('@/views/pages/admin/books/create.vue'),
+                    meta: { title: 'Admin - BookAdd' } ,
                 },
                 {
                     path: '/books/:id/edit',
                     name: 'book_edit',
-                    component: () => import('@/views/pages/admin/books/edit.vue')
+                    component: () => import('@/views/pages/admin/books/edit.vue'),
+                    meta: { title: 'Admin - BookEdit' } ,
                 },
                 {
                     path: '/categories',
                     name: 'categories',
-                    component: () => import('@/views/pages/admin/categories/index.vue')
+                    component: () => import('@/views/pages/admin/categories/index.vue'),
+                    meta: { title: 'Admin - Categories' } ,
                 },
                 {
                     path: '/authors',
                     name: 'authors',
-                    component: () => import('@/views/pages/admin/authors/index.vue')
+                    component: () => import('@/views/pages/admin/authors/index.vue'),
+                    meta: { title: 'Admin - Authors' } ,
                 },
                 {
                     path: '/translators',
                     name: 'translators',
-                    component: () => import('@/views/pages/admin/translators/index.vue')
+                    component: () => import('@/views/pages/admin/translators/index.vue'),
+                    meta: { title: 'Admin - Translators' } ,
                 },
                 {
                     path: '/publishers',
                     name: 'publishers',
-                    component: () => import('@/views/pages/admin/publishers/index.vue')
+                    component: () => import('@/views/pages/admin/publishers/index.vue'),
+                    meta: { title: 'Admin - Publishers' } ,
                 },
                 {
                     path: '/discount',
                     name: 'discount',
-                    component: () => import('@/views/pages/admin/discount/index.vue')
+                    component: () => import('@/views/pages/admin/discount/index.vue'),
+                    meta: { title: 'Admin - Discount' } ,
                 },
                 {
                     path: '/users',
                     name: 'users',
-                    component: () => import('@/views/pages/admin/users/index.vue')
+                    component: () => import('@/views/pages/admin/users/index.vue'),
+                    meta: { title: 'Admin - Users' } ,
                 },
                 {
                     path: '/orders',
                     name: 'orders',
-                    component: () => import('@/views/pages/admin/orders/index.vue')
+                    component: () => import('@/views/pages/admin/orders/index.vue'),
+                    meta: { title: 'Admin - Order' } ,
+
                 },
 
                 //Form
@@ -170,6 +183,7 @@ const router = createRouter({
             path: '/bookstore',
             name: 'bookstore',
             component: () => import('@/views/pages/Home/BookStore.vue')
+
         },
         {
             path: '/filter-books',
@@ -180,18 +194,22 @@ const router = createRouter({
                 type: route.query.type || null,
                 id: route.query.id || null,
             }),
+            meta: { title: 'Lọc Sách' } ,
+
         },
         {
             path: '/search',
             name: 'SearchResults',
             component: () => import('@/views/pages/Home/SearchResults.vue'),
             props: (route) => ({ query: route.query.query }), // Truyền query dưới dạng props
+            meta: { title: 'Tìm Kiếm Kết Quả' } ,
+
         }
         ,
 
         {
-            path: '/index2',
-            name: 'index',
+            path: '/text',
+            name: 'text',
             component: () => import('@/views/pages/Home/index.vue')
         },
         {
@@ -199,42 +217,48 @@ const router = createRouter({
             name: 'bookdetails',
             component: () => import('@/views/pages/Home/BookDetails.vue'),
             props: true,
+            meta: { title: 'Chi Tiết Sách' } ,
 
         },
         {
             path: '/cart',
             name: 'cart',
             component: () => import('@/views/pages/Home/Cart.vue'),
+            meta: { title: 'Chi Tiết Giỏ HàngHàng' } ,
 
         },
         {
             path: '/profile',
             name: 'profile',
             component: () => import('@/views/pages/Home/Profile.vue'),
+            meta: { title: 'Tài Khoản Cá Nhân' } ,
 
         },
         {
             path: '/checkout',
             name: 'checkout',
             component: () => import('@/views/pages/Home/Checkout.vue'),
+            meta: { title: 'Thanh Toán' } ,
 
         },
         {
             path: '/order',
             name: 'order',
             component: () => import('@/views/pages/Home/Order.vue'),
+            meta: { title: 'Đơn Hàng' } ,
 
         },
         {
             path: '/order/:id',
             name: 'orderdetails',
             component: () => import('@/views/pages/Home/OrderDetails.vue'),
-
+            meta: { title: 'Chi tiết Đơn Hàng' } ,
         },
         {
             path: '/wishlist',
             name: 'wishlist',
             component: () => import('@/views/pages/Home/WishlistPage.vue'),
+            meta: { title: 'Yêu Thích Sách' } ,
 
         },
         {
@@ -246,9 +270,25 @@ const router = createRouter({
         {
             path: '/auth/login',
             name: 'login',
-            component: () => import('@/views/pages/auth/Login.vue')
-        },
+            component: () => import('@/views/pages/auth/Login.vue'),
+            meta: { title: 'Đăng Nhập ' } ,
 
+        },  
+        {
+            path: '/auth/register',
+            name: 'register',
+            component: () => import('@/views/pages/auth/Register.vue'),
+            meta: { title: 'Đăng Kí ' } ,
+        },
+        {
+            path: '/auth/google/callback',
+            name: 'GoogleCallback',
+            component: () => import('@/views/pages/auth/Callback.vue')
+        },{
+            path: '/auth/facebook/callback',
+            name: 'FacebookCallback',
+            component: () => import('@/views/pages/auth/FCallback.vue')
+        },
         {
             path: '/auth/forgot',
             name: 'forgot',
@@ -259,12 +299,12 @@ const router = createRouter({
             name: 'resetpassword',
             component: () => import('@/views/pages/auth/Resetpassword.vue')
         },
-        {
-            path: '/auth/register',
-            name: 'register',
-            component: () => import('@/views/pages/auth/Register.vue')
-        }
+      
     ]
+});
+router.beforeEach((to, from, next) => {
+    document.title = to.meta.title || 'BOOKSTORE'; 
+    next();
 });
 
 export default router;

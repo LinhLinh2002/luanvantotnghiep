@@ -8,8 +8,8 @@ const DASHBOARD_API_URL = 'http://127.0.0.1:8000/api/admin/dashboard'; // URL AP
 class OrderService {
     // Helper method to get token from localStorage
     _getAuthToken() {
-        const currentUser = JSON.parse(localStorage.getItem("currentUser"));
-        return currentUser?.token?.access_token;
+        const token = localStorage.getItem("access_token");
+        return token || null;
     }
 
     // Helper method to handle unauthorized access
@@ -108,6 +108,29 @@ class OrderService {
         } catch (error) {
             console.error('Lỗi khi lấy danh sách đơn hàng cho admin:', error);
             return { items: [] }; // Trả về danh sách trống nếu có lỗi
+        }
+    }
+    // Lấy chi tiết đơn hàng cho admin
+    async getAdminOrderById(orderId) {
+        const token = this._getAuthToken();
+
+        if (!token) {
+            console.error("Không tìm thấy token. Người dùng cần đăng nhập.");
+            this._handleUnauthorizedAccess();
+            return;
+        }
+
+        try {
+            const response = await axios.get(`${ADMIN_API_URL}/${orderId}`, {
+                headers: {
+                    Authorization: `Bearer ${token}` // Gửi token trong header
+                }
+            });
+            console.log('Chi tiết đơn hàng (admin):', response.data);
+            return response.data;
+        } catch (error) {
+            console.error('Lỗi khi lấy chi tiết đơn hàng (admin):', error);
+            throw error; // Ném lỗi để xử lý ở nơi gọi
         }
     }
 

@@ -20,8 +20,8 @@
           <td>{{ book.title }}</td>
           <td>{{ book.isbn }}</td>
           <td>{{ book.quantity }}</td>
-          <td>{{ formatPrice(book.original_price) }}</td>
-          <td>{{ book.discount_price ? formatPrice(book.discount_price) : 'Không có' }}</td>
+          <td>{{ formatCurrency(book.original_price) }}</td>
+          <td>{{ book.discount_price ? formatCurrency(book.discount_price) : 'Không có' }}</td>
           <td :class="getStatusClass(book.status)">
             {{ getStatusText(book.status) }}
           </td>
@@ -75,9 +75,9 @@ const openEditBook = (id) => {
   router.push(`/books/${id}/edit`);
 };
 
-const formatPrice = (price) => {
-  return price.toLocaleString('vi-VN');
-};
+   const formatCurrency = (amount) => {
+            return new Intl.NumberFormat('vi-VN').format(amount);
+        };
 
 const openConfirmDeleteModal = (id) => {
   bookToDelete.value = id;

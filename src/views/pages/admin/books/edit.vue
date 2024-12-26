@@ -23,12 +23,8 @@
                         <div v-if="isDropdownOpen" class="dropdown-menu" @click.stop>
                             <div v-for="author in authors" :key="author.id" class="dropdown-item">
                                 <label>
-                                    <input 
-                                        type="checkbox" 
-                                        :value="author.id" 
-                                        v-model="book.authors" 
-                                        @click="handleAuthorSelect(author.id)" 
-                                    />
+                                    <input type="checkbox" :value="author.id" v-model="book.authors"
+                                        @click="handleAuthorSelect(author.id)" />
                                     {{ author.name }}
                                 </label>
                             </div>
@@ -98,42 +94,50 @@
             <div class="form-row">
                 <div class="form-group">
                     <label for="quantity">Số Lượng:</label>
-                    <input type="number" v-model="book.quantity" class="form-control" required />
+                    <input type="number" v-model="book.quantity" class="form-control" required min="0"
+                        @input="validateNumber('quantity')" />
                 </div>
                 <div class="form-group">
                     <label for="original_price">Giá Gốc:</label>
-                    <input type="number" v-model="book.original_price" class="form-control" required />
+                    <input type="number" v-model="book.original_price" class="form-control" required
+                        @input="validateNumber('original_price')" />
                 </div>
                 <div class="form-group">
                     <label for="discount_price">Giá Khuyến Mãi:</label>
-                    <input type="number" v-model="book.discount_price" class="form-control" />
+                    <input type="number" v-model="book.discount_price" class="form-control"
+                        @input="validateNumber('discount_price')" />
                 </div>
             </div>
-
             <div class="form-row">
                 <div class="form-group">
                     <label for="published_year">Năm Xuất Bản:</label>
-                    <input type="number" v-model="book.published_year" class="form-control" required />
+                    <input type="number" v-model="book.published_year" class="form-control" required
+                        @input="validateNumber('published_year')" />
                 </div>
                 <div class="form-group">
                     <label for="number_pages">Số Trang:</label>
-                    <input type="number" v-model="book.number_pages" class="form-control" required />
+                    <input type="number" v-model="book.number_pages" class="form-control" required
+                        @input="validateNumber('number_pages')" />
                 </div>
                 <div class="form-group">
-                    <label for="size">Length:</label>
-                    <input type="text" v-model="book.length" class="form-control" required />
+                    <label for="size">Chiều dài :</label>
+                    <input type="text" v-model="book.length" step="0.01" class="form-control" required
+                        @input="validateNumber('length')" />
                 </div>
                 <div class="form-group">
-                    <label for="size">Width:</label>
-                    <input type="text" v-model="book.width" class="form-control" required />
+                    <label for="size">Chiều rộng :</label>
+                    <input type="text" v-model="book.width" step="0.01" class="form-control" required
+                        @input="validateNumber('width')" />
                 </div>
                 <div class="form-group">
-                    <label for="size">Height:</label>
-                    <input type="text" v-model="book.height" class="form-control" required />
+                    <label for="size">Chiều Cao:</label>
+                    <input type="text" v-model="book.height" step="0.01" class="form-control" required
+                        @input="validateNumber('height')" />
                 </div>
                 <div class="form-group">
                     <label for="weight">Trọng Lượng:</label>
-                    <input type="number" v-model="book.weight" step="0.01" class="form-control" required />
+                    <input type="number" v-model="book.weight" step="0.01" class="form-control" required
+                        @input="validateNumber('weight')" />
                 </div>
             </div>
             <div class="form-group">
@@ -142,7 +146,10 @@
                 <img v-if="imagePreview" :src="imagePreview" alt="Preview" class="img-preview" />
             </div>
 
-            <button type="submit" class="btn btn-primary">Cập Nhật Sách</button>
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">Cập Nhật Sách</button>
+                <button type="button" class="btn btn-secondary" @click="cancelUpdate">Hủy Cập Nhật</button>
+            </div>
         </form>
     </div>
 </template>
@@ -157,7 +164,7 @@ import CategoryService from '@/service/CategoryService';
 import PublisherService from '@/service/PublisherService';
 import TranslatorService from '@/service/TranslatorService';
 import { useToast } from 'primevue/usetoast';
-import { computed, onMounted, onUnmounted, ref } from 'vue';
+import { computed, onMounted, onUnmounted, ref, watch } from 'vue';
 
 const isDropdownOpen = ref(false); // Trạng thái của dropdown
 
@@ -173,6 +180,11 @@ const categories = ref([]);
 const coverTypes = ref([]);
 const languages = ref([]);
 
+const validateNumber = (field) => {
+    if (book.value[field] < 0) {
+        book.value[field] = 0; // Đặt lại giá trị về 1 nếu nhỏ hơn 1
+    }
+};
 const fetchBook = async (id) => {
     try {
         const response = await BookService.getBookById(id);
@@ -193,7 +205,16 @@ const fetchBook = async (id) => {
         alert('Lỗi khi tải thông tin sách: ' + error.message);
     }
 };
-
+watch(
+      () => book.value.quantity,
+      (newQuantity) => {
+        if (newQuantity === 0) {
+          book.value.status = 'out_of_stock';
+        } else if (newQuantity > 0) {
+          book.value.status = 'instock';
+        }
+      }
+    );
 const updateBook = async () => {
     const payload = {
         title: book.value.title,
@@ -233,7 +254,9 @@ const updateBook = async () => {
         alert('Lỗi khi cập nhật sách: ' + (error.response ? JSON.stringify(error.response.data) : error.message));
     }
 };
-
+const cancelUpdate = () => {
+    router.push('/books'); // Điều hướng về trang danh sách sách
+};
 const onFileChange = (event) => {
     const file = event.target.files[0];
     if (file) {
@@ -339,6 +362,7 @@ const fetchLanguages = async () => {
 };
 
 onMounted(() => {
+    
     const bookId = router.currentRoute.value.params.id;
     fetchBook(bookId);
     fetchAuthors();
@@ -349,12 +373,11 @@ onMounted(() => {
     fetchCoverTypes();
     fetchLanguages();
 
-    document.addEventListener('click', handleClickOutside);
+    window.addEventListener('click', handleClickOutside);
 });
 
-onUnmounted(() => {
-    document.removeEventListener('click', handleClickOutside);
-});
+onUnmounted(() => window.removeEventListener('click', handleClickOutside));
+
 </script>
 
 
@@ -490,4 +513,23 @@ h1 {
     max-width: 10%;
     height: auto;
 }
+
+.form-actions {
+    display: flex;
+    justify-content: flex-start;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.btn-secondary {
+    background-color: #ccc;
+    border: 1px solid #aaa;
+    color: #333;
+}
+
+.btn-secondary:hover {
+    background-color: #bbb;
+    border-color: #999;
+}
+
 </style>

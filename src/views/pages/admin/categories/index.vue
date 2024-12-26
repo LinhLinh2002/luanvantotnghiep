@@ -128,7 +128,7 @@ const createCategory = async () => {
         toast.add({ severity: 'success', summary: 'Thành công', detail: 'danh mục đã được thêm', life: 3000 });
         closeModal();
     } catch (error) {
-        alert('Lỗi khi tạo danh mục: ' + error.message);
+        toast.add({ severity: 'error', summary: 'Thất bại', detail: 'Danh mục bị trùng tên', life: 3000 });
     }
 };
 
@@ -144,7 +144,7 @@ const updateCategory = async () => {
         toast.add({ severity: 'success', summary: 'Thành công', detail: 'danh mục đã được cập nhật', life: 3000 });
         closeModal();
     } catch (error) {
-        alert('Lỗi khi cập nhật danh mục: ' + error.message);
+        toast.add({ severity: 'error', summary: 'Thất bại', detail: 'Danh mục bị trùng tên', life: 3000 });
     }
 };
 

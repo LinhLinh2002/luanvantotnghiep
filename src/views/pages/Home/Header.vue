@@ -1,6 +1,6 @@
 <template>
     <div class="home-header">
-        <div class="header-top">
+        <!-- <div class="header-top">
             <div class="container">
                 <a class="addres-star" href="#">TP.Hồ Chí Minh</a>
                 <span class="header-links">
@@ -11,7 +11,7 @@
             </div>
         </div>
 
-        <div class="divider"></div>
+        <div class="divider"></div> -->
 
         <header class="header-botton">
             <div class="header-botton1">
@@ -24,7 +24,7 @@
                         <router-link to="/wishlist" class="like">
                             <i class='bx bx-heart'></i>
                             <!-- Hiển thị số lượng nếu có -->
-                            <span v-if="wishlistItemCount > 0" class="wishlist-count">{{ wishlistItemCount }}</span>
+                            <!-- <span v-if="wishlistItemCount > 0" class="wishlist-count">{{ wishlistItemCount }}</span> -->
                         </router-link>
 
                         <a href="#" class="call">
@@ -38,7 +38,8 @@
             <div class="header-botton2">
                 <div class="danhmuc">
 
-                    <i class='bx bx-grid-alt' @click="ShowDrop"></i>
+                    <i class='bx bx-grid-alt' @click="ShowDrop">
+                        <span>Danh Mục</span></i>
 
                 </div>
                 <div id="overlay" class="overlay" @click="closeDropdown"></div>
@@ -56,81 +57,74 @@
 
                     <div class="li-column">
 
-                        <ul v-if="showSthing">
+
+                        <!-- Lọc theo Danh mục -->
+                        <ul v-if="selectedCategory === 'categories'">
                             <li v-for="category in categories" :key="category.id">
-                                <router-link
-                                    :to="{ name: 'FilterBooks', query: { type: 'categories', id: category.id } }"
+                                <router-link :to="{ name: 'FilterBooks', query: { category_id: category.id } }"
                                     class="router-link">
                                     {{ category.name }}
                                 </router-link>
                             </li>
                         </ul>
 
-                        <ul v-if="selectedCategory == 'categories'">
-                            <li v-for="category in categories" :key="category.id">
-                                <router-link
-                                    :to="{ name: 'FilterBooks', query: { type: 'categories', id: category.id } }"
-                                    class="router-link">
-                                    {{ category.name }}
-                                </router-link>
-                            </li>
-                        </ul>
-
-
+                        <!-- Lọc theo Tác giả -->
                         <ul v-if="selectedCategory === 'authors'">
                             <li v-for="author in authors" :key="author.id">
-                                <router-link :to="{ name: 'FilterBooks', query: { type: 'authors', id: author.id } }"
+                                <router-link :to="{ name: 'FilterBooks', query: { author_id: author.id } }"
                                     class="router-link">
                                     {{ author.name }}
                                 </router-link>
                             </li>
                         </ul>
 
+                        <!-- Lọc theo Nhà Xuất Bản -->
                         <ul v-if="selectedCategory === 'publishers'">
                             <li v-for="publisher in publishers" :key="publisher.id">
-                                <router-link
-                                    :to="{ name: 'FilterBooks', query: { type: 'publishers', id: publisher.id } }"
+                                <router-link :to="{ name: 'FilterBooks', query: { publisher_id: publisher.id } }"
                                     class="router-link">
                                     {{ publisher.name }}
                                 </router-link>
                             </li>
                         </ul>
 
+                        <!-- Lọc theo Dịch giả -->
                         <ul v-if="selectedCategory === 'translators'">
                             <li v-for="translator in translators" :key="translator.id">
-                                <router-link
-                                    :to="{ name: 'FilterBooks', query: { type: 'translators', id: translator.id } }"
+                                <router-link :to="{ name: 'FilterBooks', query: { translator_id: translator.id } }"
                                     class="router-link">
                                     {{ translator.name }}
                                 </router-link>
                             </li>
                         </ul>
 
+                        <!-- Lọc theo Thể loại -->
                         <ul v-if="selectedCategory === 'genres'">
                             <li v-for="genre in genres" :key="genre.id">
-                                <router-link :to="{ name: 'FilterBooks', query: { type: 'genres', id: genre.id } }"
+                                <router-link :to="{ name: 'FilterBooks', query: { genre_id: genre.id } }"
                                     class="router-link">
                                     {{ genre.name }}
                                 </router-link>
                             </li>
                         </ul>
 
+                        <!-- Lọc theo Ngôn ngữ -->
                         <ul v-if="selectedCategory === 'languages'">
                             <li v-for="language in languages" :key="language.id">
-                                <router-link
-                                    :to="{ name: 'FilterBooks', query: { type: 'languages', id: language.id } }"
+                                <router-link :to="{ name: 'FilterBooks', query: { language_id: language.id } }"
                                     class="router-link">
                                     {{ language.name }}
                                 </router-link>
                             </li>
                         </ul>
+
                     </div>
                 </div>
 
 
 
                 <div class="timkiem">
-                    <input v-model="searchQuery" type="text" placeholder="Muôn kiếp nhân sinh" />
+                    <input v-model="searchQuery" type="text" placeholder="Khôn ninh " />
                     <button @click="searchBooks" type="button" class="btn">
                         <i class='bx bx-search-alt-2'></i>
                     </button>
@@ -138,15 +132,20 @@
                 </div>
 
                 <div class="taikhoan">
-                    <i class='bx bx-user-circle' @click="showuser"></i>
+                    <!-- Hiển thị biểu tượng tài khoản nếu chưa đăng nhập, nếu đã đăng nhập hiển thị tên người dùng -->
+                    <i class='bx bx-user-circle' v-if="!user" @click="showuser">
+                        <span>Tài Khoản</span></i>
+                    <i class='bx bx-user-circle' v-if="user" @click="showuser">
+                        <span>{{ user.name }}!</span> </i>
+
                     <div class="user-dropdown" v-if="dropuser">
                         <!-- Hiển thị tên người dùng nếu đã đăng nhập -->
                         <template v-if="isLoggedIn">
                             <h3 v-if="user">Xin chào, {{ user.name }}</h3>
-                            <router-link to="/profile" class="account-link">Tài Khoản Của Tôi </router-link>
+                            <router-link to="/profile" class="account-link">Tài Khoản Của Tôi</router-link>
                             <router-link to="/cart" class="account-link">Xem Giỏ Hàng</router-link>
-                            <router-link to="/order" class="account-link">Đơn Hàng Của Tôi </router-link>
-                            <router-link to="/wishlist" class="account-link">Danh Sách Yêu Thích </router-link>
+                            <router-link to="/order" class="account-link">Đơn Hàng Của Tôi</router-link>
+                            <router-link to="/wishlist" class="account-link">Danh Sách Yêu Thích</router-link>
                             <div class="order-tracking">
                                 <h6>Theo dõi đơn hàng của tôi</h6>
                                 <div class="order-tracking-input">
@@ -168,8 +167,10 @@
 
 
 
+
                 <div class="giohang">
-                    <i class="bx bxs-cart" @click="showcart"></i>
+                    <i class="bx bxs-cart" @click="showcart">
+                        <span class="title">Giỏ Hàng</span></i>
                     <!-- Hiển thị số lượng sản phẩm trong giỏ hàng nếu có -->
                     <span v-if="cartItemCount > 0" class="cart-count">{{ cartItemCount }}</span>
 
@@ -177,9 +178,14 @@
                     <div v-if="dropcart" class="cart-dropdown">
                         <h3>Sản phẩm trong giỏ hàng:</h3>
                         <ul>
-                            <li v-for="item in cartItems" :key="item.id">
-                                <img :src="item.book.image" alt="Product Image" class="product-image" /><br>
-                                {{ item.book.title }} <br> {{ item.quantity }} x {{ item.price }}
+                            <li v-for="item in cartItems" :key="item.id" class="cart-item">
+                                <img :src="item.book.image" alt="Product Image" class="product-image" />
+                                <div class="item-details">
+                                    <span class="item-title">{{ item.book.title }}</span><br>
+                                    <span class="item-quantity">{{ item.quantity }} x {{ formatCurrency(item.price)
+                                        }}</span>
+                                </div>
+                                
                             </li>
                         </ul>
 
@@ -190,6 +196,7 @@
                         </div>
                     </div>
                 </div>
+
 
             </div>
         </header>
@@ -213,9 +220,12 @@ export default {
     setup() {
         const searchQuery = ref(''); // Make searchQuery reactive
         const router = useRouter();
-        const drop = ref(false);
         const cartItems = ref([]);
+
+        const dropuser = ref(false);
+        const drop = ref(false);
         const dropcart = ref(false);
+
         const cartItemCount = ref(0); // Thêm biến này để lưu số lượng sản phẩm trong giỏ hàng
         const selectedCategory = ref(""); // Dùng để lưu trữ danh mục được chọn
         const selectedAuthor = ref(""); // Dùng để lưu trữ danh mục được chọn
@@ -239,32 +249,65 @@ export default {
         //     }
         // };
 
-        const dropuser = ref(false);
         const isLoggedIn = ref(false);
         const user = ref(null);
 
-        const ShowDrop = () => {
-            drop.value = !drop.value;
-            console.log("Dropdown visible:", drop.value);
-        };
+
         const currentUser = JSON.parse(localStorage.getItem("currentUser"));
-        const token = currentUser?.token?.access_token;
+        const token = localStorage.getItem("access_token");
 
-        const showcart = () => {
-            if (currentUser) {
-                dropcart.value = !dropcart.value;
-
-            } else {
-                alert("Bạn cần đăng nhập để xem giỏ hàng!");
+        const ShowDrop = () => {
+            // Nếu dropdown tài khoản (dropuser) đang mở thì tắt nó
+            if (dropuser.value) {
+                dropuser.value = false;
             }
 
-            console.log("Giỏ hàng hiển thị:", dropcart.value);
+            // Nếu dropdown giỏ hàng (dropcart) đang mở thì tắt nó
+            if (dropcart.value) {
+                dropcart.value = false;
+            }
+
+            // Chuyển trạng thái hiển thị dropdown danh mục
+            drop.value = !drop.value;
+            // console.log("Dropdown visible:", drop.value);
         };
 
-        const showuser = () => {
-            dropuser.value = !dropuser.value;
-        }
+        const showcart = () => {
+            // Tắt dropdown tài khoản nếu nó đang mở
+            if (dropuser.value) {
+                dropuser.value = false;
+            }
 
+            // Tắt dropdown danh mục nếu nó đang mở
+            if (drop.value) {
+                drop.value = false;
+            }
+
+            // Chuyển trạng thái hiển thị dropdown giỏ hàng
+            dropcart.value = !dropcart.value;
+
+            if (currentUser) {
+                // console.log("Giỏ hàng hiển thị:", dropcart.value);
+            } else {
+                this.$router.push({ name: 'login' });            }
+
+            }
+    
+
+        const showuser = () => {
+            // Tắt dropdown giỏ hàng nếu nó đang mở
+            if (dropcart.value) {
+                dropcart.value = false;
+            }
+
+            // Tắt dropdown danh mục nếu nó đang mở
+            if (drop.value) {
+                drop.value = false;
+            }
+
+            // Chuyển trạng thái hiển thị dropdown tài khoản
+            dropuser.value = !dropuser.value;
+        };
         const goToBookstore = () => {
             router.push({ name: "bookstore" }); // Navigate to the bookstore route
         };
@@ -273,9 +316,8 @@ export default {
             try {
                 const response = await CategoryService.getAllCategories();
                 categories.value = response.data;
-                console.log("Categories loaded:", categories.value);
             } catch (error) {
-                console.error("Error loading categories:", error);
+                // console.error("Error loading categories:", error);
             }
         };
 
@@ -283,9 +325,8 @@ export default {
             try {
                 const response = await AuthorService.getAllAuthors();
                 authors.value = response.data;
-                console.log("Authors loaded:", authors.value);
             } catch (error) {
-                console.error("Error loading authors:", error);
+                // console.error("Error loading authors:", error);
             }
         };
 
@@ -293,9 +334,8 @@ export default {
             try {
                 const response = await PublisherService.getAllPublishers();
                 publishers.value = response.data;
-                console.log("Publishers loaded:", publishers.value);
             } catch (error) {
-                console.error("Error loading publishers:", error);
+                // console.error("Error loading publishers:", error);
             }
         };
 
@@ -303,9 +343,8 @@ export default {
             try {
                 const response = await TranslatorService.getAllTranslators();
                 translators.value = response.data;
-                console.log("Translators loaded:", translators.value);
             } catch (error) {
-                console.error("Error loading translators:", error);
+                // console.error("Error loading translators:", error);
             }
         };
 
@@ -313,9 +352,8 @@ export default {
             try {
                 const response = await AttributeService.getAllGenres();
                 genres.value = response.data;
-                console.log("Genres loaded:", genres.value);
             } catch (error) {
-                console.error("Error loading genres:", error);
+                // console.error("Error loading genres:", error);
             }
         };
 
@@ -323,9 +361,9 @@ export default {
             try {
                 const response = await AttributeService.getAllLanguages();
                 languages.value = response.data;
-                console.log("Languages loaded:", languages.value);
+                // console.log("Languages loaded:", languages.value);
             } catch (error) {
-                console.error("Error loading languages:", error);
+                // console.error("Error loading languages:", error);
             }
         };
 
@@ -333,7 +371,7 @@ export default {
 
         const checkLoginStatus = () => {
             const currentUser = localStorage.getItem("currentUser");
-            console.log('line 156:', currentUser)
+            // console.log('line 156:', currentUser)
             if (currentUser) {
                 isLoggedIn.value = true;
                 user.value = JSON.parse(currentUser);
@@ -346,14 +384,13 @@ export default {
         const logout = async () => {
             try {
                 const currentUser = localStorage.getItem("currentUser");
-                console.log('line 169:', currentUser)
                 if (!currentUser) {
-                    alert("Phiên đăng nhập không tồn tại, vui lòng đăng nhập lại.");
-                    router.push({ name: "login" });
+                    // alert("Phiên đăng nhập không tồn tại, vui lòng đăng nhập lại.");
+                    router.push({ name: "bookstore" });
                     return;
                 }
 
-                const token = JSON.parse(currentUser)?.token;
+                const token = localStorage.getItem("access_token");
 
                 await axios.post(
                     `${API_URL}/logout`,
@@ -369,16 +406,17 @@ export default {
                 localStorage.removeItem("currentUser");
                 isLoggedIn.value = false;
                 user.value = null;
-                alert("Bạn đã đăng xuất thành công!");
+                //alert("Bạn đã đăng xuất thành công!");
                 router.push({ name: "bookstore" });
             } catch (error) {
                 if (error.response?.status === 401) {
-                    alert("Phiên đăng nhập đã hết hạn, vui lòng đăng nhập lại.");
+                    // alert("Phiên đăng nhập đã hết hạn, vui lòng đăng nhập lại.");
                     localStorage.removeItem("currentUser");
-                    router.push({ name: "login" });
+                    router.push({ name: "bookstore" });
+                    window.location.reload();
                 } else {
-                    console.error("Lỗi không xác định:", error);
-                    alert("Đăng xuất không thành công. Vui lòng thử lại.");
+                    // console.error("Lỗi không xác định:", error);
+                    // alert("Đăng xuất không thành công. Vui lòng thử lại.");
                 }
             }
         };
@@ -386,12 +424,12 @@ export default {
         const loadCart = async () => {
             try {
                 const response = await CartService.getCart();
-                console.log(response)
+                // console.log(response)
                 cartItems.value = response ? response.cart.items : [];
-                console.log("cartItems:", cartItems, cartItems.value)
+                // console.log("cartItems:", cartItems, cartItems.value)
                 cartItemCount.value = cartItems.value.reduce((total, item) => total + item.quantity, 0);
             } catch (error) {
-                console.log('215:', error)
+                // console.log('215:', error)
             }
         };
 
@@ -404,12 +442,12 @@ export default {
         };
 
         const searchBooks = () => {
-            console.log("Button clicked! Search query:", searchQuery.value);
+            // console.log("Button clicked! Search query:", searchQuery.value);
             if (!searchQuery.value.trim()) {
                 alert("Vui lòng nhập từ khóa tìm kiếm!");
                 return;
             }
-            console.log("Navigating to search results...");
+            // console.log("Navigating to search results...");
             router.push({ name: "SearchResults", query: { query: searchQuery.value } })
                 .then(() => {
                     console.log("Successfully navigated to search results.");
@@ -440,8 +478,12 @@ export default {
             selectedAuthor.value = author;
             showSthing.value = false;
         };
-
+        // Hàm định dạng giá trị thành tiền tệ
+        const formatCurrency = (amount) => {
+            return new Intl.NumberFormat('vi-VN').format(amount);
+        };
         return {
+            formatCurrency,
             // wishlistItemCount: 0,  // Khai báo biến để lưu trữ số lượng sách yêu thích
             searchQuery,
             searchBooks,
@@ -496,6 +538,7 @@ export default {
 
 .header-top .container {
     width: 90%;
+    height: 30px;
     /* background-color: blueviolet; */
     margin: 0 auto;
     display: flex;
@@ -523,6 +566,12 @@ export default {
 
 }
 
+/* .home-header {
+    position: sticky;
+    top: 0;
+    z-index: 99;
+} */
+
 .header-botton1 {
     /* background-color: #42596d; */
     display: flex;
@@ -531,6 +580,7 @@ export default {
     padding: 10px 30px;
     margin-left: 50px;
     margin-right: 50px;
+    height: 80px;
 }
 
 .header-botton1 .logo img {
@@ -568,6 +618,7 @@ export default {
     font-size: 20px;
     height: 60px;
 
+
 }
 
 .header-botton2 i {
@@ -576,16 +627,40 @@ export default {
     padding-bottom: 10px;
     align-items: end;
     color: white;
+
 }
 
 .header-botton2 .timkiem {
     width: 100%;
     max-width: 500px;
-    background-color: rgb(218, 228, 237);
+    background-color: rgb(247, 247, 247);
     display: flex;
     align-items: center;
     border-radius: 10px;
     padding: 0px 2px;
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+
+}
+
+.timkiem input {
+    background: transparent;
+    flex: 1;
+    border: 0;
+    outline: none;
+    font-size: 20px;
+}
+
+.timkiem button i {
+    width: 30px;
+    color: #6c757d;
+}
+
+.timkiem button {
+    border: 0;
+    border-radius: 30%;
+    background: transparent;
+
+
 }
 
 .wishlist-count {
@@ -599,12 +674,35 @@ export default {
     font-size: 12px;
 }
 
+.danhmuc i {
+    font-size: 28px;
+    font-family: uni2-icons, sans-serif;
+    color: rgb(198, 201, 224);
+    cursor: pointer;
+    display: inline-flex;
+    /* Đảm bảo rằng icon và chữ đều là inline-flex */
+    align-items: center;
+    /* Căn chỉnh icon và chữ theo chiều dọc */
+    font-weight: 400;
+}
+
+.danhmuc i span {
+    font-size: 18px;
+    font-family: 'Inter', -apple-system, sans-serif;
+    font-weight: 600;
+    color: rgb(255, 255, 255);
+    text-transform: uppercase;
+    /* Chuyển tất cả thành chữ hoa */
+    margin-left: 8px;
+    /* Thêm khoảng cách giữa icon và chữ */
+}
+
 /* Dropdown menu styling */
 .dropd {
     display: flex;
     position: absolute;
-    left: 132px;
-    top: 235px;
+    left: 80px;
+    top: 211px;
     background-color: #ffffff;
     border-radius: 8px;
     padding: 15px;
@@ -614,6 +712,9 @@ export default {
     z-index: 1000;
     transition: all 0.3s ease;
     text-align: center;
+    z-index: 9999;
+    /* Giá trị rất cao để đảm bảo không bị đè lên */
+
 }
 
 .dropd .divider-danhmuc {
@@ -713,39 +814,48 @@ export default {
     border-bottom: 1px solid #9b9a9e;
 }
 
-.timkiem input {
-    background: transparent;
-    flex: 1;
-    border: 0;
-    outline: none;
-    font-size: 20px;
+
+
+.taikhoan {
+    position: relative;
+    /* Đảm bảo form định vị theo phần tử này */
 }
 
-.timkiem button i {
-    width: 30px;
-    color: #6c757d;
+.taikhoan i {
+    font-size: 28px;
+    font-family: uni2-icons, sans-serif;
+    color: rgb(198, 201, 224);
+    cursor: pointer;
+    display: inline-flex;
+    /* Đảm bảo rằng icon và chữ đều là inline-flex */
+    align-items: center;
+    /* Căn chỉnh icon và chữ theo chiều dọc */
+    font-weight: 400;
 }
 
-.timkiem button {
-    border: 0;
-    border-radius: 30%;
-    background: transparent;
-
-
+.taikhoan i span {
+    font-size: 18px;
+    font-family: 'Inter', -apple-system, sans-serif;
+    font-weight: 600;
+    color: rgb(255, 255, 255);
+    text-transform: uppercase;
+    /* Chuyển tất cả thành chữ hoa */
+    margin-left: 8px;
+    /* Thêm khoảng cách giữa icon và chữ */
 }
 
-/* .taikhoan {
-    background-color: #3f4895;
-} */
 .user-dropdown {
     position: absolute;
-    top: 235px;
-    right: 200px;
+    top: 49px;
+    right: -150px;
     width: 350px;
     padding: 15px;
     background-color: white;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
     border-radius: 8px;
+    z-index: 9999;
+    /* Giá trị rất cao để đảm bảo không bị đè lên */
+
 }
 
 .user-dropdown h3 {
@@ -819,8 +929,8 @@ h3 {
     border: none;
     border-radius: 4px;
     cursor: pointer;
-    margin: 5px;
     text-align: center;
+    margin-left: 50px;
 }
 
 .login-btn {
@@ -851,19 +961,44 @@ h3 {
     cursor: pointer;
 }
 
+.giohang i {
+    font-size: 28px;
+    font-family: uni2-icons, sans-serif;
+    color: rgb(198, 201, 224);
+    cursor: pointer;
+    display: inline-flex;
+    /* Đảm bảo rằng icon và chữ đều là inline-flex */
+    align-items: center;
+    /* Căn chỉnh icon và chữ theo chiều dọc */
+    font-weight: 400;
+}
+
+.giohang i span {
+    font-size: 18px;
+    font-family: 'Inter', -apple-system, sans-serif;
+    font-weight: 600;
+    color: rgb(255, 255, 255);
+    text-transform: uppercase;
+    /* Chuyển tất cả thành chữ hoa */
+    margin-left: 8px;
+    /* Thêm khoảng cách giữa icon và chữ */
+}
+
 .cart-dropdown {
     width: 400px;
     height: auto;
     position: absolute;
-    top: 50px;
+    top: 47px;
     right: 0;
-
     background: white;
     border: 1px solid #ddd;
     padding: 15px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
     border-bottom-right-radius: 10px;
     border-bottom-left-radius: 10px;
+    z-index: 9999;
+    /* Giá trị rất cao để đảm bảo không bị đè lên */
+
 
 }
 
@@ -879,17 +1014,14 @@ h3 {
 
 .cart-dropdown .btn-cart button:first-child {
     background-color: #034784;
-    /* Màu nền giống "Đăng ký" */
     color: white;
 }
 
 .cart-dropdown .btn-cart button:last-child {
     background-color: #333;
-    /* Màu nền giống "Đăng nhập" */
     color: white;
 }
 
-/* Đảm bảo khoảng cách giữa các nút */
 .cart-dropdown .btn-cart {
     display: flex;
     justify-content: space-between;
@@ -904,7 +1036,37 @@ h3 {
     font-size: 12px;
     position: absolute;
     top: -10px;
-    right: -10px;
+    right: 95px;
+}
+
+.cart-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.product-image {
+    width: 40px;
+    /* Fixed width for the image */
+    height: 40px;
+    /* Fixed height for the image */
+    object-fit: cover;
+    /* Ensures the image maintains aspect ratio */
+    margin-right: 10px;
+    /* Space between image and text */
+}
+
+.item-details {
+    display: flex;
+    flex-direction: column;
+}
+
+.item-title {
+    font-weight: bold;
+}
+
+.item-quantity {
+    color: gray;
 }
 
 .btn-cart {

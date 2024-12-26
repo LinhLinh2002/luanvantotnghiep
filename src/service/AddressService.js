@@ -4,8 +4,9 @@ const API_URL = "http://127.0.0.1:8000/api";
 
 // Hàm lấy token từ localStorage (nếu có)
 export const getToken = () => {
-    const currentUser = JSON.parse(localStorage.getItem("currentUser"));
-    return currentUser?.token?.access_token;
+    const token = localStorage.getItem("access_token");
+    return token || null;
+  
 };
 
 // Hàm lấy danh sách tỉnh (Provinces) - Không cần token
@@ -14,7 +15,7 @@ export const getProvinces = async () => {
         const response = await axios.get(`${API_URL}/provinces`);
         return response.data;
     } catch (error) {
-        console.error("Lỗi khi tải danh sách tỉnh:", error);
+        // console.error("Lỗi khi tải danh sách tỉnh:", error);
         throw error;
     }
 };
@@ -25,7 +26,7 @@ export const getDistricts = async (provinceId) => {
         const response = await axios.get(`${API_URL}/districts?province_id=${provinceId}`);
         return response.data;
     } catch (error) {
-        console.error("Lỗi khi tải danh sách quận/huyện:", error);
+        // console.error("Lỗi khi tải danh sách quận/huyện:", error);
         throw error;
     }
 };
@@ -36,7 +37,7 @@ export const getWards = async (districtId) => {
         const response = await axios.get(`${API_URL}/wards?district_id=${districtId}`);
         return response.data;
     } catch (error) {
-        console.error("Lỗi khi tải danh sách xã/phường:", error);
+        // console.error("Lỗi khi tải danh sách xã/phường:", error);
         throw error;
     }
 };
@@ -45,8 +46,8 @@ export const getWards = async (districtId) => {
 export const getAddresses = async () => {
     const token = getToken();
     if (!token) {
-        console.error("Không tìm thấy token. Người dùng cần đăng nhập.");
-        alert("Bạn cần đăng nhập để lấy danh sách địa chỉ.");
+        // console.error("Không tìm thấy token. Người dùng cần đăng nhập.");
+        // alert("Bạn cần đăng nhập để lấy danh sách địa chỉ.");
         return;
     }
 
@@ -58,7 +59,7 @@ export const getAddresses = async () => {
         });
         return response.data;
     } catch (error) {
-        console.error("Lỗi khi tải danh sách địa chỉ:", error);
+        // console.error("Lỗi khi tải danh sách địa chỉ:", error);
         throw error;
     }
 };
@@ -67,8 +68,8 @@ export const getAddresses = async () => {
 export const addAddress = async (address) => {
     const token = getToken();
     if (!token) {
-        console.error("Không tìm thấy token. Người dùng cần đăng nhập.");
-        alert("Bạn cần đăng nhập để thêm địa chỉ.");
+        // console.error("Không tìm thấy token. Người dùng cần đăng nhập.");
+        // alert("Bạn cần đăng nhập để thêm địa chỉ.");
         return;
     }
 
@@ -80,7 +81,7 @@ export const addAddress = async (address) => {
         });
         return response.data;
     } catch (error) {
-        console.error("Lỗi khi thêm địa chỉ:", error);
+        // console.error("Lỗi khi thêm địa chỉ:", error);
         throw error;
     }
 };
@@ -89,8 +90,8 @@ export const addAddress = async (address) => {
 export const updateAddress = async (addressId, address) => {
     const token = getToken();
     if (!token) {
-        console.error("Không tìm thấy token. Người dùng cần đăng nhập.");
-        alert("Bạn cần đăng nhập để cập nhật địa chỉ.");
+        // console.error("Không tìm thấy token. Người dùng cần đăng nhập.");
+        // alert("Bạn cần đăng nhập để cập nhật địa chỉ.");
         return;
     }
 
@@ -111,8 +112,8 @@ export const updateAddress = async (addressId, address) => {
 export const deleteAddress = async (addressId) => {
     const token = getToken();
     if (!token) {
-        console.error("Không tìm thấy token. Người dùng cần đăng nhập.");
-        alert("Bạn cần đăng nhập để xóa địa chỉ.");
+        // console.error("Không tìm thấy token. Người dùng cần đăng nhập.");
+        // alert("Bạn cần đăng nhập để xóa địa chỉ.");
         return;
     }
 

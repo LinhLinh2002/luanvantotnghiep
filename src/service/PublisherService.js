@@ -4,13 +4,15 @@
 import axios from 'axios';
 import router from '@/router'; 
 
-const API_URL = 'http://127.0.0.1:8000/api/admin/publishers';
+const API_URL_ADMIN = 'http://127.0.0.1:8000/api/admin/publishers';
+const API_URL = 'http://127.0.0.1:8000/api/publishers';
+
 
 class Publisherservice {
     // Helper method to get token from localStorage
     _getAuthToken() {
-        const currentUser = JSON.parse(localStorage.getItem("currentUser"));
-        return currentUser?.token?.access_token;
+        const token = localStorage.getItem("access_token");
+        return token || null;
     }
 
     // Helper method to handle unauthorized access
@@ -59,7 +61,7 @@ class Publisherservice {
     async createPublisher(data) {
         try {
             const token = this._getAuthToken();
-            const response = await axios.post(API_URL, data, {
+            const response = await axios.post(API_URL_ADMIN , data, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             return response.data;
@@ -77,7 +79,7 @@ class Publisherservice {
     async updatePublisher(id, data) {
         try {
             const token = this._getAuthToken();
-            const response = await axios.put(`${API_URL}/${id}`, data, {
+            const response = await axios.put(`${API_URL_ADMIN }/${id}`, data, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             return response.data;
@@ -95,7 +97,7 @@ class Publisherservice {
     async deletePublisher(id) {
         try {
             const token = this._getAuthToken();
-            const response = await axios.delete(`${API_URL}/${id}`, {
+            const response = await axios.delete(`${API_URL_ADMIN }/${id}`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             return response.data;

@@ -1,5 +1,6 @@
 <template>
     <div class="wrapper">
+        <Toast />
 
         <HeaderComponent />
 
@@ -29,29 +30,34 @@
                         <img src="https://nhasachphuongnam.com/images/promo/279/3__4_.jpg" alt="">
                     </a>
                     <a class="item-7 " href="http://localhost:5173/books/23">
-                        <img src="https://nhasachphuongnam.com/images/promo/296/Banner-S%E1%BB%A8-%C4%90O%C3%80N-IWAKURA-%C4%91%E1%BA%A1t-gi%E1%BA%A3i-288x187.jpg" alt="">
+                        <img src="https://nhasachphuongnam.com/images/promo/296/Banner-S%E1%BB%A8-%C4%90O%C3%80N-IWAKURA-%C4%91%E1%BA%A1t-gi%E1%BA%A3i-288x187.jpg"
+                            alt="">
                     </a>
                 </div>
 
                 <div class="list-2">
-                    <div class="item-8">
+                    <!-- <div class="item-8">
                         <img src="https://nhasachphuongnam.com/images/promo/274/block_2.jpg" alt="" class="">
-                    </div>
+                    </div> -->
                     <div class="item-9">
-                        <img src="https://nhasachphuongnam.com/images/promo/289/Banner-Combo-%C6%B0u-%C4%91%C3%A3i-cu%E1%BB%91i-tu%E1%BA%A7n-590x200.jpg"
-                            alt="" class="">
+                        <img src="https://nhasachphuongnam.com/images/promo/295/Vouchers---20241106-20.png  " alt=""
+                            class="">
                     </div>
-                    <div class="item-10">
+                    <!-- <div class="item-10">
                         <img src="https://nhasachphuongnam.com/images/promo/274/block_1.jpg" alt="" class="">
-                    </div>
+                    </div> -->
                     <div class="item-11">
-                        <img src="https://nhasachphuongnam.com/images/promo/289/Freeship-%C4%91%C6%A1n-t%E1%BB%AB-500k-590x200.jpg"
-                            alt="" class="">
+                        <img src="https://nhasachphuongnam.com/images/promo/295/Vouchers---20241106-30.png" alt=""
+                            class="">
+                    </div>
+                    <div class="item-12">
+                        <img src="https://nhasachphuongnam.com/images/promo/295/Vouchers---20241106-50.png" alt=""
+                            class="">
                     </div>
                 </div>
             </div>
 
-            <div class="icon-container">
+            <!-- <div class="icon-container">
 
                 <div class="icon-item">
                     <img src="https://nhasachphuongnam.com/images/promo/274/lego.png" alt="Lego Icon">
@@ -86,7 +92,7 @@
                     <img src="https://nhasachphuongnam.com/images/promo/274/sticker.png" alt="Stickers Icon">
                     <p>Stickers Sáng Tạo</p>
                 </div>
-            </div>
+            </div> -->
 
             <!-- <div class="product-container">
 
@@ -130,14 +136,14 @@
                     </div> -->
             <div class="bestsellers">
                 <h4 class="textsell">Bestsellers</h4>
-                <div class="textsell-2">
+                <!-- <div class="textsell-2">
                     <a href="">Phương Nam Book</a>
                     <a href="">English Books</a>
                     <a href="">Văn Học</a>
                     <a href="">Kỹ Năng</a>
                     <a href="">Kinh Tế</a>
                     <a href="">Thiếu Nhi</a>
-                </div>
+                </div> -->
                 <div class="product-list-sell">
                     <router-link v-for="book in bestsellerBooks" :key="book.id"
                         :to="{ name: 'bookdetails', params: { id: book.id } }" class="product-card-sell">
@@ -145,23 +151,38 @@
                         <div class="cart-icon-sell"></div>
                         <img :src="book.image" alt="Product Image" class="product-image">
                         <p class="product-name-sell">{{ book.title }}</p>
-                        <p class="product-price-sell">{{ book.original_price }} đ</p>
-                        <button class="product-button-sell" @click.prevent="addToCart(book.id)">
+
+
+                        <!-- Hiển thị giá -->
+                        <p v-if="book.discount_price" class="product-price-sell discounted-price">
+                            {{ formatCurrency(book.discount_price) }} đ
+                        </p>
+                        <p v-if="book.discount_price" class="product-price-sell original-price">
+                            {{ formatCurrency(book.original_price) }} đ
+                        </p>
+                        <p v-else class="product-price-sell normal-price">
+                            {{ formatCurrency(book.original_price) }} đ
+                        </p>
+                        <p v-if="book.quantity === 0" class="out-of-stock">Hết hàng</p>
+
+                        <button class="product-button-sell" v-if="book.quantity > 0"
+                            @click.prevent="addToCart(book.id)">
                             <i class="bx bxs-cart"></i> Chọn Mua
                         </button>
+
                     </router-link>
                 </div>
             </div>
 
             <div class="vietnambook">
                 <h4 class="textvnbook">Sách Tiếng Việt</h4>
-                <div class="textvn-2">
+                <!-- <div class="textvn-2">
                     <a href="">Văn Học</a>
                     <a href="">Kinh Tế</a>
                     <a href="">Kỹ Năng</a>
                     <a href="">Thiếu Nhi</a>
                     <a href="">Tuổi Mới Lớn</a>
-                </div>
+                </div> -->
                 <div class="product-list-sell-1">
                     <router-link v-for="book in books" :key="book.id"
                         :to="{ name: 'bookdetails', params: { id: book.id } }" class="product-card-sell-1">
@@ -169,8 +190,22 @@
                         <div class="cart-icon-sell"></div>
                         <img :src="book.image" alt="Product Image" />
                         <p class="product-name-sell">{{ book.title }}</p>
-                        <p class="product-price-sell">{{ book.original_price }} đ</p>
-                        <button class="product-button-sell" @click.prevent="addToCart(book.id)">
+
+                        <!-- Hiển thị giá -->
+                        <p v-if="book.discount_price" class="product-price-sell discounted-price">
+                            {{ formatCurrency(book.discount_price) }} đ
+                        </p>
+                        <p v-if="book.discount_price" class="product-price-sell original-price">
+                            {{ formatCurrency(book.original_price) }} đ
+                        </p>
+                        <p v-else class="product-price-sell normal-price">
+                            {{ formatCurrency(book.original_price) }} đ
+
+                        </p>
+                        <p v-if="book.quantity === 0" class="out-of-stock">Hết hàng</p>
+
+                        <button class="product-button-sell" v-if="book.quantity > 0"
+                            @click.prevent="addToCart(book.id)">
                             <i class="bx bxs-cart"></i> Chọn Mua
                         </button>
 
@@ -182,41 +217,14 @@
 
 
             <div class="icon-container-1">
-                <div class="icon-item">
-                    <img src="https://nhasachphuongnam.com/images/promo/273/NCC-Logo_PNB.jpg" alt="">
-                    <p>Phương Nam Book</p>
-                </div>
-                <div class="icon-item">
-                    <img src="https://nhasachphuongnam.com/images/promo/273/NCC-Logo_K%C4%90.jpg" alt="">
-                    <p>Kim Đồng</p>
-                </div>
-                <div class="icon-item">
-                    <img src="https://nhasachphuongnam.com/images/promo/273/NCC-Logo_NHA_NAM.jpg" alt="">
-                    <p>Nhà Nam</p>
-                </div>
-                <div class="icon-item">
-                    <img src="https://nhasachphuongnam.com/images/promo/273/NCC-Logo_TRE.jpg" alt="">
-                    <p>NXB Trẻ</p>
-                </div>
-                <div class="icon-item">
-                    <img src="https://nhasachphuongnam.com/images/promo/273/NCC-Logo_DINH_TY.jpg" alt="">
-                    <p>Đinh Thị Books</p>
-                </div>
-                <div class="icon-item">
-                    <img src="https://nhasachphuongnam.com/images/promo/273/NCC-Logo_FIRSTNEW.jpg" alt="">
-                    <p>First News</p>
-                </div>
-                <div class="icon-item">
-                    <img src="https://nhasachphuongnam.com/images/promo/273/NCC-Logo_AZ.jpg" alt="">
-                    <p>AZ Việt Nam </p>
-                </div>
-                <div class="icon-item">
-                    <img src="https://nhasachphuongnam.com/images/promo/273/NCC-Logo_ALPHA.jpg" alt="">
-                    <p>Alpha Books</p>
+                <div v-for="publisher in publishers" :key="publisher.id" class="icon-item">
+                    <img v-if="publisher.image" :src="publisher.image" alt="Publisher Image" class="publisher-image" />
+                    <p>{{ publisher.name }}</p>
                 </div>
             </div>
+
             <div class="textbook">
-                <h5 class="textbook-1">Sách Tình Cảm/ Lãng Mạng</h5>
+                <h5 class="textbook-1">Sách Tình Cảm</h5>
                 <!-- <div class="textbook-2">
                     <a href="">Bộ Chân Trời Sáng Tạo</a>
                     <a href="">Bộ Cánh Diều Vàng</a>
@@ -231,8 +239,22 @@
                         <div class="cart-icon-sell"></div>
                         <img :src="book.image" alt="Product Image" class="product-image">
                         <p class="product-name-sell">{{ book.title }}</p>
-                        <p class="product-price-sell">{{ book.original_price }} đ</p>
-                        <button class="product-button-sell" @click.prevent="addToCart(book.id)">
+
+                        <!-- Hiển thị giá -->
+                        <p v-if="book.discount_price" class="product-price-sell discounted-price">
+                            {{ formatCurrency(book.discount_price) }} đ
+                        </p>
+                        <p v-if="book.discount_price" class="product-price-sell original-price">
+                            {{ formatCurrency(book.original_price) }} đ
+                        </p>
+                        <p v-else class="product-price-sell normal-price">
+                            {{ formatCurrency(book.original_price) }} đ
+
+                        </p>
+                        <p v-if="book.quantity === 0" class="out-of-stock">Hết hàng</p>
+
+                        <button class="product-button-sell" v-if="book.quantity > 0"
+                            @click.prevent="addToCart(book.id)">
                             <i class="bx bxs-cart"></i> Chọn Mua
                         </button>
                     </router-link>
@@ -247,53 +269,38 @@
             </div>
             <div class="englishbook">
                 <h5 class="texteng-1">English Books</h5>
-                <div class="texteng-2">
+                <!-- <div class="texteng-2">
                     <a href="">Children</a>
                     <a href="">Fiction</a>
                     <a href="">Business</a>
                     <a href="">Self-help</a>
-                </div>
+                </div> -->
                 <div class="product-list-sell">
-                    <div class="product-card-sell">
+                    <router-link v-for="book in loveBooks" :key="book.id"
+                        :to="{ name: 'bookdetails', params: { id: book.id } }" class="product-card-sell">
+
                         <div class="cart-icon-sell"></div>
-                        <img src="https://nhasachphuongnam.com/images/thumbnails/270/290/detailed/293/Untitled-1_t285-i0.jpg"
-                            alt="Product 1" class="product-image">
-                        <p class="product-name-sell">Trở Về Không </p>
-                        <p class="product-price-sell">169,000 đ</p>
-                        <button class="product-button-sell">Chọn Mua</button>
-                    </div>
-                    <div class="product-card-sell">
-                        <div class="cart-icon-sell"></div>
-                        <img src="https://nhasachphuongnam.com/images/thumbnails/270/290/detailed/293/Untitled-1_wc6c-cs.jpg"
-                            alt="Product 1" class="product-image">
-                        <p class="product-name-sell">Màu Gstar Acrylic 0124</p>
-                        <p class="product-price-sell">169,000 đ</p>
-                        <button class="product-button-sell">Chọn Mua</button>
-                    </div>
-                    <div class="product-card-sell">
-                        <div class="cart-icon-sell"></div>
-                        <img src="https://nhasachphuongnam.com/images/thumbnails/270/290/detailed/293/Untitled-1_k6pl-80.jpg"
-                            alt="Product 1" class="product-image">
-                        <p class="product-name-sell">Màu Gstar Acrylic 0124</p>
-                        <p class="product-price-sell">169,000 đ</p>
-                        <button class="product-button-sell">Chọn Mua</button>
-                    </div>
-                    <div class="product-card-sell">
-                        <div class="cart-icon-sell"></div>
-                        <img src="https://nhasachphuongnam.com/images/thumbnails/270/290/detailed/293/Untitled-1_qrt4-0n.jpg"
-                            alt="Product 1" class="product-image">
-                        <p class="product-name-sell">Màu Gstar Acrylic 0124</p>
-                        <p class="product-price-sell">169,000 đ</p>
-                        <button class="product-button-sell">Chọn Mua</button>
-                    </div>
-                    <div class="product-card-sell">
-                        <div class="cart-icon-sell"></div>
-                        <img src="https://nhasachphuongnam.com/images/thumbnails/270/290/detailed/293/Untitled-1_13do-mq.jpg"
-                            alt="Product 1" class="product-image">
-                        <p class="product-name-sell">Màu Gstar Acrylic 0124</p>
-                        <p class="product-price-sell">169,000 đ</p>
-                        <button class="product-button-sell">Chọn Mua</button>
-                    </div>
+                        <img :src="book.image" alt="Product Image" class="product-image">
+                        <p class="product-name-sell">{{ book.title }}</p>
+
+                        <!-- Hiển thị giá -->
+                        <p v-if="book.discount_price" class="product-price-sell discounted-price">
+                            {{ formatCurrency(book.discount_price) }} đ
+                        </p>
+                        <p v-if="book.discount_price" class="product-price-sell original-price">
+                            {{ formatCurrency(book.original_price) }} đ
+                        </p>
+                        <p v-else class="product-price-sell normal-price">
+                            {{ formatCurrency(book.original_price) }} đ
+
+                        </p>
+                            <p v-if="book.quantity === 0" class="out-of-stock">Hết hàng</p>
+
+                            <button class="product-button-sell" v-if="book.quantity > 0"
+                                @click.prevent="addToCart(book.id)">
+                                <i class="bx bxs-cart"></i> Chọn Mua
+                            </button>
+                    </router-link>
                 </div>
                 <div class="btn-more">
                     <button class="see-more">Xem Thêm</button>
@@ -327,53 +334,7 @@
                 </div>
             </div>
 
-            <div class="school-tools">
-                <h5 class="text-1-1">Dụng Cụ Học Tập</h5>
-                <div class="text-1-2">
-                    <a href="">Tập Vở</a>
-                    <a href="">Bút Viết</a>
-                    <a href="">Bóp Viết/Hộp Bút</a>
-                    <a href="">Sổ Tay</a>
-                    <a href="">Máy Tính Học Sinh</a>
-                    <a href="">Học Cụ Khác</a>
-                </div>
-                <div class="product-list-tool">
-                    <div class="product-card-tool">
-                        <div class="cart-icon-tool"></div>
-                        <img src="https://nhasachphuongnam.com/images/thumbnails/270/270/detailed/290/8935044504400-_2_.png"
-                            alt="Product 1" class="product-image">
-                        <p class="product-name-tool">Trở Về Không </p>
-                        <p class="product-price-tool">169,000 đ</p>
-                        <button class="product-button-tool">Chọn Mua</button>
-                    </div>
-                    <div class="product-card-tool">
-                        <div class="cart-icon-tool"></div>
-                        <img src="https://nhasachphuongnam.com/images/thumbnails/270/270/detailed/290/8935044504424-_6_.png"
-                            alt="Product 1" class="product-image">
-                        <p class="product-name-tool">Trở Về Không </p>
-                        <p class="product-price-tool">169,000 đ</p>
-                        <button class="product-button-tool">Chọn Mua</button>
-                    </div>
-                    <div class="product-card-tool">
-                        <div class="cart-icon-tool"></div>
-                        <img src="https://nhasachphuongnam.com/images/thumbnails/270/270/detailed/290/8935044503137-mau2_1.png"
-                            alt="Product 1" class="product-image">
-                        <p class="product-name-tool">Trở Về Không </p>
-                        <p class="product-price-tool">169,000 đ</p>
-                        <button class="product-button-tool">Chọn Mua</button>
-                    </div>
-                    <div class="product-card-tool">
-                        <div class="cart-icon-tool"></div>
-                        <img src="https://nhasachphuongnam.com/images/thumbnails/270/270/detailed/290/vo-4-o-ly-mien-nam-2.png"
-                            alt="Product 1" class="product-image">
-                        <p class="product-name-tool">Trở Về Không </p>
-                        <p class="product-price-tool">169,000 đ</p>
-                        <button class="product-button-tool">Chọn Mua</button>
-                    </div>
 
-                </div>
-
-            </div>
 
             <div class="pic-1">
                 <img src="https://nhasachphuongnam.com/images/promo/279/Banners-T%E1%BA%ADp---V%E1%BB%9F-H%E1%BB%8Dc-Sinh-590x300.jpg"
@@ -381,7 +342,7 @@
                 <img src="https://nhasachphuongnam.com/images/promo/279/Banners-VPP-590x300.jpg" alt="" class="">
             </div>
 
-            <div class="icon-container-3">
+            <!-- <div class="icon-container-3">
                 <div class="icon-item-3">
                     <img src="https://nhasachphuongnam.com/images/promo/246/thien_long.png" alt="">
                 </div>
@@ -407,7 +368,7 @@
                     <img src="https://nhasachphuongnam.com/images/promo/279/Thi%E1%BA%BFt_k%E1%BA%BF_ch%C6%B0a_c%C3%B3_t%C3%AAn.png"
                         alt="">
                 </div>
-            </div>
+            </div> -->
 
             <!-- <div class="Stationery">
                         <h4 class="text-2-1">Văn Phòng Phẩm</h4>
@@ -512,7 +473,7 @@
                         <img src="https://nhasachphuongnam.com/images/promo/289/Banner-CD-V%E1%BA%BFt-Chim-Bay-1180x200.jpg" alt="" class="">
                     </div> -->
 
-            <div class="plate">
+            <!-- <div class="plate">
                 <h4 class="text-4-1">Băng Đĩa</h4>
                 <div class="text-4-2">
                     <a href="">Nhạc Trẻ</a>
@@ -564,7 +525,7 @@
 
 
 
-            </div>
+            </div> -->
 
             <div class="connect">
                 <span class="text-conn">Giữ Kết Nối</span>
@@ -585,12 +546,17 @@
 </template>
 
 <script>
+import PublisherService from '@/service/PublisherService';
 import BookService from '@/service/BookService';
 import { useToast } from 'primevue/usetoast';
 import { onMounted, ref } from 'vue';
 import FooterComponent from './Footer.vue';
 import HeaderComponent from './Header.vue';
+
+
 import CartService from '/src/service/CartService.js';
+import BookSearchService from '@/service/BookSearchService'; // Import BookSearchService
+import { useRouter } from 'vue-router';
 
 export default {
     name: 'bookstores',
@@ -599,57 +565,89 @@ export default {
         FooterComponent,
     },
     setup() {
-        const books = ref([]);
-        const bestsellerBooks = ref([]);
-        const loveBooks = ref ([]);
-        const currentUser = ref(null); // Thêm biến currentUser
-        const toast = useToast();
+        const router = useRouter();
+        const books = ref([]);               // Sách từ API
+        const bestsellerBooks = ref([]);      // Sách bestsellers
+        const loveBooks = ref([]);            // Sách tình cảm/lãng mạn
+        const currentUser = ref(null);        // Thông tin người dùng
+        const toast = useToast();             // Toast notification
+        const publishers = ref([]);           // Danh sách nhà xuất bản
+        const englishBooks = ref([]);         // Danh sách sách tiếng Anh
 
+        // Hàm thêm sách vào giỏ hàng
         const addToCart = async (bookId) => {
-
             try {
                 await CartService.addToCart(bookId, 1);
-                toast.add({ severity: 'success', summary: 'Thành công', detail: 'Tác giả đã được thêm', life: 3000 });
-                window.location.reload();
+                toast.add({
+                    severity: 'success',
+                    summary: 'Thành công',
+                    detail: 'Sản phẩm đã được thêm vào giỏ hàng',
+                    life: 3000
+                }); window.location.reload();
 
             } catch (error) {
-                console.error('Error adding to cart:', error);
-                alert('Có lỗi xảy ra khi thêm vào giỏ hàng.');
+                router.push({ name: 'login' });
+
+
             }
         };
 
+        // Hàm định dạng giá trị thành tiền tệ
+        const formatCurrency = (amount) => {
+            return new Intl.NumberFormat('vi-VN').format(amount);
+        };
+
+
+        // Hàm lấy dữ liệu khi component được mount
         onMounted(async () => {
             try {
-                document.title = 'BookStore';
 
                 // Lấy thông tin người dùng từ localStorage
                 currentUser.value = JSON.parse(localStorage.getItem('currentUser'));
                 console.log('Thông tin người dùng:', currentUser.value);
 
+                // Lấy tất cả sách từ API
                 const response = await BookService.getAllBooks();
                 books.value = response.data;
 
+                // Lọc sách theo ID cho các danh mục cụ thể
                 loveBooks.value = books.value.filter(book => book.id >= 16 && book.id <= 19);
-
-                // loveBooks.value = books.value.filter(book => book.category === 'Tình cảm / Lãng mạn');
-
-                // Lọc sách Bestseller với ID từ 12 đến 16
                 bestsellerBooks.value = books.value.filter(book => book.id >= 12 && book.id <= 16);
+
+                // Lấy danh sách nhà xuất bản từ API
+                const publisherResponse = await PublisherService.getAllPublishers();
+                publishers.value = publisherResponse.data;
+
+                // Lấy sách tiếng Anh từ API
+                const englishBooksData = await BookSearchService.searchBooks('English Books'); // Gọi API với từ khóa 'english'
+                englishBooks.value = englishBooksData; // Lưu dữ liệu vào biến englishBooks
+
             } catch (error) {
-                console.error('Lỗi khi tải danh sách sách:', error);
+                // console.error('Lỗi khi tải danh sách sách hoặc nhà xuất bản:', error);
+                toast.add({
+                    severity: 'error',
+                    summary: 'Lỗi',
+                    detail: 'Có lỗi xảy ra khi tải dữ liệu.',
+                    life: 3000
+                });
             }
         });
 
         return {
+            formatCurrency,
             books,
             loveBooks,
             bestsellerBooks,
             addToCart,
-            currentUser, // Trả về để sử dụng trong template
+            currentUser,
+            publishers,
+            englishBooks, // Trả về biến sách tiếng Anh
         };
     },
 };
 </script>
+
+
 
 <style>
 @import "../Home/style.css";

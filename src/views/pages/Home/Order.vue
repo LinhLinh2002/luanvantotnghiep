@@ -22,9 +22,9 @@
           <tr v-for="order in orders" :key="order.id">
             <td>{{ order.id }}</td>
             <td> {{ order.order_date }}</td>
-            <td> {{ order.shipping_fee }} VND</td>
-            <td>{{ order.total_discount }}</td>
-            <td> {{ order.total_amount }} VND</td>
+            <td> {{ formatCurrency(order.shipping_fee) }} đ</td>
+            <td>{{ formatCurrency(order.total_discount )}} </td>
+            <td> {{ formatCurrency(order.total_amount) }} đ</td>
             <td> {{ order.order_status }}</td>
             <td>
               <router-link :to="{ name: 'orderdetails', params: { id: order.id } }">
@@ -63,6 +63,9 @@ export default {
     this.fetchOrders();  // Gọi hàm lấy đơn hàng khi component được tạo
   },
   methods: {
+    formatCurrency(amount) {
+            return new Intl.NumberFormat('vi-VN').format(amount);
+        },
     // Hàm lấy đơn hàng từ API
     async fetchOrders() {
       try {

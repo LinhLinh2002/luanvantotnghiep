@@ -36,7 +36,7 @@ export default {
 
       return data;
     } catch (error) {
-      console.error("Login failed:", error.response ? error.response.data : error.message);
+      // console.error("Login failed:", error.response ? error.response.data : error.message);
       throw error; // Propagate lỗi để xử lý bên ngoài
     }
   },
@@ -60,7 +60,7 @@ export default {
 
       return data;
     } catch (error) {
-      console.error("Registration failed:", error.response ? error.response.data : error.message);
+      // console.error("Registration failed:", error.response ? error.response.data : error.message);
       throw error; // Propagate lỗi để xử lý bên ngoài
     }
   },
@@ -73,7 +73,7 @@ export default {
       });
       return response.data; // Trả về thông tin profile
     } catch (error) {
-      console.error("Profile retrieval failed:", error.response ? error.response.data : error.message);
+      // console.error("Profile retrieval failed:", error.response ? error.response.data : error.message);
       throw error; // Propagate lỗi
     }
   },
@@ -92,7 +92,7 @@ async updateProfile(profileData) {
 
     return response.data; // Trả về thông tin profile đã cập nhật
   } catch (error) {
-    console.error("Profile update failed:", error.response ? error.response.data : error.message);
+    // console.error("Profile update failed:", error.response ? error.response.data : error.message);
     throw error; // Propagate lỗi
   }
 },
@@ -104,7 +104,7 @@ async updateProfile(profileData) {
       const response = await axios.post(`${API_URL}/password/forgot`, { email });
       return response.data;
     } catch (error) {
-      console.error("Forgot password failed:", error.response ? error.response.data : error.message);
+      // console.error("Forgot password failed:", error.response ? error.response.data : error.message);
       throw error; // Propagate lỗi để xử lý bên ngoài
     }
   },
@@ -120,7 +120,7 @@ async updateProfile(profileData) {
       });
       return response.data; // Trả về thông báo thành công
     } catch (error) {
-      console.error("Password reset failed:", error.response ? error.response.data : error.message);
+      // console.error("Password reset failed:", error.response ? error.response.data : error.message);
       throw error;
     }
   }

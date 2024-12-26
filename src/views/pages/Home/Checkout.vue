@@ -1,4 +1,6 @@
 <template>
+  <Toast />
+
   <div class="home-header">
     <!-- Header trên cùng -->
     <div class="header-top">
@@ -255,6 +257,7 @@ import {
 } from "@/service/AddressService";
 import CartService from '@/service/CartService';
 import FooterComponent from "./Footer.vue";
+import { useToast } from 'primevue/usetoast'; // Import useToast
 
 export default {
   name: "Checkout",
@@ -262,6 +265,7 @@ export default {
     FooterComponent,
   },
   data() {
+
     return {
       cartItems: [],    // Array to store cart items
       total: 0,
@@ -301,7 +305,7 @@ export default {
       // Làm tròn kết quả đến 2 chữ số sau dấu phẩy
       this.total_amount = parseFloat(this.total_amount.toFixed(2));
 
-      console.log('Tổng cộng:', this.total_amount);
+      // console.log('Tổng cộng:', this.total_amount);
 
       return this.total_amount;
     },
@@ -316,6 +320,13 @@ export default {
         0
       );
     },
+  },
+
+  setup() {
+    const toast = useToast(); // Khai báo useToast
+    return {
+      toast, // Trả về để dùng trong methods
+    };
   },
   methods: {
     // Chọn địa chỉ giao hàng
@@ -336,9 +347,10 @@ export default {
       const addressId = this.selectedAddress; // Use this.selectedAddress to get the selected address ID
 
       const currentUser = JSON.parse(localStorage.getItem("currentUser"));
-      const token = currentUser?.token?.access_token;
+      const token = localStorage.getItem("access_token");
+
       if (!token) {
-        console.error("Token không tồn tại. Người dùng có thể chưa đăng nhập.");
+        // console.error("Token không tồn tại. Người dùng có thể chưa đăng nhập.");
       }
 
       try {
@@ -353,13 +365,13 @@ export default {
         );
 
         this.shippingFee = response.data.shipping_fee;  //  API returns shipping fee as `shipping_fee`
-        console.log('Phí vận chuyển:', response.data);
+        // console.log('Phí vận chuyển:', response.data);
 
       } catch (error) {
         if (error.response?.status === 401) {
-          console.error('Lỗi xác thực: Token không hợp lệ hoặc đã hết hạn');
+          // console.error('Lỗi xác thực: Token không hợp lệ hoặc đã hết hạn');
         } else {
-          console.error('Lỗi khác:', error);
+          // console.error('Lỗi khác:', error);
         }
       }
 
@@ -374,7 +386,7 @@ export default {
           this.total = response.cart.subtotal || 0;  // Ensure total is set correctly
         }
       } catch (error) {
-        console.error('Lỗi khi tải giỏ hàng:', error);
+        // console.error('Lỗi khi tải giỏ hàng:', error);
       }
     },
     async loadAddresses() {
@@ -388,22 +400,20 @@ export default {
           }
         }
       } catch (error) {
-        console.error("Lỗi khi tải danh sách địa chỉ:", error);
+        // console.error("Lỗi khi tải danh sách địa chỉ:", error);
       }
     },
     // Áp dụng mã giảm giá
     async applyDiscount() {
       if (!this.couponCode) {
-        alert("Vui lòng nhập mã giảm giá.");
         return;
       }
 
       const currentUser = JSON.parse(localStorage.getItem("currentUser"));
-      const token = currentUser?.token?.access_token;
+      const token = localStorage.getItem("access_token");
 
       if (!token) {
-        console.error("Không tìm thấy token. Người dùng cần đăng nhập.");
-        alert("Bạn cần đăng nhập để xem giỏ hàng.");
+        // console.error("Không tìm thấy token. Người dùng cần đăng nhập.");
         router.push({ name: 'login' });  // Chuyển hướng đến trang đăng nhập
         return;
       }
@@ -420,28 +430,52 @@ export default {
           }
         );
 
-        // Xử lý kết quả từ API
-        this.discount = response.data.discount || 0;
-        console.log(this.discount);
-        this.discount_id = response.data.discount_id;
-        // Lưu giá trị giảm giá
-        alert(`Áp dụng mã giảm giá thành công! Bạn được giảm: ${this.formatCurrency(this.discount)}`);
-        return response.data;
+        // Kiểm tra giá trị discount trả về
+        if (response.data.discount > 0) {
+          this.discount = response.data.discount || 0;
+          this.discount_id = response.data.discount_id;
+
+          // Lưu giá trị giảm giá
+          this.toast.add({
+            severity: "success",
+            summary: "Thành công",
+            detail: `Áp dụng mã giảm giá thành công! Bạn được giảm: ${this.formatCurrency(this.discount)}`,
+            life: 3000,
+          });
+          return response.data;
+        } else {
+          this.toast.add({
+            severity: "error",
+            summary: "Lỗi",
+            detail: `Mã giảm giá không hợp lệ hoặc không có giảm giá.`,
+            life: 3000,
+          });
+        }
 
       } catch (error) {
-        console.error("Lỗi khi áp dụng mã giảm giá:", error);
         if (error.response?.data?.message) {
-          alert(`Lỗi: ${error.response.data.message}`);
+          // Xử lý thông báo lỗi chi tiết từ API nếu có
         } else {
-          alert("Không thể áp dụng mã giảm giá. Vui lòng thử lại sau.");
+          this.toast.add({
+            severity: "error",
+            summary: "Lỗi",
+            detail: `Không thể áp dụng mã giảm giá. Vui lòng thử lại sau.`,
+            life: 3000,
+          });
         }
       }
+
     },
 
     async checkoutOrder() {
       // Kiểm tra xem đã chọn địa chỉ và phương thức thanh toán chưa
       if (!this.selectedAddress || !this.paymentMethod) {
-        alert("Vui lòng chọn địa chỉ và phương thức thanh toán.");
+        this.toast.add({
+          severity: "warn",
+          summary: "Không tìm thấy",
+          detail: `Vui lòng chọn địa chỉ và phương thức thanh toán.`,
+          life: 3000,
+        });
         return;
       }
 
@@ -458,13 +492,13 @@ export default {
           price: item.price,
         })),
       };
-      console.log(orderData);
+      // console.log(orderData);
 
       const currentUser = JSON.parse(localStorage.getItem("currentUser"));
-      const token = currentUser?.token?.access_token;
+      const token = localStorage.getItem("access_token");
 
       if (!token) {
-        alert("Bạn cần đăng nhập để thực hiện thanh toán.");
+        // alert("Bạn cần đăng nhập để thực hiện thanh toán.");
         //this.$router.push({ name: 'login' });  // Chuyển hướng đến trang đăng nhập
         return;
       }
@@ -482,24 +516,35 @@ export default {
 
         if (response.data.vnpUrl) {
           // Redirect đến VNPay
-          console.log('Redirecting to VNPay...');
+          // console.log('Redirecting to VNPay...');
           window.location.href = response.data.vnpUrl;
           this.isPaymentSuccess = false; // Trạng thái thanh toán đang chờ xử lý
 
         }
         else if (response.data.momoUrl && response.data.momoUrl.original && response.data.momoUrl.original.momoUrl) {
           // Redirect đến MoMo
-          console.log('Redirecting to MoMo...');
+          // console.log('Redirecting to MoMo...');
           window.location.href = response.data.momoUrl.original.momoUrl;
           this.isPaymentSuccess = false; // Trạng thái thanh toán đang chờ xử lý
 
         } else {
           // Xử lý thanh toán COD hoặc thông báo lỗi
-          alert('Đơn hàng của bạn đã được xác nhận. Vui lòng kiểm tra email hoặc liên hệ CSKH.');
+          //alert('Đơn hàng của bạn đã được xác nhận. Vui lòng kiểm tra email hoặc liên hệ CSKH.');
+          this.toast.add({
+            severity: "success",
+            summary: "Thành công",
+            detail: "Đơn hàng của bạn đã được xác.Vui lòng theo dõi đơn hàng !",
+            life: 3000,
+          });
         }
       } catch (error) {
-        console.error("Lỗi khi đặt hàng:", error);
-        alert("Đặt hàng không thành công. Vui lòng thử lại sau.");
+        // console.error("Lỗi khi đặt hàng:", error);
+        this.toast.add({
+          severity: "error",
+          summary: "Lỗi",
+          detail: "Đặt hàng không thành công. Vui lòng thử lại sau.",
+          life: 3000,
+        });
       }
     },
 
@@ -509,40 +554,39 @@ export default {
 
         const response = await this.$axios.get('http://127.0.0.1:8000/api/vnpay/callback', { params: urlParams });
 
-        // if (response.data.RspCode === '00') {
-        //   // Thanh toán thành công
-        //   this.isPaymentSuccess = true;
-        //   console.log(this.isPaymentSuccess);
-        //   this.$router.push({ name: 'order' }); // Chuyển đến trang xác nhận đơn hàng
-
-        // } else {
-        //   console.log('Thanh toán thất bại:', response.data.Message);
-        //   alert('Thanh toán thất bại. Vui lòng thử lại.');
-        // }
       } catch (error) {
-        console.error('Lỗi callback VNPay:', error);
+        // console.error('Lỗi callback VNPay:', error);
       }
     },
-
     async handleMoMoCallback(urlParams) {
       try {
 
         const response = await this.$axios.get('http://127.0.0.1:8000/api/momo/callback', { params: urlParams });
-        console.log(response.data)
+        // console.log(response.data)
 
         if (response.data.resultCode === '0') {
           // Thanh toán thành công
-          alert("Thanh toán thành công!");
-          this.isPaymentSuccess = true;
+          this.toast.add({
+            severity: "success",
+            summary: "Thành công",
+            detail: "Đơn hàng của bạn đã được xác.Vui lòng theo dõi đơn hàng !",
+            life: 3000,
+          }); this.isPaymentSuccess = true;
           console.log(this.isPaymentSuccess);
           this.$router.push({ name: 'order' });  // Chuyển đến trang xác nhận đơn hàng
 
         } else {
-          alert("Thanh toán thất bại hoặc bị hủy. Vui lòng thử lại.");
+          this.toast.add({
+            severity: "error",
+            summary: "Lỗi",
+            detail: "Thanh toán thất bại hoặc bị hủy. Vui lòng thử lại.",
+            life: 3000,
+          });
         }
       } catch (error) {
-        console.error("Lỗi callback MoMo:", error);
-        alert("Lỗi khi xử lý callback. Vui lòng thử lại sau.");
+        // console.error("Lỗi callback MoMo:", error);
+        // alert("Lỗi khi xử lý callback. Vui lòng thử lại sau.");
+
       }
     },
 
@@ -551,10 +595,9 @@ export default {
     },
 
 
-    // Định dạng số tiền thành dạng 'x.xxx đ'
-    formatCurrency(value) {
-      // Hàm format tiền (ví dụ chuyển sang VND)
-      return value.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' });
+    // Hàm định dạng giá trị thành tiền tệ
+    formatCurrency(amount) {
+      return new Intl.NumberFormat('vi-VN').format(amount);
     },
 
   },
@@ -671,7 +714,7 @@ h2 {
 }
 
 .checkout-container {
-  width: 1280px;
+  width: 1260px;
   margin: 20px auto;
   padding: 20px;
   background-color: #fff;

@@ -80,7 +80,7 @@ const fetchAuthors = async () => {
         const response = await AuthorService.getAllAuthors();
         authors.value = response.data;
     } catch (error) {
-        alert('Lỗi khi lấy danh sách tác giả: ' + error.message);
+        // alert('Lỗi khi lấy danh sách tác giả: ' + error.message);
     }
 };
 
@@ -126,7 +126,9 @@ const createAuthor = async () => {
         toast.add({ severity: 'success', summary: 'Thành công', detail: 'Tác giả đã được thêm', life: 3000 });
         closeModal();
     } catch (error) {
-        alert('Lỗi khi tạo tác giả: ' + error.message);
+        // alert('Lỗi khi tạo tác giả: ' + error.message);
+        toast.add({ severity: 'error', summary: 'Thất bại', detail: 'Tac giả bị trùng tên', life: 3000 });
+
     }
 };
 
@@ -142,7 +144,9 @@ const updateAuthor = async () => {
         toast.add({ severity: 'success', summary: 'Thành công', detail: 'Tác giả đã được cập nhật', life: 3000 });
         closeModal();
     } catch (error) {
-        alert('Lỗi khi cập nhật tác giả: ' + error.message);
+        // alert('Lỗi khi cập nhật tác giả: ' + error.message);
+        toast.add({ severity: 'error', summary: 'Thất bại', detail: 'Tác giả bị trùng tên', life: 3000 });
+
     }
 };
 

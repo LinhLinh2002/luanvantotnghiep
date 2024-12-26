@@ -96,7 +96,7 @@ const fetchPublishers = async () => {
         const response = await PublisherService.getAllPublishers();
         publishers.value = response.data;
     } catch (error) {
-        alert('Lỗi khi lấy danh sách nhà xuất bản: ' + error.message);
+        // alert('Lỗi khi lấy danh sách nhà xuất bản: ' + error.message);
     }
 };
 
@@ -154,7 +154,9 @@ const createPublisher = async () => {
         toast.add({ severity: 'success', summary: 'Thành công', detail: 'Nhà xuất bản đã được thêm', life: 3000 });
         closeModal();
     } catch (error) {
-        alert('Lỗi khi tạo nhà xuất bản: ' + error.message);
+        // alert('Lỗi khi tạo nhà xuất bản: ' + error.message);
+        toast.add({ severity: 'error', summary: 'Thất bại', detail: 'Nhà xuất bản bị trùng tên', life: 3000 });
+
     }
 };
 const updatePublisher = async () => {
@@ -170,8 +172,10 @@ const updatePublisher = async () => {
         toast.add({ severity: 'success', summary: 'Thành công', detail: 'Nhà xuất bản đã được cập nhật', life: 3000 });
         closeModal();
     } catch (error) {
-        console.error("Error updating publisher:", error.response.data);
-        alert('Lỗi khi cập nhật nhà xuất bản: ' + error.response.data.message);
+        // console.error("Error updating publisher:", error.response.data);
+        // alert('Lỗi khi cập nhật nhà xuất bản: ' + error.response.data.message);
+        toast.add({ severity: 'error', summary: 'Thất bại', detail: 'Nhà xuất bản bị trùng tên', life: 3000 });
+
     }
 };
 
