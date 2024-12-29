@@ -196,13 +196,13 @@ const errors = reactive({
     number_pages: ''
 });
 
-const validateNumber = (field) => {
-     {
-        if (book.value[field] < 0) {
-            book.value[field] = 0;
-        }
-    }
-};
+// const validateNumber = (field) => {
+//      {
+//         if (book.value[field] < 0) {
+//             book.value[field] = 0;
+//         }
+//     }
+// };
 watch(
       () => book.value.quantity,
       (newQuantity) => {

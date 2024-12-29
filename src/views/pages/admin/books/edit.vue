@@ -180,11 +180,12 @@ const categories = ref([]);
 const coverTypes = ref([]);
 const languages = ref([]);
 
-const validateNumber = (field) => {
-    if (book.value[field] < 0) {
-        book.value[field] = 0; // Đặt lại giá trị về 1 nếu nhỏ hơn 1
-    }
-};
+// const validateNumber = (field) => {
+//     if (book.value[field] < 0) {
+//         book.value[field] = 0; // Không cho phép số âm
+//     }
+// };
+
 const fetchBook = async (id) => {
     try {
         const response = await BookService.getBookById(id);

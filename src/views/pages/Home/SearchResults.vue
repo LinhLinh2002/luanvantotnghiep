@@ -1,6 +1,6 @@
 <template>
     <HeaderComponent />
-
+    <Toast />
     <div class="search-results">
         <h2>Kết quả tìm kiếm cho: "{{ searchQuery }}"</h2>
 
@@ -37,7 +37,9 @@
                 </p>
 
 
-                <button class="product-button-sell" @click.prevent="addToCart(book.id)">
+                <p v-if="book.quantity === 0" class="out-of-stock">Hết hàng</p>
+
+                <button class="product-button-sell" v-if="book.quantity > 0" @click.prevent="addToCart(book.id)">
                     <i class="bx bxs-cart"></i> Chọn Mua
                 </button>
             </div>
@@ -131,11 +133,6 @@ export default {
                 // console.error("Giá trị selectedSort không hợp lệ:", selectedSort.value);
             }
         };
-        // console.log("Toàn bộ selectedSort:", selectedSort.value); // Proxy Object
-        // console.log("Label:", selectedSort.value?.label); // "Giá tăng dần"
-        // console.log("Value:", selectedSort.value?.value); // { sortBy: 'original_price', sortOrder: 'asc' }
-
-
         watch(
             () => route.query.query,
             (newQuery) => {
@@ -234,6 +231,11 @@ h2 {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
     gap: 20px;
+}
+
+.out-of-stock {
+    color: red;
+    font-weight: bold;
 }
 
 /* Phong cách cho nút */

@@ -4,8 +4,14 @@
                 <h2 class="m-0">Quản Lý Đơn Hàng</h2>
             </div>
 
+            <div class="search-container">
+                <input type="text" v-model="searchQuery" placeholder="Tìm kiếm sách theo tiêu đề hoặc ISBN"
+                    class="search-input" />
+                <Button icon="pi pi-search" label="Tìm kiếm" class="search-button" />
+            </div>
+
             <!-- Bảng danh sách đơn hàng -->
-            <table class="table">
+            <table class="table" v-if="filteredBooks.length > 0">
                 <thead>
                     <tr>
                         <th>ID</th>
@@ -19,18 +25,27 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr v-for="order in orders" :key="order.id">
+                    <tr v-for="order in paginatedOrders" :key="order.id">
                         <td>{{ order.id }}</td>
                         <td>{{ order.name }}</td>
                         <td>{{ order.phone }}</td>
-                        <td>{{ order.street }}, {{ order.ward.name }}, {{ order.district.name }}, {{ order.province.name }}</td>                        
+                        <td>{{ order.street }}, {{ order.ward.name }}, {{ order.district.name }}, {{ order.province.name
+                            }}</td>
                         <td>{{ formatDate(order.order_date) }}</td>
                         <td>{{ formatCurrency(order.total_amount) }}</td>
                         <td>{{ formatOrderStatus(order.order_status) }}</td>
                         <td>
                             <Button icon="pi pi-eye" outlined rounded class="mr-2"
                                 @click="openOrderDetailModal(order.id)" />
-                            <Button icon="pi pi-pencil" outlined rounded class="mr-2" @click="openEditModal(order)" />
+
+                            <button v-if="getNextStatus(order.order_status)" @click="updateToNextStatus(order)"
+                                class="btn-status-next">
+                                {{ formatOrderStatus(getNextStatus(order.order_status)) }}
+                            </button>
+
+                            <!-- <Button icon="pi pi-pencil" outlined rounded class="mr-2"
+                                @click="openEditModal(order)" />  -->
+
                             <Button icon="pi pi-trash" outlined rounded severity="danger"
                                 @click="openConfirmDeleteModal(order.id)" />
                         </td>
@@ -58,7 +73,7 @@
                                 <option v-for="status in allStatuses" :value="status" :key="status">
                                     {{ formatOrderStatus(status) }}
                                 </option>
-                            </select>  
+                            </select>
                             <!-- //dc chon het -->
                         </div>
                         <div class="button-group">
@@ -73,24 +88,55 @@
             <div v-if="showDetailModal" class="modal">
                 <div class="modal-content">
                     <button class="close-btn" @click="closeDetailModal">×</button>
-                    <h1>Chi Tiết Đơn Hàng</h1>
+                    <h3>Chi Tiết Đơn Hàng</h3>
                     <div v-if="selectedOrder">
-                        <p><strong>ID:</strong> {{ selectedOrder.id }}</p>
+                        <!-- Thông tin đơn hàng -->
+                        <p><strong>ID Đơn Hàng:</strong> {{ selectedOrder.id }}</p>
                         <p><strong>Người đặt:</strong> {{ selectedOrder.user.name }}</p>
                         <p><strong>Số điện thoại:</strong> {{ selectedOrder.user.phone }}</p>
-                        <p><strong>Địa chỉ:</strong> {{ selectedOrder.street }}, {{ selectedOrder.ward }}, {{
-                            selectedOrder.district }}, {{ selectedOrder.province }}</p>
+                        <p><strong>Địa chỉ giao hàng:</strong> {{ selectedOrder.street }}, {{ selectedOrder.ward.name
+                            }}, {{ selectedOrder.district.name }}, {{ selectedOrder.province.name }}</p>
                         <p><strong>Ngày đặt:</strong> {{ formatDate(selectedOrder.order_date) }}</p>
                         <p><strong>Tổng tiền:</strong> {{ formatCurrency(selectedOrder.total_amount) }}</p>
+
                         <h3>Chi tiết sản phẩm:</h3>
                         <ul>
                             <li v-for="item in selectedOrder.order_details" :key="item.id">
                                 {{ item.book.title }} - {{ item.quantity }} x {{ formatCurrency(item.price) }}
                             </li>
                         </ul>
+
+                        <!-- Thông tin giao dịch -->
+                        <div v-if="selectedOrder.transaction">
+                            <h3>Thông Tin Giao Dịch</h3>
+                            <table class="transaction-info-table">
+                                <tr>
+                                    <td><strong>Mã Giao Dịch:</strong></td>
+                                    <td>{{ selectedOrder.transaction.id || 'Không có thông tin' }}</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Phương Thức Thanh Toán:</strong></td>
+                                    <td>{{ selectedOrder.transaction.payment_method || 'Không có thông tin' }}</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Trạng Thái Thanh Toán:</strong></td>
+                                    <td>
+                                        <span
+                                            :class="getTransactionStatusClass(selectedOrder.transaction.transaction_status)">
+                                            {{ formatTransactionStatus(selectedOrder.transaction.transaction_status) }}
+                                        </span>
+                                    </td>
+                                </tr>
+                                <tr v-if="selectedOrder.transaction.transaction_date">
+                                    <td><strong>Ngày Thanh Toán:</strong></td>
+                                    <td>{{ formatDate(selectedOrder.transaction.transaction_date) }}</td>
+                                </tr>
+                            </table>
+                        </div>
                     </div>
                 </div>
             </div>
+
 
             <!-- Modal Xác Nhận Xóa -->
             <div v-if="showConfirmModal" class="modal">
@@ -103,13 +149,22 @@
                     </div>
                 </div>
             </div>
+            <div class="pagination" v-if="totalPages > 1">
+                <button @click="goToPage(currentPage - 1)" :disabled="currentPage === 1">
+                    << </button>
+                        <button v-for="page in totalPages" :key="page" @click="goToPage(page)"
+                            :class="{ active: currentPage === page }">
+                            {{ page }}
+                        </button>
+                        <button @click="goToPage(currentPage + 1)" :disabled="currentPage === totalPages"> >> </button>
+            </div>
         </div>
     </template>
 
 <script setup>
 import OrderService from '@/service/OrderService';
 import { useToast } from 'primevue/usetoast';
-import { onMounted, ref } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 
 const orders = ref([]);
 const showModal = ref(false);
@@ -117,9 +172,48 @@ const showDetailModal = ref(false);
 const showConfirmModal = ref(false);
 const orderToDelete = ref(null);
 const selectedOrder = ref(null);
-const orderForm = ref({ id: null, order_status: 'ordered' });
+const orderForm = ref({ id: null, order_status: 'ordered' }); 4
 const toast = useToast();
 
+const currentPage = ref(1);
+const itemsPerPage = 5;
+
+const searchQuery = ref(''); // Lưu từ khóa tìm kiếm.
+
+const filteredBooks = computed(() => {
+    // Kiểm tra nếu không có từ khóa tìm kiếm, trả về toàn bộ danh sách sách.
+    if (!searchQuery.value.trim()) {
+        return orders.value;
+    }
+    // Lọc sách dựa trên từ khóa, kiểm tra tiêu đề và ISBN.
+    return orders.value.filter((order) => {
+        const lowerCaseQuery = searchQuery.value.toLowerCase();
+        return (
+            String(order.id).toLowerCase().includes(lowerCaseQuery) ||  // Ensure order.id is a string
+            order.name.toLowerCase().includes(lowerCaseQuery) ||
+            order.phone.toLowerCase().includes(lowerCaseQuery) ||
+            order.street.toLowerCase().includes(lowerCaseQuery)
+
+
+        );
+    });
+});
+
+const paginatedOrders = computed(() => {
+    const start = (currentPage.value - 1) * itemsPerPage;
+    const end = start + itemsPerPage;
+    return filteredBooks.value.slice(start, end);
+});
+
+const totalPages = computed(() => {
+    return Math.ceil(orders.value.length / itemsPerPage);
+});
+
+const goToPage = (page) => {
+    if (page > 0 && page <= totalPages.value) {
+        currentPage.value = page;
+    }
+};
 // Định dạng ngày
 const formatDate = (date) => new Date(date).toLocaleDateString('vi-VN', { year: 'numeric', month: 'long', day: 'numeric' });
 
@@ -130,9 +224,9 @@ const formatCurrency = (amount) => new Intl.NumberFormat('vi-VN', { style: 'curr
 const formatOrderStatus = (status) => ({
     ordered: 'Đã đặt hàng',
     shipping: 'Đang giao hàng',
-    delivered: 'Hoàn thành',
+    delivered: 'Đã giao hàng',
     rejected: 'Từ chối nhận hàng',
-    returned: 'Hoàn hàng',
+    returned: 'Đã hoàn trả',
     canceled: 'Đã hủy',
 
 }[status] || 'Không xác định');
@@ -148,26 +242,36 @@ const fetchOrders = async () => {
     }
 };
 
-// Cập nhật trạng thái đơn hàng
-// const getNextOrderStatuses = (currentStatus) => {
-//     const statusOrder = ['ordered', 'shipping', 'delivered', 'rejected', 'returned', 'canceled'];
-//     const currentIndex = statusOrder.indexOf(currentStatus);
-//     return statusOrder.slice(currentIndex + 1);  // Lấy tất cả các trạng thái sau trạng thái hiện tại
-// };
-//dc chon het 
-const allStatuses = ['ordered', 'shipping', 'delivered', 'rejected', 'returned', 'canceled'];
-
-// Mở modal xem chi tiết
-const openOrderDetailModal = async (orderId) => {
+// Xác định trạng thái tiếp theo
+const getNextStatus = (currentStatus) => {
+    const statusOrder = ['ordered', 'shipping', 'delivered', 'rejected', 'returned', 'canceled'];
+    const currentIndex = statusOrder.indexOf(currentStatus);
+    return currentIndex >= 0 && currentIndex < statusOrder.length - 1 ? statusOrder[currentIndex + 1] : null;
+};
+// Cập nhật trạng thái trực tiếp
+const updateToNextStatus = async (order) => {
+    const nextStatus = getNextStatus(order.order_status);
+    if (!nextStatus) {
+        toast.add({ severity: 'info', summary: 'Thông báo', detail: 'Không có trạng thái tiếp theo', life: 3000 });
+        return;
+    }
     try {
-        const order = await OrderService.getAdminOrderById(orderId);
-        selectedOrder.value = order;
-        showDetailModal.value = true;
+        console.log("Cập nhật trạng thái:",
+            {
+                id: order.id,
+                nextStatus
+            });
+        await OrderService.adminUpdateOrderStatus(order.id, nextStatus);
+        await fetchOrders();
+        toast.add({ severity: 'success', summary: 'Thành công', detail: 'Trạng thái đơn hàng đã được cập nhật', life: 3000 });
     } catch (error) {
-        console.error('Lỗi khi tải chi tiết đơn hàng:', error);
-        toast.add({ severity: 'error', summary: 'Lỗi', detail: 'Không thể tải chi tiết đơn hàng', life: 3000 });
+        // console.error("Lỗi khi cập nhật trạng thái:", error);
+        toast.add({ severity: 'error', summary: 'Lỗi', detail: 'Không thể cập nhật trạng thái đơn hàng', life: 3000 });
     }
 };
+
+//dc chon het 
+// const allStatuses = ['ordered', 'shipping', 'delivered', 'rejected', 'returned', 'canceled'];
 
 // Mở modal sửa
 const openEditModal = (order) => {
@@ -194,7 +298,7 @@ const updateOrder = async () => {
         toast.add({ severity: 'success', summary: 'Thành công', detail: 'Trạng thái đơn hàng đã được cập nhật', life: 3000 });
         closeModal();
     } catch (error) {
-        console.error("Lỗi khi cập nhật trạng thái đơn hàng:", error);
+        // console.error("Lỗi khi cập nhật trạng thái đơn hàng:", error);
         toast.add({ severity: 'error', summary: 'Lỗi', detail: 'Không thể cập nhật trạng thái đơn hàng', life: 3000 });
     }
 };
@@ -204,7 +308,44 @@ const closeDetailModal = () => {
     showDetailModal.value = false;
     selectedOrder.value = null;
 };
+// Format transaction status with default fallback
+const formatTransactionStatus = (status) => {
+    const statusMap = {
+        pending: 'Đang chờ xử lý',
+        paid: 'Hoàn thành',
+        failed: 'Thất bại',
+        refunded: 'Đã hoàn tiền',
+    };
+    return statusMap[status] || 'Không xác định';
+};
 
+// Assign CSS classes for transaction status
+const getTransactionStatusClass = (transaction_status) => {
+    switch (transaction_status) {
+        case 'pending':
+            return 'status-pending';
+        case 'paid':
+            return 'status-paid';
+        case 'refunded':
+            return 'status-refunded';
+        case 'failed':
+            return 'status-failed';
+        default:
+            return 'status-default';
+    }
+};
+
+// Mở modal xem chi tiết
+const openOrderDetailModal = async (orderId) => {
+    try {
+        const order = await OrderService.getAdminOrderById(orderId);
+        selectedOrder.value = order;
+        showDetailModal.value = true;
+    } catch (error) {
+        // console.error('Lỗi khi tải chi tiết đơn hàng:', error);
+        toast.add({ severity: 'error', summary: 'Lỗi', detail: 'Không thể tải chi tiết đơn hàng', life: 3000 });
+    }
+};
 // Mở modal xác nhận xóa đơn hàng
 const openConfirmDeleteModal = (orderId) => {
     orderToDelete.value = orderId;
@@ -277,7 +418,7 @@ onMounted(fetchOrders);
     padding: 30px;
     border-radius: 10px;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-    width: 600px;
+    width: 800px;
     max-width: 90%;
     animation: slideIn 0.3s ease-in-out;
     position: relative;
@@ -337,6 +478,60 @@ ul li {
     font-size: 16px;
     color: #555;
     margin-bottom: 5px;
+}
+
+
+/* Transaction status colors */
+.status-pending {
+    background-color: #f0ad4e;
+    /* Yellow for 'Pending' */
+    color: white;
+}
+
+.status-paid {
+    background-color: #5bdea1;
+    /* Light blue for 'Paid' */
+    color: white;
+}
+
+.status-refunded {
+    background-color: #0275d8;
+    /* Blue for 'Refunded' */
+    color: white;
+}
+
+.status-failed {
+    background-color: #d9534f;
+    /* Red for 'Failed' */
+    color: white;
+}
+
+.status-default {
+    background-color: #f0f0f0;
+    /* Default gray */
+    color: black;
+}
+
+/* Additional styles for transaction table */
+.transaction-info-table td {
+    padding: 12px;
+    border: 1px solid #ddd;
+}
+
+.transaction-info-table td span {
+    padding: 5px 10px;
+    border-radius: 5px;
+    text-transform: capitalize;
+}
+
+.transaction-info-table {
+    width: 100%;
+    margin-top: 10px;
+    border-collapse: collapse;
+}
+
+.transaction-info-table td strong {
+    color: #333;
 }
 
 @keyframes fadeIn {
@@ -420,4 +615,66 @@ h2 {
 .button-group button:focus {
     outline: none;
 }
+
+.pagination {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+    gap: 10px;
+}
+
+.pagination button {
+    padding: 10px 15px;
+    border: 1px solid #ccc;
+    border-radius: 25px;
+    background-color: #f9f9f9;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.pagination button.active {
+    background-color: #13a8a1;
+    color: white;
+    font-weight: bold;
+}
+
+.pagination button:hover {
+    background-color: #13a8a1;
+    color: white;
+}
+
+.search-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.search-input {
+    width: 100%;
+    max-width: 300px;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+.search-button {
+    margin-left: 10px;
+}
+
+.btn-status-next {
+    background-color: #13a8a1;
+    color: white;
+    padding: 8px 16px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background-color 0.3s;
+}
+
+.btn-status-next:hover {
+    background-color: #0a8a85;
+}
+
 </style>

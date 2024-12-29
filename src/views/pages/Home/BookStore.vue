@@ -26,7 +26,7 @@
                     <a class="item-5 " href="http://localhost:5173/books/22">
                         <img src="https://nhasachphuongnam.com/images/promo/279/2__3_.jpg" alt="">
                     </a>
-                    <a class="item-6 " href="">
+                    <a class="item-6 " href="http://localhost:5173/books/24">
                         <img src="https://nhasachphuongnam.com/images/promo/279/3__4_.jpg" alt="">
                     </a>
                     <a class="item-7 " href="http://localhost:5173/books/23">
@@ -57,83 +57,6 @@
                 </div>
             </div>
 
-            <!-- <div class="icon-container">
-
-                <div class="icon-item">
-                    <img src="https://nhasachphuongnam.com/images/promo/274/lego.png" alt="Lego Icon">
-                    <p>Lego</p>
-                </div>
-                <div class="icon-item">
-                    <img src="https://nhasachphuongnam.com/images/promo/274/puzzlr.png" alt="Jigsaw/Puzzle Icon">
-                    <p>Jigsaw/Puzzle</p>
-                </div>
-                <div class="icon-item">
-                    <img src="https://nhasachphuongnam.com/images/promo/274/manga.png" alt="Manga Icon">
-                    <p>Manga</p>
-                </div>
-                <div class="icon-item">
-                    <img src="https://nhasachphuongnam.com/images/promo/274/gift.png" alt="Gift Books For You Icon">
-                    <p>Gift Books For You</p>
-                </div>
-                <div class="icon-item">
-                    <img src="https://nhasachphuongnam.com/images/promo/274/teen.png" alt="Teen Books Icon">
-                    <p>Tiệc Sách Tuổi Teen</p>
-                </div>
-                <div class="icon-item">
-                    <img src="https://nhasachphuongnam.com/images/promo/274/s%C3%A1ch_c%C5%A9.png" alt="Old Books Icon">
-                    <p>Phiên Chợ Sách Cũ</p>
-                </div>
-                <div class="icon-item">
-                    <img src="https://nhasachphuongnam.com/images/promo/274/t%C3%B4_m%C3%A0u.png"
-                        alt="Coloring Books Icon">
-                    <p>Điểm Tô Sắc Màu</p>
-                </div>
-                <div class="icon-item">
-                    <img src="https://nhasachphuongnam.com/images/promo/274/sticker.png" alt="Stickers Icon">
-                    <p>Stickers Sáng Tạo</p>
-                </div>
-            </div> -->
-
-            <!-- <div class="product-container">
-
-                        <div class="product-banner">
-                            <img src="https://nhasachphuongnam.com/images/promo/280/Banner-M%C3%A0u-N%C6%B0%E1%BB%9Bc-Acrylic---20240523-400x400.png" alt="" class="banner-image">
-                        </div>
-
-                        <div class="product-list">
-                            <div class="product-card">
-                                <div class="cart-icon"></div>
-                                <img src="https://nhasachphuongnam.com/images/thumbnails/200/200/detailed/279/vn-11134207-7r98o-lmyrfdb3st7j24.jpg" alt="Product 1" class="product-image">
-                                <p class="product-name">Màu Gstar Acrylic 0124</p>
-                                <p class="product-price">169,000 đ</p>
-                                <button class="product-button">Chọn Mua</button>
-                            </div>
-
-                            <div class="product-card">
-                                <div class="cart-icon"></div>
-                                <img src="https://nhasachphuongnam.com/images/thumbnails/200/200/detailed/279/vn-11134207-7r98o-lsqft3eqmtg9d0.jpg" alt="Product 2" class="product-image">
-                                <p class="product-name">Hộp Bút 12 Màu Acrylic</p>
-                                <p class="product-price">68,000 đ</p>
-                                <button class="product-button">Chọn Mua</button>
-                            </div>
-
-                            <div class="product-card">
-                                <div class="cart-icon"></div>
-                                <img src="https://nhasachphuongnam.com/images/thumbnails/200/200/detailed/279/sg-11134201-7rd4v-luh6bzndxxw0cd.jpg" alt="Product 3" class="product-image">
-                                <p class="product-name">Hộp Bút 24 Màu Acrylic</p>
-                                <p class="product-price">137,000 đ</p>
-                                <button class="product-button">Chọn Mua</button>
-                            </div>
-
-                            <div class="product-card">
-                                <div class="cart-icon"></div>
-                                <img src="https://nhasachphuongnam.com/images/thumbnails/200/200/detailed/279/8815486210360.jpg" alt="Product 4" class="product-image">
-                                <p class="product-name">Hộp Bút 36 Màu Acrylic</p>
-                                <p class="product-price">197,000 đ</p>
-                                <button class="product-button">Chọn Mua</button>
-                            </div>
-                        </div>
-                    </div> -->
             <div class="bestsellers">
                 <h4 class="textsell">Bestsellers</h4>
                 <!-- <div class="textsell-2">
@@ -152,8 +75,6 @@
                         <img :src="book.image" alt="Product Image" class="product-image">
                         <p class="product-name-sell">{{ book.title }}</p>
 
-
-                        <!-- Hiển thị giá -->
                         <p v-if="book.discount_price" class="product-price-sell discounted-price">
                             {{ formatCurrency(book.discount_price) }} đ
                         </p>
@@ -163,6 +84,7 @@
                         <p v-else class="product-price-sell normal-price">
                             {{ formatCurrency(book.original_price) }} đ
                         </p>
+
                         <p v-if="book.quantity === 0" class="out-of-stock">Hết hàng</p>
 
                         <button class="product-button-sell" v-if="book.quantity > 0"
@@ -283,7 +205,6 @@
                         <img :src="book.image" alt="Product Image" class="product-image">
                         <p class="product-name-sell">{{ book.title }}</p>
 
-                        <!-- Hiển thị giá -->
                         <p v-if="book.discount_price" class="product-price-sell discounted-price">
                             {{ formatCurrency(book.discount_price) }} đ
                         </p>
@@ -294,12 +215,12 @@
                             {{ formatCurrency(book.original_price) }} đ
 
                         </p>
-                            <p v-if="book.quantity === 0" class="out-of-stock">Hết hàng</p>
+                        <p v-if="book.quantity === 0" class="out-of-stock">Hết hàng</p>
 
-                            <button class="product-button-sell" v-if="book.quantity > 0"
-                                @click.prevent="addToCart(book.id)">
-                                <i class="bx bxs-cart"></i> Chọn Mua
-                            </button>
+                        <button class="product-button-sell" v-if="book.quantity > 0"
+                            @click.prevent="addToCart(book.id)">
+                            <i class="bx bxs-cart"></i> Chọn Mua
+                        </button>
                     </router-link>
                 </div>
                 <div class="btn-more">
@@ -335,197 +256,12 @@
             </div>
 
 
-
             <div class="pic-1">
                 <img src="https://nhasachphuongnam.com/images/promo/279/Banners-T%E1%BA%ADp---V%E1%BB%9F-H%E1%BB%8Dc-Sinh-590x300.jpg"
                     alt="" class="">
                 <img src="https://nhasachphuongnam.com/images/promo/279/Banners-VPP-590x300.jpg" alt="" class="">
             </div>
 
-            <!-- <div class="icon-container-3">
-                <div class="icon-item-3">
-                    <img src="https://nhasachphuongnam.com/images/promo/246/thien_long.png" alt="">
-                </div>
-                <div class="icon-item-3">
-                    <img src="https://nhasachphuongnam.com/images/promo/246/pilot.png" alt="">
-                </div>
-                <div class="icon-item-3">
-                    <img src="https://nhasachphuongnam.com/images/promo/246/faber_castell.png" alt="">
-                </div>
-                <div class="icon-item-3">
-                    <img src="https://nhasachphuongnam.com/images/promo/246/staedtler.png" alt="">
-                </div>
-                <div class="icon-item-3">
-                    <img src="https://nhasachphuongnam.com/images/promo/246/schneider.png" alt="">
-                </div>
-                <div class="icon-item-3">
-                    <img src="https://nhasachphuongnam.com/images/promo/246/logo_keyroad.png" alt="">
-                </div>
-                <div class="icon-item-3">
-                    <img src="https://nhasachphuongnam.com/images/promo/246/milan.png" alt="">
-                </div>
-                <div class="icon-item-3">
-                    <img src="https://nhasachphuongnam.com/images/promo/279/Thi%E1%BA%BFt_k%E1%BA%BF_ch%C6%B0a_c%C3%B3_t%C3%AAn.png"
-                        alt="">
-                </div>
-            </div> -->
-
-            <!-- <div class="Stationery">
-                        <h4 class="text-2-1">Văn Phòng Phẩm</h4>
-                        <div class="text-2-2">
-                            <a href="">Bìa Hồ Sơ</a>
-                            <a href="">Giấy Các Loại</a>
-                            <a href="">Máy Tính</a>
-                            <a href="">Dụng Cụ Văn Phòng</a>
-                        </div>
-                        <div class="product-list-tool-1">
-                            <div class="product-card-tool-1">
-                                <div class="cart-icon-tool-1"></div>
-                                <img src="https://nhasachphuongnam.com/images/thumbnails/270/270/detailed/265/021.jpg" alt="Product 1" class="product-image">
-                                <p class="product-name-tool-1">Trở Về Không </p>
-                                <p class="product-price-tool-1">169,000 đ</p>
-                                <button class="product-button-tool-1">Chọn Mua</button>
-                            </div>
-                            <div class="product-card-tool-1">
-                                <div class="cart-icon-tool-1"></div>
-                                <img src="https://nhasachphuongnam.com/images/thumbnails/270/270/detailed/265/604.jpg" alt="Product 1" class="product-image">
-                                <p class="product-name-tool-1">Trở Về Không </p>
-                                <p class="product-price-tool-1">169,000 đ</p>
-                                <button class="product-button-tool-1">Chọn Mua</button>
-                            </div>
-                            <div class="product-card-tool-1">
-                                <div class="cart-icon-tool-1"></div>
-                                <img src="https://nhasachphuongnam.com/images/thumbnails/270/270/detailed/258/JT-000186_3_.jpg" alt="Product 1" class="product-image">
-                                <p class="product-name-tool-1">Trở Về Không </p>
-                                <p class="product-price-tool-1">169,000 đ</p>
-                                <button class="product-button-tool-1">Chọn Mua</button>
-                            </div>
-                            <div class="product-card-tool-1">
-                                <div class="cart-icon-tool-1"></div>
-                                <img src="https://nhasachphuongnam.com/images/thumbnails/270/270/detailed/258/CB-1914_2_.jpg" alt="Product 1" class="product-image">
-                                <p class="product-name-tool-1">Trở Về Không </p>
-                                <p class="product-price-tool-1">169,000 đ</p>
-                                <button class="product-button-tool-1">Chọn Mua</button>
-                            </div>
-                            
-                        </div>   
-
-                    </div> -->
-            <!-- 
-                    <div class="pic-2">
-                        <img src="https://nhasachphuongnam.com/images/promo/289/%C4%91%E1%BB%93-ch%C6%A1i-x%E1%BB%8Bn---gi%E1%BA%A3m-c%E1%BB%B1c-nhi%E1%BB%81u-1180x200.jpg" alt="" class="">
-                    </div> -->
-
-            <!-- <div class="toy">
-                        <h4 class="text-3-1">Đồ Chơi</h4>
-                        <div class="text-3-2">
-                            <a href="">Xếp Hình</a>
-                            <a href="">Sáng Tạo</a>
-                            <a href="">Vận Động</a>
-                            <a href="">Giáo Dục</a>
-                        </div>
-                        <div class="product-list-toy">
-                            <div class="product-card-toy">
-                                <div class="cart-icon-toy"></div>
-                                <img src="https://nhasachphuongnam.com/images/thumbnails/270/270/detailed/262/1647_box.jpg" alt="Product 1" class="product-image">
-                                <p class="product-name-toy">Trở Về Không </p>
-                                <p class="product-price-toy">169,000 đ</p>
-                                <button class="product-button-toy">Chọn Mua</button>
-                            </div>
-                            <div class="product-card-toy">
-                                <div class="cart-icon-toy"></div>
-                                <img src="https://nhasachphuongnam.com/images/thumbnails/270/270/detailed/258/8935311507837.jpg" alt="Product 1" class="product-image">
-                                <p class="product-name-toy">Trở Về Không </p>
-                                <p class="product-price-toy">169,000 đ</p>
-                                <button class="product-button-toy">Chọn Mua</button>
-                            </div>
-                            <div class="product-card-toy">
-                                <div class="cart-icon-toy"></div>
-                                <img src="https://nhasachphuongnam.com/images/thumbnails/270/270/detailed/262/1646_box.jpg" alt="Product 1" class="product-image">
-                                <p class="product-name-toy">Trở Về Không </p>
-                                <p class="product-price-toy">169,000 đ</p>
-                                <button class="product-button-toy">Chọn Mua</button>
-                            </div>
-                            <div class="product-card-toy">
-                                <div class="cart-icon-toy"></div>
-                                <img src="https://nhasachphuongnam.com/images/thumbnails/270/270/detailed/261/1250.jpg" alt="Product 1" class="product-image">
-                                <p class="product-name-toy">Trở Về Không </p>
-                                <p class="product-price-toy">169,000 đ</p>
-                                <button class="product-button-toy">Chọn Mua</button>
-                            </div>
-                            <div class="product-card-toy">
-                                <div class="cart-icon-toy"></div>
-                                <img src="https://nhasachphuongnam.com/images/thumbnails/270/270/detailed/258/Untitled-1_lrk1-5m.jpg" alt="Product 1" class="product-image">
-                                <p class="product-name-toy">Trở Về Không </p>
-                                <p class="product-price-toy">169,000 đ</p>
-                                <button class="product-button-toy">Chọn Mua</button>
-                            </div>
-                        </div>   
-
-                    </div> -->
-            <!-- <div class="pic-3">
-                        <img src="https://nhasachphuongnam.com/images/promo/274/Bandai__3_.jpg" alt="" class=""> 
-                        <img src="https://nhasachphuongnam.com/images/promo/274/Lego__4_.jpg" alt="" class="">                           
-                        <img src="https://nhasachphuongnam.com/images/promo/274/Dickie-Toys__3_.jpg" alt="" class="">                           
-                        <img src="https://nhasachphuongnam.com/images/promo/274/Board-Game__3_.jpg" alt="" class="">                                                  
-                    </div>
-                    <div class="pic-4">
-                        <img src="https://nhasachphuongnam.com/images/promo/289/Banner-CD-V%E1%BA%BFt-Chim-Bay-1180x200.jpg" alt="" class="">
-                    </div> -->
-
-            <!-- <div class="plate">
-                <h4 class="text-4-1">Băng Đĩa</h4>
-                <div class="text-4-2">
-                    <a href="">Nhạc Trẻ</a>
-                    <a href="">Nhạc Trữ Tình</a>
-                    <a href="">Phim</a>
-                </div>
-                <div class="product-list-plate">
-                    <div class="product-card-plate">
-                        <div class="cart-icon-plate"></div>
-                        <img src="https://nhasachphuongnam.com/images/thumbnails/270/270/detailed/182/cho_voi_1.jpg"
-                            alt="Product 1" class="product-image">
-                        <p class="product-name-plate">Trở Về Không </p>
-                        <p class="product-price-plate">169,000 đ</p>
-                        <button class="product-button-plate">Chọn Mua</button>
-                    </div>
-                    <div class="product-card-plate">
-                        <div class="cart-icon-plate"></div>
-                        <img src="https://nhasachphuongnam.com/images/thumbnails/270/270/detailed/181/uyen_trang_1.jpg"
-                            alt="Product 1" class="product-image">
-                        <p class="product-name-plate">Trở Về Không </p>
-                        <p class="product-price-plate">169,000 đ</p>
-                        <button class="product-button-plate">Chọn Mua</button>
-                    </div>
-                    <div class="product-card-plate">
-                        <div class="cart-icon-plate"></div>
-                        <img src="https://nhasachphuongnam.com/images/thumbnails/270/270/detailed/181/mat_thuyen_1.jpg"
-                            alt="Product 1" class="product-image">
-                        <p class="product-name-plate">Trở Về Không </p>
-                        <p class="product-price-plate">169,000 đ</p>
-                        <button class="product-button-plate">Chọn Mua</button>
-                    </div>
-                    <div class="product-card-plate">
-                        <div class="cart-icon-plate"></div>
-                        <img src="https://nhasachphuongnam.com/images/thumbnails/270/270/detailed/181/giang_1.jpg"
-                            alt="Product 1" class="product-image">
-                        <p class="product-name-plate">Trở Về Không </p>
-                        <p class="product-price-plate">169,000 đ</p>
-                        <button class="product-button-plate">Chọn Mua</button>
-                    </div>
-                    <div class="product-card-plate">
-                        <div class="cart-icon-plate"></div>
-                        <img src="https://nhasachphuongnam.com/images/thumbnails/270/270/detailed/256/lsx_25_n%C4%83m.jpg"
-                            alt="Product 1" class="product-image">
-                        <p class="product-name-plate">Trở Về Không </p>
-                        <p class="product-price-plate">169,000 đ</p>
-                        <button class="product-button-plate">Chọn Mua</button>
-                    </div>
-                </div>
-
-
-
-            </div> -->
 
             <div class="connect">
                 <span class="text-conn">Giữ Kết Nối</span>
@@ -537,12 +273,11 @@
             </div>
 
         </div>
-
     </div>
-
+            <button id="scroll-to-top" class="scroll-to-top" @click="scrollToTop">
+                ^
+            </button>
     <FooterComponent />
-
-
 </template>
 
 <script>
@@ -566,15 +301,14 @@ export default {
     },
     setup() {
         const router = useRouter();
-        const books = ref([]);               // Sách từ API
-        const bestsellerBooks = ref([]);      // Sách bestsellers
-        const loveBooks = ref([]);            // Sách tình cảm/lãng mạn
         const currentUser = ref(null);        // Thông tin người dùng
-        const toast = useToast();             // Toast notification
-        const publishers = ref([]);           // Danh sách nhà xuất bản
-        const englishBooks = ref([]);         // Danh sách sách tiếng Anh
+        const books = ref([]);
+        const bestsellerBooks = ref([]);
+        const loveBooks = ref([]);
+        const toast = useToast();
+        const publishers = ref([]);
+        const englishBooks = ref([]);
 
-        // Hàm thêm sách vào giỏ hàng
         const addToCart = async (bookId) => {
             try {
                 await CartService.addToCart(bookId, 1);
@@ -587,38 +321,43 @@ export default {
 
             } catch (error) {
                 router.push({ name: 'login' });
-
-
             }
         };
 
-        // Hàm định dạng giá trị thành tiền tệ
         const formatCurrency = (amount) => {
             return new Intl.NumberFormat('vi-VN').format(amount);
         };
 
+        const scrollToTop = () => {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        };
 
-        // Hàm lấy dữ liệu khi component được mount
         onMounted(async () => {
-            try {
+            // Lắng nghe sự kiện cuộn trang
+            window.addEventListener('scroll', () => {
+                const scrollButton = document.getElementById('scroll-to-top');
+                if (window.scrollY > 100) {
+                    // Khi cuộn xuống hơn 100px, hiển thị nút
+                    scrollButton.style.display = 'block';
+                } else {
+                    // Nếu không, ẩn nút
+                    scrollButton.style.display = 'none';
+                }
+            });
 
-                // Lấy thông tin người dùng từ localStorage
+            try {
                 currentUser.value = JSON.parse(localStorage.getItem('currentUser'));
                 console.log('Thông tin người dùng:', currentUser.value);
 
-                // Lấy tất cả sách từ API
                 const response = await BookService.getAllBooks();
                 books.value = response.data;
 
-                // Lọc sách theo ID cho các danh mục cụ thể
                 loveBooks.value = books.value.filter(book => book.id >= 16 && book.id <= 19);
                 bestsellerBooks.value = books.value.filter(book => book.id >= 12 && book.id <= 16);
 
-                // Lấy danh sách nhà xuất bản từ API
                 const publisherResponse = await PublisherService.getAllPublishers();
                 publishers.value = publisherResponse.data;
 
-                // Lấy sách tiếng Anh từ API
                 const englishBooksData = await BookSearchService.searchBooks('English Books'); // Gọi API với từ khóa 'english'
                 englishBooks.value = englishBooksData; // Lưu dữ liệu vào biến englishBooks
 
@@ -634,6 +373,7 @@ export default {
         });
 
         return {
+            scrollToTop,
             formatCurrency,
             books,
             loveBooks,

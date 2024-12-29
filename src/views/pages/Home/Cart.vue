@@ -1,10 +1,9 @@
 <template>
   <HeaderComponent />
-
+  <Toast />
   <div class="cart-container">
     <h2>CHI TIẾT GIỎ HÀNG</h2>
 
-    <!-- Kiểm tra nếu không có sản phẩm trong giỏ -->
     <div v-if="cartItems.length">
       <table class="cart-table">
         <thead>
@@ -25,11 +24,16 @@
             <td>{{ item.book.title }}</td>
             <td>{{ formatCurrency(item.price) }} đ</td>
             <td>
+
               <div class="quantity-controls">
                 <button @click="decreaseQuantity(item.id)">-</button>
                 <span>{{ item.quantity }}</span>
+                <!-- <input type="number" class="quantity-display" :placeholder="quantity" v-model="item.quantity" /> -->
+
                 <button @click="increaseQuantity(item.id)">+</button>
               </div>
+
+
             </td>
             <td>{{ formatCurrency(item.price * item.quantity) }} đ</td>
             <td>
@@ -59,8 +63,7 @@
       </div>
     </div>
 
-    <!-- Thông báo khi giỏ hàng trống -->
-    <div v-else class="empty-cart">
+     <div v-else class="empty-cart">
       <p>Giỏ hàng của bạn đang trống!</p>
       <router-link to="/bookstore" class="continue-shopping">Quay lại mua hàng</router-link>
     </div>
@@ -75,6 +78,7 @@
 import CartService from '@/service/CartService';
 import FooterComponent from './Footer.vue';
 import HeaderComponent from './Header.vue';
+import { useToast } from 'primevue/usetoast'; // Import useToast
 
 export default {
   name: 'Cart',
@@ -92,6 +96,12 @@ export default {
   async mounted() {
     await this.loadCart();  // Load cart when component mounts
   },
+  setup() {
+    const toast = useToast(); // Khai báo useToast
+    return {
+      toast, // Trả về để dùng trong methods
+    };
+  },
   methods: {
     // Method to load the cart from API
     // Xử lý thanh toán
@@ -104,55 +114,56 @@ export default {
           this.total = response.cart.subtotal || 0;  // Ensure total is set correctly
         }
       } catch (error) {
-        console.error('Lỗi khi tải giỏ hàng:', error);
+        // console.error('Lỗi khi tải giỏ hàng:', error);
       }
     },
 
-    // Method to increase product quantity in cart
     async increaseQuantity(id) {
       try {
         await CartService.increaseQuantity(id);
-        await this.loadCart();  // Reload cart after updating quantity
-        window.location.reload();
+        await this.loadCart();  
 
-      } catch (error) {
+      } catch (error)
+       {
         console.error('Lỗi khi tăng số lượng:', error);
+        this.toast.add({
+          severity: "warn",
+          summary: "Thông báo",
+          detail: "Sản phẩm  đã đạt số lượng tối đa.",
+          life: 3000,
+        });
       }
     },
-
-    // Method to decrease product quantity in cart
+   
     async decreaseQuantity(id) {
       try {
         await CartService.decreaseQuantity(id);
-        await this.loadCart();  // Reload cart after updating quantity
-        window.location.reload();
+        await this.loadCart();  
 
       } catch (error) {
         console.error('Lỗi khi giảm số lượng:', error);
       }
     },
 
-    // Method to remove product from cart
     async removeItem(id) {
       try {
-        await CartService.removeItem(id);  // Ensure using removeItem instead of removeFromCart
-        await this.loadCart();  // Reload cart after removing item
+        await CartService.removeItem(id);  
+        await this.loadCart(); 
       } catch (error) {
-        console.error('Lỗi khi xóa sản phẩm:', error);
+        // console.error('Lỗi khi xóa sản phẩm:', error);
       }
     },
 
-    // Method to clear all items from cart
     async clearCart() {
       try {
         await CartService.clearCart();
-        await this.loadCart();  // Reload cart after clearing
+        await this.loadCart();  
       } catch (error) {
-        console.error('Lỗi khi xóa toàn bộ giỏ hàng:', error);
+        // console.error('Lỗi khi xóa toàn bộ giỏ hàng:', error);
       }
     },
     formatCurrency(amount) {
-            return new Intl.NumberFormat('vi-VN').format(amount);
+      return new Intl.NumberFormat('vi-VN').format(amount);
     },
   }
 };
@@ -206,7 +217,7 @@ h2 {
   border-radius: 4px;
 }
 
-/* Cải tiến điều chỉnh số lượng sản phẩm */
+/* Container điều chỉnh số lượng */
 .quantity-controls {
   display: flex;
   align-items: center;
@@ -214,12 +225,12 @@ h2 {
   border: 1px solid #ddd;
   border-radius: 20px;
   overflow: hidden;
-  width: 100px; /* Chiều rộng tổng */
+  width: 100px;
+  /* Chiều rộng tổng */
   height: 36px;
   background-color: #fff;
   box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
-  margin: 0 auto; /* Đảm bảo căn giữa nằm giữa */
-
+  margin: 0 auto;
 }
 
 /* Nút tăng/giảm */
@@ -236,18 +247,32 @@ h2 {
 }
 
 .quantity-controls button:hover {
-  background-color: #f0f0f0;
+  background-color: #ddd;
 }
 
-/* Số lượng */
-.quantity-controls span {
-  flex: 1;
-  text-align: center;
-  font-size: 16px;
-  font-weight: bold;
-  color: #333;
-  line-height: 36px;
+.quantity-controls button:active {
+  background-color: #bbb;
 }
+
+/* Ô nhập số lượng */
+.quantity-controls input {
+  width: 48px;
+  height: 100%;
+  text-align: center;
+  border: none;
+  font-size: 16px;
+  color: #333;
+  font-weight: bold;
+  background-color: #fff;
+  outline: none;
+}
+
+/* Thay đổi ô nhập khi chọn */
+.quantity-controls input:focus {
+  border: 1px solid #034784;
+  box-shadow: 0px 0px 5px rgba(3, 71, 132, 0.5);
+}
+
 
 /* Nút xóa */
 .remove-button {
@@ -398,6 +423,7 @@ h2 {
 .checkout:hover {
   background-color: #1b18a5;
 }
+
 .empty-cart {
   text-align: center;
   padding: 20px;
@@ -426,5 +452,4 @@ h2 {
 .empty-cart .continue-shopping:hover {
   background-color: #022d5a;
 }
-
 </style>

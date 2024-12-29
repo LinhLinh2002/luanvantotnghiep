@@ -1,15 +1,8 @@
-<template>        
-<Toast />
+<template>
+    <Toast />
 
     <HeaderComponent />
     <div class="filter-container">
-
-        <!-- <h2 class="category-title" v-for="book in filteredBooks" :key="book.id">
-    
-                    <h2 v-for="bookk in book" :key="bookk.id">
-                        {{ bookk.name }}
-                    </h2>
-                </h2> -->
 
         <div class="content">
             <!-- Cột trái: Danh mục -->
@@ -18,8 +11,7 @@
 
                 <div class="filter-section">
                     <h3>Lọc Sản Phẩm</h3>
-                    
-                
+
                     <div class="divider"></div>
 
                     <!-- Lọc theo giá -->
@@ -29,17 +21,14 @@
                         <vue-slider v-model="priceRange" :min="0" :max="10000000" :tooltip="'always'"
                             :format-tooltip="formatTooltip" @change="searchBooks" />
                         <div class="price-inputs">
-                            <!-- Nhập giá tối thiểu -->
                             <input type="number" v-model="priceRange[0]" placeholder="Giá nhỏ nhất"
                                 @input="searchBooks" />
-                            <!-- Nhập giá tối đa -->
                             <input type="number" v-model="priceRange[1]" placeholder="Giá lớn nhất"
                                 @input="searchBooks" />
                         </div>
                     </div>
 
                     <!-- Lọc theo Nhà xuất bản -->
-                    <!-- Bộ lọc Nhà Xuất Bản -->
                     <div class="filter-publisher">
                         <label>Nhà Xuất Bản <button @click="toggleFilter('publishers')" class="btn-toggle">
                                 <i class="bx bx-plus"></i> <!-- Nút + -->
@@ -163,6 +152,16 @@
 
             <!-- Cột phải: Sách -->
             <div class="right-column">
+
+                <!-- <div class="sort-container">
+                    <label for="sort">Sắp xếp theo:</label>
+                    <select id="sort" v-model="selectedSortOption" @change="applySorting">
+                        <option v-for="option in sortOptions" :key="option.label" :value="option.value">
+                            {{ option.label }}
+                        </option>
+                    </select>
+                </div> -->
+
                 <!-- Hiển thị danh sách sách nếu có sách -->
                 <div class="books-container" v-if="filteredBooks.length">
                     <router-link class="book-card" v-for="book in filteredBooks" :key="book.id"
@@ -179,12 +178,12 @@
                         <p v-else class="product-price-sell normal-price">
                             {{ formatCurrency(book.original_price) }} đ
 
-                        </p> 
+                        </p>
 
-                        <!-- <p class="book-status">
-                            {{ book.status ? 'Có sẵn' : 'Hết hàng' }}
-                        </p> -->
-                        <button class="product-button-sell" @click.prevent="addToCart(book.id)">
+                        <p v-if="book.quantity === 0" class="out-of-stock">Hết hàng</p>
+
+                        <button class="product-button-sell" v-if="book.quantity > 0"
+                            @click.prevent="addToCart(book.id)">
                             <i class="bx bxs-cart"></i> Chọn Mua
                         </button>
                     </router-link>
@@ -196,7 +195,6 @@
                     <button class="clear-filters-button" @click="clearFilters">Xóa bộ lọc</button>
                 </div>
             </div>
-
 
         </div>
     </div>
@@ -214,6 +212,7 @@ import AuthorService from '@/service/AuthorService';
 import TranslatorService from '@/service/TranslatorService';
 import AttributeService from '@/service/AttributeService';
 import { useToast } from 'primevue/usetoast'; // Import useToast
+import BookSearchService from "@/service/BookSearchService";
 
 export default {
     name: 'FilterBooks',
@@ -248,6 +247,14 @@ export default {
             priceRange: [], // Giá trị mặc định
             filteredBooks: [],
             noBooksMessage: '',
+            selectedSortOption: { sortBy: "created_at", sortOrder: "desc" }, // Sắp xếp mặc định (Mới nhất)
+            sortOptions: [
+                { label: "Mới nhất", value: { sortBy: "created_at", sortOrder: "desc" } },
+                { label: "Giá tăng dần", value: { sortBy: "original_price", sortOrder: "asc" } },
+                { label: "Giá giảm dần", value: { sortBy: "original_price", sortOrder: "desc" } },
+                { label: "Tên A-Z", value: { sortBy: "title", sortOrder: "asc" } },
+                { label: "Tên Z-A", value: { sortBy: "title", sortOrder: "desc" } },
+            ],
         };
     },
     mounted() {
@@ -355,6 +362,7 @@ export default {
         },
         async searchBooks() {
             try {
+                
                 const params = {
                     author_id: this.selectedAuthorIds.length > 0 ? this.selectedAuthorIds : undefined,
                     translator_id: this.selectedTranslatorIds.length > 0 ? this.selectedTranslatorIds : undefined,
@@ -396,6 +404,25 @@ export default {
                 this.noBooksMessage = 'Đã có lỗi xảy ra khi tìm kiếm sách. Vui lòng thử lại!';
             }
         },
+
+        // async applySorting() {
+        //     try {
+        //         const { sortBy, sortOrder } = this.selectedSortOption;
+
+        //         const response = await BookSearchService.searchBooks("", null, sortBy, sortOrder);
+        //         if (response.success) {
+        //             this.filteredBooks = response.data || [];
+        //             this.noBooksMessage = ""; // Xóa thông báo nếu có sách
+        //         } else {
+        //             this.filteredBooks = [];
+        //             this.noBooksMessage = response.message || "Không tìm thấy sách nào.";
+        //         }
+        //     } catch (error) {
+        //         console.error("Lỗi khi áp dụng sắp xếp:", error);
+        //         this.filteredBooks = [];
+        //         this.noBooksMessage = "Đã có lỗi xảy ra khi sắp xếp. Vui lòng thử lại!";
+        //     }
+        // },
 
         async addToCart(bookId) {
             try {
@@ -504,8 +531,10 @@ export default {
 
 <style scoped>
 .filter-container {
-    width: auto; /* Để chiều rộng tự động điều chỉnh */
-    max-width: 1220px; /* Giới hạn chiều rộng tối đa */
+    width: auto;
+    /* Để chiều rộng tự động điều chỉnh */
+    max-width: 1220px;
+    /* Giới hạn chiều rộng tối đa */
     margin: 20px auto;
     padding: 20px;
     background-color: #fff;
@@ -796,9 +825,7 @@ export default {
     text-align: center;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
     transition: transform 0.3s ease, box-shadow 0.3s ease;
-    cursor: pointer;
-    overflow: hidden;
-    position: relative;
+
     display: flex;
     flex-direction: column;
     justify-content: space-between;
@@ -820,12 +847,18 @@ export default {
 /* Tiêu đề sách */
 .book-title {
     font-size: 18px;
-    font-weight: bold;
     color: #333;
     margin-bottom: 10px;
     line-height: 1.4;
     text-align: center;
-    transition: color 0.3s ease;
+    white-space: nowrap;
+    /* Không cho phép xuống dòng */
+    overflow: hidden;
+    /* Ẩn phần văn bản vượt quá kích thước */
+    text-overflow: ellipsis;
+    /* Thêm dấu "..." nếu văn bản bị cắt */
+    width: 100%;
+    /* Đảm bảo tên sách chiếm đủ chiều rộng của card */
 }
 
 /* Giá giảm */
@@ -848,7 +881,7 @@ export default {
     font-weight: bold;
     font-size: 14px;
     padding-bottom: 5px;
-}   
+}
 
 /* Tình trạng sách */
 .book-status {
@@ -866,12 +899,9 @@ export default {
 }
 
 /* Hiển thị tình trạng sách có sẵn và hết hàng */
-.book-status.available {
-    color: #4caf50;
-}
-
-.book-status.out-of-stock {
-    color: #f44336;
+.out-of-stock {
+    color: red;
+    font-weight: bold;
 }
 
 .product-button-sell {

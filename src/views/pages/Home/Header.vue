@@ -702,7 +702,7 @@ export default {
     display: flex;
     position: absolute;
     left: 80px;
-    top: 211px;
+    top: 140px;
     background-color: #ffffff;
     border-radius: 8px;
     padding: 15px;

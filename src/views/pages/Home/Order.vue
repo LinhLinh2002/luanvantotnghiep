@@ -23,9 +23,13 @@
             <td>{{ order.id }}</td>
             <td> {{ order.order_date }}</td>
             <td> {{ formatCurrency(order.shipping_fee) }} đ</td>
-            <td>{{ formatCurrency(order.total_discount )}} </td>
+            <td>{{ formatCurrency(order.total_discount) }} </td>
             <td> {{ formatCurrency(order.total_amount) }} đ</td>
-            <td> {{ order.order_status }}</td>
+            <td>
+              <span :class="formatOrderStatus(order.order_status).class">
+                {{ formatOrderStatus(order.order_status).label }}
+              </span>
+            </td>
             <td>
               <router-link :to="{ name: 'orderdetails', params: { id: order.id } }">
                 <i class="view-icon fas fa-eye"></i>
@@ -35,7 +39,7 @@
         </tbody>
       </table>
     </div>
-    
+
     <div v-else>
       <p>Không có đơn hàng nào.</p>
     </div>
@@ -64,8 +68,8 @@ export default {
   },
   methods: {
     formatCurrency(amount) {
-            return new Intl.NumberFormat('vi-VN').format(amount);
-        },
+      return new Intl.NumberFormat('vi-VN').format(amount);
+    },
     // Hàm lấy đơn hàng từ API
     async fetchOrders() {
       try {
@@ -82,24 +86,23 @@ export default {
         }
       } catch (error) {
         this.error = "Lỗi khi tải danh sách đơn hàng: " + error.message;
-        console.error(this.error);  
+        console.error(this.error);
       }
     },
 
+    formatOrderStatus(status) {
+      const statusMap = {
+        ordered: { label: "Đã đặt hàng", class: "status-ordered" },
+        shipping: { label: "Đang giao hàng", class: "status-shipping" },
+        delivered: { label: "Đã giao hàng", class: "status-delivered" },
+        rejected: { label: "Từ chối nhận hàng", class: "status-rejected" },
+        returned: { label: "Đã hoàn trả", class: "status-returned" },
+        canceled: { label: "Đã hủy", class: "status-canceled" },
+      };
 
-    // Hàm để xác định class trạng thái đơn hàng
-    getStatusClass(status) {
-      switch (status) {
-        case 'Canceled':
-          return 'status-canceled';
-        case 'Pending':
-          return 'status-pending';
-        case 'Delivered':
-          return 'status-delivered';
-        default:
-          return 'status-default';
-      }
+      return statusMap[status] || { label: "Không xác định", class: "status-default" };
     }
+
   },
 };
 </script>
@@ -145,6 +148,7 @@ h2 {
   color: #333;
 }
 
+/* Styles for different order statuses */
 .order-list .status-canceled {
   background-color: #ffdddd;
   color: red;
@@ -152,7 +156,7 @@ h2 {
   border-radius: 3px;
 }
 
-.order-list .status-pending {
+.order-list .status-shipping {
   background-color: #fff5cc;
   color: orange;
   padding: 3px 5px;
@@ -166,12 +170,34 @@ h2 {
   border-radius: 3px;
 }
 
+.order-list .status-rejected {
+  background-color: #ffcccc;
+  color: darkred;
+  padding: 3px 5px;
+  border-radius: 3px;
+}
+
+.order-list .status-returned {
+  background-color: #f8d7da;
+  color: #721c24;
+  padding: 3px 5px;
+  border-radius: 3px;
+}
+
+.order-list .status-ordered {
+  background-color: rgb(180, 179, 179);
+  color: rgb(56, 55, 55);
+  padding: 3px 5px;
+  border-radius: 3px;
+}
+
 .order-list .status-default {
   background-color: #e9ecef;
   color: #333;
   padding: 3px 5px;
   border-radius: 3px;
 }
+
 
 .view-icon {
   font-size: 18px;

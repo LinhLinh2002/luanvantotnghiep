@@ -57,7 +57,7 @@ export default {
         const response = await WishlistService.getWishlist();
         this.wishlist = response.data; // Cập nhật danh sách yêu thích
       } catch (error) {
-        console.error('Lỗi khi lấy danh sách yêu thích:', error);
+        // console.error('Lỗi khi lấy danh sách yêu thích:', error);
       }
     },
     async removeFromWishlist(id) {
@@ -65,7 +65,7 @@ export default {
         await WishlistService.removeFromWishlist(id); // Gọi API xóa sách khỏi yêu thích
         this.wishlist = this.wishlist.filter(item => item.id !== id); // Xóa khỏi danh sách
       } catch (error) {
-        console.error('Lỗi khi xóa sách khỏi danh sách yêu thích:', error);
+        // console.error('Lỗi khi xóa sách khỏi danh sách yêu thích:', error);
       }
     },
   },
@@ -121,7 +121,13 @@ h2 {
 
 /* Book Info Styles */
 .wishlist-item-info {
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* Căn giữa theo chiều ngang */
+  justify-content: center; /* Căn giữa theo chiều dọc */
   margin-bottom: 10px;
+  height: 180px; /* Đảm bảo chiều cao đủ lớn để căn giữa */
+  position: relative;
 }
 
 .wishlist-item-image {
@@ -129,9 +135,8 @@ h2 {
   height: 140px;
   object-fit: cover;
   border-radius: 5px;
-  margin-bottom: 8px;
-  margin-left:10px;
 }
+
 
 .wishlist-item-details {
   text-align: center;

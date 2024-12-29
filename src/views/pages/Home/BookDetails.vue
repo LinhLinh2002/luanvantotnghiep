@@ -79,12 +79,16 @@
                     <span v-else style="color: red;">Hết hàng</span>
                 </div>
 
+                <!-- <input type="number" class="quantity-display" 
+                 :placeholder="quantity" v-model="quantity" /> -->
+
 
                 <div class="action-container">
                     <!-- Nút số lượng -->
                     <div class="quantity-selector">
                         <button @click="decreaseQuantity" :disabled="quantity <= 1">-</button>
-                        <input type="number" class="quantity-display" :placeholder="quantity" v-model="quantity" />
+                        <span>{{ quantity }}</span>
+                        <!-- <input type="number" class="quantity-display" :placeholder="quantity" v-model="quantity" /> -->
                         <button @click="increaseQuantity" :disabled="quantity >= 99">+</button>
                     </div>
 
@@ -154,7 +158,7 @@ export default {
                 this.toast.add({
                     severity: "warn",
                     summary: "Lỗi",
-                    detail: `Số lượng trong kho không đủ. Bạn chỉ có thể mua tối đa ${this.book.quantity} sản phẩm.`,
+                    detail: `Số lượng trong kho không đủ.`,
                     life: 3000,
                 });
                 return;
@@ -162,6 +166,10 @@ export default {
 
             try {
                 await CartService.addToCart(bookId, this.quantity); 
+
+                // Cập nhật số lượng còn lại trong kho
+        this.book.quantity -= this.quantity;
+        
                 this.toast.add({
                     severity: "success",
                     summary: "Thành công",

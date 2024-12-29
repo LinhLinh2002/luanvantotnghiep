@@ -1,5 +1,6 @@
 <template>
   <HeaderComponent />
+  <Toast />
 
   <div class="profile-container">
     <h2>Tài Khoản Của Tôi</h2>
@@ -62,61 +63,76 @@
       </div>
 
       <!-- Form to add/edit address -->
-      <div v-if="showAddAddressForm">
-        <h2>{{ isEditing ? "Sửa Địa Chỉ" : "Thêm Địa Chỉ Mới" }}</h2>
-        <form @submit.prevent="saveAddress">
-          <div>
-            <label for="name">Họ và Tên:</label>
-            <input v-model="newAddress.name" type="text" id="name" required />
-          </div>
-          <div>
-            <label for="phone">Số Điện Thoại:</label>
-            <input v-model="newAddress.phone" type="text" id="phone" required />
-          </div>
-          <div>
-            <label for="email">Email:</label>
-            <input v-model="newAddress.email" type="text" id="email" required />
-          </div>
-          <div>
-            <label for="street">Địa Chỉ:</label>
-            <input v-model="newAddress.street" type="text" id="street" required />
-          </div>
-          <div>
-            <label for="province">Tỉnh:</label>
-            <select v-model="newAddress.province_id" @change="fetchDistricts" required>
-              <option value="" disabled>Chọn tỉnh</option>
-              <option v-for="province in provinces" :key="province.id" :value="province.id">
-                {{ province.name }}
-              </option>
-            </select>
-          </div>
-          <div>
-            <label for="district">Quận/Huyện:</label>
-            <select v-model="newAddress.district_id" @change="fetchWards" :disabled="!districts.length" required>
-              <option value="" disabled>Chọn quận/huyện</option>
-              <option v-for="district in districts" :key="district.id" :value="district.id">
-                {{ district.name }}
-              </option>
-            </select>
-          </div>
-          <div>
-            <label for="ward">Phường/Xã:</label>
-            <select v-model="newAddress.ward_id" :disabled="!wards.length" required>
-              <option value="" disabled>Chọn phường/xã</option>
-              <option v-for="ward in wards" :key="ward.id" :value="ward.id">
-                {{ ward.name }}
-              </option>
-            </select>
-          </div>
-          <div class="checkbox-group">
-            <input type="checkbox" id="default-address" v-model="newAddress.is_default" />
-            <label for="default-address">Đặt làm địa chỉ mặc định</label>
-          </div>
+      <div :class="['overlay', showAddAddressForm ? '' : 'hidden']">
+        <div class="popup-form">
+          <h2>{{ isEditing ? "Sửa Địa Chỉ" : "Thêm Địa Chỉ Mới" }}</h2>
+          <form @submit.prevent="saveAddress">
 
-          <button type="submit">{{ isEditing ? "Lưu Thay Đổi" : "Thêm Địa Chỉ" }}</button>
-        </form>
-        <button @click="cancelAddAddress" class="cancel-button">Hủy</button>
+            <div class="input-row">
+              <div>
+                <label for="name">Họ và Tên:</label>
+                <input v-model="newAddress.name" type="text" id="name" required />
+              </div>
+              <div>
+                <label for="phone">Số Điện Thoại:</label>
+                <input v-model="newAddress.phone" type="text" id="phone" required />
+              </div>
+              <div>
+                <label for="email">Email:</label>
+                <input v-model="newAddress.email" type="email" id="email" required />
+              </div>
+            </div>
+
+            <div class="input-row">
+              <div class="input-wide">
+                <label for="street">Địa Chỉ:</label>
+                <input v-model="newAddress.street" type="text" id="street" required />
+              </div>
+            </div>
+
+            <div class="input-row">
+              <div>
+                <label for="province">Tỉnh:</label>
+                <select v-model="newAddress.province_id" @change="fetchDistricts" required>
+                  <option value="" disabled>Chọn tỉnh</option>
+                  <option v-for="province in provinces" :key="province.id" :value="province.id"
+                    :placeholder="province.name">
+                    {{ province.name }}
+                  </option>
+                </select>
+              </div>
+              <div>
+                <label for="district">Quận/Huyện:</label>
+                <select v-model="newAddress.district_id" @change="fetchWards" :disabled="!districts.length" required>
+                  <option value="" disabled>Chọn quận/huyện</option>
+                  <option v-for="district in districts" :key="district.id" :value="district.id">
+                    {{ district.name }}
+                  </option>
+                </select>
+              </div>
+              <div>
+                <label for="ward">Phường/Xã:</label>
+                <select v-model="newAddress.ward_id" :disabled="!wards.length" required>
+                  <option value="" disabled>Chọn phường/xã</option>
+                  <option v-for="ward in wards" :key="ward.id" :value="ward.id">
+                    {{ ward.name }}
+                  </option>
+                </select>
+              </div>
+            </div>
+
+            <!-- <div class="checkbox-group">
+                <input type="checkbox" id="default-address" v-model="newAddress.is_default" />
+                <label for="default-address">Đặt làm địa chỉ mặc định</label>
+              </div> -->
+
+            <button type="submit">{{ isEditing ? "Lưu Thay Đổi" : "Thêm Địa Chỉ" }}</button>
+            <button @click="cancelAddAddress" type="button" class="cancel-button">Hủy</button>
+          </form>
+        </div>
       </div>
+
+
     </div>
   </div>
 
@@ -124,18 +140,19 @@
 </template>
 
 <script>
-import FooterComponent from './Footer.vue';
-import HeaderComponent from './Header.vue';
 import {
-  getProvinces,
-  getDistricts,
-  getWards,
-  getAddresses,
   addAddress,
-  updateAddress,
-  deleteAddress
+  deleteAddress,
+  getAddresses,
+  getDistricts,
+  getProvinces,
+  getWards,
+  updateAddress
 } from "@/service/AddressService";
 import AuthService from '@/service/AuthService';
+import { useToast } from 'primevue/usetoast'; // Import useToast
+import FooterComponent from './Footer.vue';
+import HeaderComponent from './Header.vue';
 
 export default {
   components: {
@@ -166,14 +183,27 @@ export default {
       editingAddressId: null
     };
   },
+  setup() {
+    const toast = useToast(); // Khai báo useToast
+    return {
+      toast, // Trả về để dùng trong methods
+    };
+  },
   mounted() {
     this.loadUserInfo();
     this.loadProvinces();
     this.loadAddresses();
   },
+
+
+
   methods: {
     showForm(form) {
       this.activeForm = form;
+    },
+    validatePhoneNumber(phone) {
+      const phoneRegex = /^[0-9]{10}$/;
+      return phoneRegex.test(phone);
     },
     loadUserInfo() {
       const user = JSON.parse(localStorage.getItem("currentUser"));
@@ -221,25 +251,25 @@ export default {
         }
         this.wards = []; // Xóa danh sách phường/xã cũ
       } catch (error) {
-        console.error("Lỗi khi tải danh sách quận/huyện:", error);
+        // console.error("Lỗi khi tải danh sách quận/huyện:", error);
       }
     },
     async fetchWards() {
-  if (!this.newAddress.district_id) return;
-  try {
-    const wards = await getWards(this.newAddress.district_id);
-    this.wards = wards.map(ward => ({
-      id: ward.id,
-      name: ward.name
-    }));
-    // Đảm bảo ward_id được duy trì nếu nó còn hợp lệ
-    if (!this.wards.some(w => w.id === this.newAddress.ward_id)) {
-      this.newAddress.ward_id = null;
-    }
-  } catch (error) {
-    console.error("Lỗi khi tải danh sách phường/xã:", error);
-  }
-},
+      if (!this.newAddress.district_id) return;
+      try {
+        const wards = await getWards(this.newAddress.district_id);
+        this.wards = wards.map(ward => ({
+          id: ward.id,
+          name: ward.name
+        }));
+        // Đảm bảo ward_id được duy trì nếu nó còn hợp lệ
+        if (!this.wards.some(w => w.id === this.newAddress.ward_id)) {
+          this.newAddress.ward_id = null;
+        }
+      } catch (error) {
+        // console.error("Lỗi khi tải danh sách phường/xã:", error);
+      }
+    },
     async editAddress(address) {
       this.isEditing = true;
       this.showAddAddressForm = true;
@@ -259,6 +289,16 @@ export default {
     },
 
     async saveAddress() {
+      if (!this.validatePhoneNumber(this.newAddress.phone)) {
+        // alert("Số điện thoại phải bao gồm đúng 10 chữ số.");
+        this.toast.add({
+          severity: "warn",
+          summary: "Lỗi",
+          detail: `Số điện thoại phải bao gồm đúng 10 chữ số.`,
+          life: 3000,
+        });
+        return;
+      }
       try {
         // console.log("Saving address:", this.newAddress);
         if (this.isEditing) {
@@ -315,7 +355,9 @@ export default {
 </script>
 
 <style scoped>
-/* CSS for Profile Page */
+/* CSS cho trang tài khoản */
+
+/* Container chính */
 .profile-container {
   max-width: 900px;
   margin: 0 auto;
@@ -325,6 +367,7 @@ export default {
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }
 
+/* Tiêu đề chính */
 h2 {
   text-align: center;
   margin-bottom: 20px;
@@ -332,6 +375,7 @@ h2 {
   color: #333;
 }
 
+/* Tabs chuyển đổi giữa Tài Khoản và Địa Chỉ */
 .tab-buttons {
   display: flex;
   justify-content: center;
@@ -359,6 +403,7 @@ h2 {
   border-color: #007bff;
 }
 
+/* Form chỉnh sửa thông tin */
 .profile-form {
   padding: 20px;
   background-color: #fff;
@@ -396,40 +441,6 @@ h2 {
   outline: none;
 }
 
-.checkbox-group {
-  display: flex;
-  /* Sử dụng flexbox để sắp xếp theo hàng */
-  align-items: center;
-  /* Căn chỉnh checkbox và chữ theo chiều dọc */
-  gap: 5px;
-  /* Khoảng cách nhỏ giữa checkbox và chữ */
-  padding-bottom: 20px;
-}
-
-.checkbox-group input[type="checkbox"] {
-  margin: 0;
-  /* Xóa khoảng cách mặc định */
-  padding: 0;
-  /* Loại bỏ padding mặc định nếu có */
-  width: auto;
-  /* Đảm bảo không bị kéo dài bất thường */
-}
-
-.checkbox-group label {
-  margin: 0;
-  /* Xóa khoảng cách mặc định */
-  padding: 0;
-  /* Xóa padding không cần thiết */
-  font-size: 16px;
-  /* Đặt kích thước chữ phù hợp */
-  color: #333;
-  /* Đảm bảo màu sắc dễ nhìn */
-  cursor: pointer;
-  /* Cho phép click vào chữ để chọn checkbox */
-}
-
-
-
 .profile-form button {
   background-color: #007bff;
   color: #fff;
@@ -443,12 +454,11 @@ h2 {
   background-color: #0056b3;
 }
 
+/* Danh sách địa chỉ */
 .address-item {
   display: flex;
   flex-wrap: wrap;
-  /* Cho phép các mục xuống dòng nếu không đủ không gian */
   gap: 15px;
-  /* Khoảng cách giữa các mục */
   margin-bottom: 20px;
   padding: 15px;
   background-color: #fff;
@@ -458,29 +468,21 @@ h2 {
 
 .address-item p {
   flex: 1 1 calc(33.333% - 15px);
-  /* Mỗi mục chiếm 1/3 chiều rộng */
   margin: 0;
-  /* Bỏ margin mặc định của thẻ <p> */
   padding: 5px;
   box-sizing: border-box;
 }
 
 .address-actions {
   display: flex;
-  justify-content: center;
   align-items: center;
   gap: 10px;
-  /* Khoảng cách giữa các nút */
   padding-top: 20px;
-  padding-left: 320px;
-
+  padding-left: 350px;
 }
 
 .address-actions button {
-  flex: 1;
-  /* Để nút có kích thước đều nhau */
   max-width: 120px;
-  /* Đặt giới hạn chiều rộng */
   background-color: #ff5722;
   color: #fff;
   border: none;
@@ -495,26 +497,67 @@ h2 {
   background-color: #e64a19;
 }
 
-
-.add-adres form {
-  margin-left: 20px;
-  position: relative;
-  top: -1100px;
+/* Popup thêm/sửa địa chỉ */
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 999;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
-.submit-button {
-  background-color: #28a745;
+.popup-form {
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+  width: 70%;
+  position: relative;
+}
+
+.popup-form h2 {
+  text-align: center;
+  margin-bottom: 20px;
+  font-size: 20px;
+  color: #333;
+}
+
+.popup-form form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.input-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+}
+
+.input-row>div {
+  flex: 1;
+  min-width: 150px;
+}
+
+.input-wide {
+  flex: 100%;
+}
+
+.popup-form form button {
+  background-color: #007bff;
   color: #fff;
   border: none;
-  padding: 10px 20px;
-  font-size: 16px;
   cursor: pointer;
-  border-radius: 4px;
   transition: background-color 0.3s;
 }
 
-.submit-button:hover {
-  background-color: #218838;
+.popup-form form button:hover {
+  background-color: #0056b3;
 }
 
 .cancel-button {
@@ -522,7 +565,6 @@ h2 {
   color: #fff;
   border: none;
   padding: 10px 20px;
-  font-size: 16px;
   cursor: pointer;
   border-radius: 4px;
   transition: background-color 0.3s;
@@ -532,7 +574,12 @@ h2 {
   background-color: #c82333;
 }
 
-/* Responsive Design */
+/* Ẩn overlay và popup khi không sử dụng */
+.hidden {
+  display: none;
+}
+
+/* Responsive */
 @media (max-width: 768px) {
   .profile-container {
     padding: 15px;
@@ -545,12 +592,6 @@ h2 {
   .tab-buttons button {
     margin-right: 0;
     margin-bottom: 10px;
-  }
-
-  .profile-form input,
-  .profile-form select,
-  .profile-form button {
-    padding: 12px;
   }
 }
 </style>

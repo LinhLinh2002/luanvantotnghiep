@@ -15,13 +15,12 @@ class BookSearchService {
 
             const response = await axios.get(API_SEARCH_URL, { params });
             // console.log("Kết quả tìm kiếm từ API:", response.data);
-            return response.data;
+            return response.data;  // Trả về kết quả API
         } catch (error) {
             // console.error("Error searching books:", error);
-            throw error;
+            throw error;  // Nếu có lỗi, ném lỗi ra ngoài
         }
     }
 }
-
 
 export default BookSearchService;

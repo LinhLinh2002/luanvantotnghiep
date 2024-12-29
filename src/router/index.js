@@ -18,69 +18,69 @@ const router = createRouter({
                     path: '/dashboard',
                     name: 'dashboard',
                     component: () => import('@/views/Dashboard.vue'),
-                    meta: { title: 'Admin ' } ,
+                    meta: { title: 'Admin ', requiresAdmin:true} ,
                 },
                 //Admin
                 {
                     path: '/books',
                     name: 'books',
                     component: () => import('@/views/pages/admin/books/index.vue'),
-                    meta: { title: 'Admin - Books' } ,
+                    meta: { title: 'Admin - Books', requiresAdmin:true } ,
                 },
 
                 {
                     path: '/books/add',
                     name: 'book_add',
                     component: () => import('@/views/pages/admin/books/create.vue'),
-                    meta: { title: 'Admin - BookAdd' } ,
+                    meta: { title: 'Admin - BookAdd', requiresAdmin:true } ,
                 },
                 {
                     path: '/books/:id/edit',
                     name: 'book_edit',
                     component: () => import('@/views/pages/admin/books/edit.vue'),
-                    meta: { title: 'Admin - BookEdit' } ,
+                    meta: { title: 'Admin - BookEdit' , requiresAdmin:true} ,
                 },
                 {
                     path: '/categories',
                     name: 'categories',
                     component: () => import('@/views/pages/admin/categories/index.vue'),
-                    meta: { title: 'Admin - Categories' } ,
+                    meta: { title: 'Admin - Categories', requiresAdmin:true } ,
                 },
                 {
                     path: '/authors',
                     name: 'authors',
                     component: () => import('@/views/pages/admin/authors/index.vue'),
-                    meta: { title: 'Admin - Authors' } ,
+                    meta: { title: 'Admin - Authors, requiresAdmin:true' } ,
                 },
                 {
                     path: '/translators',
                     name: 'translators',
                     component: () => import('@/views/pages/admin/translators/index.vue'),
-                    meta: { title: 'Admin - Translators' } ,
+                    meta: { title: 'Admin - Translators', requiresAdmin:true } ,
                 },
                 {
                     path: '/publishers',
                     name: 'publishers',
                     component: () => import('@/views/pages/admin/publishers/index.vue'),
-                    meta: { title: 'Admin - Publishers' } ,
+                    meta: { title: 'Admin - Publishers', requiresAdmin:true } ,
                 },
                 {
                     path: '/discount',
                     name: 'discount',
                     component: () => import('@/views/pages/admin/discount/index.vue'),
-                    meta: { title: 'Admin - Discount' } ,
+                    meta: { title: 'Admin - Discount' , requiresAdmin:true} ,
                 },
                 {
                     path: '/users',
                     name: 'users',
                     component: () => import('@/views/pages/admin/users/index.vue'),
-                    meta: { title: 'Admin - Users' } ,
+                    meta: { title: 'Admin - Users' , requiresAdmin:true} ,
                 },
                 {
                     path: '/orders',
                     name: 'orders',
                     component: () => import('@/views/pages/admin/orders/index.vue'),
-                    meta: { title: 'Admin - Order' } ,
+                    meta: { title: 'Admin - Order' , requiresAdmin:true} ,
 
                 },
 
@@ -224,7 +224,7 @@ const router = createRouter({
             path: '/cart',
             name: 'cart',
             component: () => import('@/views/pages/Home/Cart.vue'),
-            meta: { title: 'Chi Tiết Giỏ HàngHàng' } ,
+            meta: { title: 'Chi Tiết Giỏ Hàng' } ,
 
         },
         {
@@ -303,8 +303,22 @@ const router = createRouter({
     ]
 });
 router.beforeEach((to, from, next) => {
-    document.title = to.meta.title || 'BOOKSTORE'; 
-    next();
+    // Thay đổi tiêu đề trang
+    document.title = to.meta.title || 'BOOKSTORE';
+
+    // Kiểm tra quyền admin
+    const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+
+    // Nếu route yêu cầu admin và không có user hoặc user không phải là admin
+    if (to.matched.some(record => record.meta.requiresAdmin)) {
+        if (currentUser && currentUser.is_admin === 1) {
+            next(); // Cho phép truy cập
+        } else {
+            next({ name: 'bookstore' }); // Chuyển hướng về bookstore nếu không phải admin
+        }
+    } else {
+        next(); // Cho phép truy cập các route không yêu cầu admin
+    }
 });
 
 export default router;

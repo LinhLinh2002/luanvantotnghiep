@@ -31,10 +31,9 @@
         <tr>
           <td><strong>Trạng Thái:</strong></td>
           <td>
-            <span class="order-status">
-              {{ translateOrderStatus(order.order_status) }}        
-            
-                </span>
+            <span :class="translateOrderStatus(order.order_status).class">
+              {{ translateOrderStatus(order.order_status).label }}
+            </span>
           </td>
         </tr>
         <tr>
@@ -85,7 +84,8 @@
             <td><strong>Trạng Thái Thanh Toán:</strong></td>
             <td>
               <span :class="getTransactionStatusClass(order.transaction.transaction_status)">
-                {{ order.transaction.transaction_status }}
+                {{ formatTransactionStatus(order.transaction.transaction_status) }}
+
               </span>
             </td>
           </tr>
@@ -97,12 +97,17 @@
       </div>
 
       <!-- Hiển thị nút Hủy Đơn hoặc Quay lại Trang Chủ -->
-      <button v-if="order.order_status !== 'canceled'" @click="cancelOrder">
+      <button v-if="order.order_status !== 'canceled'
+        && order.order_status !== 'shipping'
+        && order.order_status !== 'delivered'
+        && order.order_status !== 'rejected'
+        && order.order_status !== 'returned'" @click="cancelOrder">
         Hủy Đơn Hàng
       </button>
-      <button v-if="order.order_status === 'canceled'" @click="goToHomePage" class="btn-go-home">
+      <button v-else @click="goToHomePage" class="btn-go-home">
         Quay Lại Trang Chủ
       </button>
+
     </div>
 
     <div v-else>
@@ -133,11 +138,11 @@ export default {
     };
   },
   setup() {
-        const toast = useToast(); // Khai báo useToast
-        return {
-            toast, // Trả về để dùng trong methods
-        };
-    },
+    const toast = useToast(); // Khai báo useToast
+    return {
+      toast, // Trả về để dùng trong methods
+    };
+  },
   computed: {
     ...mapState(["currentUser"]),
   },
@@ -185,19 +190,32 @@ export default {
       this.$router.push({ name: 'bookstore' });
     },
     translateOrderStatus(status) {
-  const statusMap = {
-    ordered: "Đã đặt hàng",
-    shipping: "Đang giao hàng",
-    delivered: "Đã giao hàng",
-    rejected: "Đã bị từ chối",
-    returned: "Đã hoàn trả",
-    canceled: "Đã hủy",
-    pending: "Chờ xử lý",
-    completed: "Hoàn thành",
-  };
-  return statusMap[status] || "Không xác định";
-},
+      const statusMap = {
+        ordered: "Đã đặt hàng",
+        shipping: "Đang giao hàng",
+        delivered: "Đã giao hàng",
+        rejected: "Từ chối nhận hàng",
+        returned: "Đã hoàn trả",
+        canceled: "Đã hủy",
+      };
 
+      // Return both the translated status and the corresponding CSS class
+      return {
+        label: statusMap[status] || "Không xác định",
+        class: `status-${status}`  // This will map to the class name like status-ordered, status-shipping, etc.
+      };
+    },
+
+
+    formatTransactionStatus(status) {
+      const statusMap = {
+        pending: 'Đang chờ xử lý',
+        paid: 'Hoàn thành',
+        failed: 'Thất bại',
+        refunded: 'Đã hoàn tiền',
+      };
+      return statusMap[status] || 'Không xác định';
+    },
     getTransactionStatusClass(transaction_status) {
       switch (transaction_status) {
         case "pending":
@@ -267,7 +285,7 @@ h3 {
   width: 200px;
 }
 
-.status-pending-payment {
+.status-pending {
   background-color: #fff5cc;
   color: orange;
   padding: 3px 5px;
@@ -373,30 +391,44 @@ button:focus {
 }
 
 
-.status-canceled {
-  background-color: #ffdddd;
-  color: red;
-  padding: 3px 5px;
-  border-radius: 3px;
-}
-
-.status-pending {
+.status-ordered {
   background-color: #fff5cc;
   color: orange;
   padding: 3px 5px;
   border-radius: 3px;
 }
 
-.status-completed {
+.status-shipping {
   background-color: #d4edda;
   color: green;
   padding: 3px 5px;
   border-radius: 3px;
 }
 
-.status-default {
-  background-color: #e9ecef;
-  color: #333;
+.status-delivered {
+  background-color: #d4edda;
+  color: green;
+  padding: 3px 5px;
+  border-radius: 3px;
+}
+
+.status-rejected {
+  background-color: #ffdddd;
+  color: red;
+  padding: 3px 5px;
+  border-radius: 3px;
+}
+
+.status-returned {
+  background-color: #f8d7da;
+  color: #721c24;
+  padding: 3px 5px;
+  border-radius: 3px;
+}
+
+.status-canceled {
+  background-color: #ffdddd;
+  color: red;
   padding: 3px 5px;
   border-radius: 3px;
 }

@@ -1,6 +1,5 @@
 <template>
     <Toast />
-
     <div class="login-page">
         <div class="container">
             <div class="img-login">
@@ -53,7 +52,7 @@ export default {
         };
     },
     setup() {
-        const { toast } = useToast();
+        const toast = useToast(); 
         return {
             toast, // Trả về để dùng trong methods
         };
@@ -146,48 +145,40 @@ body {
 
 /* Tổng thể trang */
 .login-page {
-    background-color: #ffffff;
     width: 100%;
-    min-height: 100vh;
-    padding-top: 50px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+    padding: 20px;
 }
 
 .container {
-    background-color: #fcfcfc;
-    border: 2px solid #fcfcfc;
     display: flex;
-    justify-content: space-between;
-    padding: 20px;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    background-color: #ffffff;
+    border: 2px solid #3b92c5;
     border-radius: 20px;
-    margin-bottom: 150px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-    width: 90%;
+    padding: 20px;
+    gap: 20px;
     max-width: 1200px;
-    min-height: 600px;
-    /* Đảm bảo container luôn giữ chiều cao */
+    margin: auto;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
 }
 
 /* Hình ảnh */
 .img-login {
     flex: 1;
-    /* Phần hình ảnh chiếm một nửa chiều rộng */
     display: flex;
     justify-content: center;
     align-items: center;
-    padding: 10px;
+    max-width: 500px;
 }
 
 .img-login img {
     width: 100%;
-    height: auto;
-    max-height: 100%;
-    /* Đảm bảo hình không vượt quá chiều cao container */
+    max-width: 500px;
     border-radius: 20px;
     object-fit: cover;
-    /* Đảm bảo ảnh không bị méo */
+    aspect-ratio: 1;
 }
 
 /* Form */
@@ -239,8 +230,7 @@ h6 a:hover {
     padding: 15px;
     border: 1px solid #ccc;
     border-radius: 20px;
-    width: 400px;
-    /* Tăng chiều rộng */
+    width: 100%;  /* Made it responsive */
     outline: none;
     font-size: 16px;
     transition: border-color 0.3s;
@@ -265,7 +255,7 @@ h6 a:hover {
     box-shadow: 0 5px 15px rgba(72, 198, 239, 0.3);
     border: none;
     border-radius: 20px;
-    width: 400px;
+    width: 100%; /* Made it responsive */
     font-size: 16px;
     color: #fff;
     cursor: pointer;
@@ -301,6 +291,34 @@ h6 a:hover {
 }
 
 /* Responsive chỉnh sửa */
+@media (max-width: 1024px) {
+    .container {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .signin-page {
+        width: 100%; /* Ensure form takes up full width on tablets */
+    }
+
+    .img-login img {
+        max-height: 250px; /* Limit image size on smaller screens */
+    }
+
+    h1 {
+        font-size: 1.8rem;
+    }
+
+    .input-group input {
+        font-size: 14px;
+    }
+
+    .btn-In {
+        font-size: 14px;
+        padding: 10px;
+    }
+}
+
 @media (max-width: 768px) {
     .container {
         flex-direction: column;
@@ -354,4 +372,5 @@ h6 a:hover {
         width: 40px;
     }
 }
+
 </style>

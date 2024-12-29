@@ -104,40 +104,8 @@
                 </div>
 
               </div>
-
             </div>
 
-            <!-- Nếu không có địa chỉ đã chọn -->
-            <!-- <div v-if="!selectedAddressInfo">
-              <h4>Chưa có địa chỉ giao hàng, vui lòng điền thông tin dưới đây:</h4>
-              <div class="input-group">
-                <label for="new-name">Họ và tên</label>
-                <input type="text" id="new-name" v-model="newAddress.name" placeholder="Nhập họ và tên" required />
-              </div>
-              <div class="input-group">
-                <label for="new-phone">Số điện thoại</label>
-                <input type="text" id="new-phone" v-model="newAddress.phone" placeholder="Nhập số điện thoại"
-                  required />
-              </div>
-              <div class="input-group">
-                <label for="new-address">Địa chỉ giao hàng</label>
-                <input type="text" id="new-address" v-model="newAddress.address" placeholder="Nhập địa chỉ giao hàng"
-                  required />
-              </div>
-              <div class="input-group">
-                <label for="new-email">Email</label>
-                <input type="email" id="new-email" v-model="newAddress.email" placeholder="Nhập email" required />
-              </div>
-              <div class="input-group">
-                <label for="new-district">Quận / Huyện</label>
-                <input type="text" id="new-district" v-model="newAddress.district" placeholder="Nhập quận / huyện"
-                  required />
-              </div>
-              <div class="input-group">
-                <label for="new-ward">Xã / Phường</label>
-                <input type="text" id="new-ward" v-model="newAddress.ward" placeholder="Nhập xã / phường" required />
-              </div>
-            </div>-->
           </div>
 
           <!-- Sản phẩm đã chọn -->

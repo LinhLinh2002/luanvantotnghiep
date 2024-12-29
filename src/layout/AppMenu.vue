@@ -28,39 +28,39 @@ const model = ref([
     //         { label: 'Misc', icon: 'pi pi-fw pi-circle', to: '/uikit/misc' }
     //     ]
     // },
-    {
-        label: 'Pages',
-        icon: 'pi pi-fw pi-briefcase',
-        to: '/pages',
-        items: [
-            {
-                label: 'Book Store',
-                icon: 'pi pi-fw pi-globe',
-                to: '/bookstore'
-            },
-            {
-                label: 'Auth',
-                icon: 'pi pi-fw pi-user',
-                items: [
-                    {
-                        label: 'Login',
-                        icon: 'pi pi-fw pi-sign-in',
-                        to: '/auth/login'
-                    },
-                    {
-                        label: 'Register',
-                        icon: 'pi pi-fw pi-times-circle',
-                        to: '/auth/register'
-                    },
-                    {
-                        label: 'Access Denied',
-                        icon: 'pi pi-fw pi-lock',
-                        to: '/auth/forgot'
-                    }
-                ]
-            },
-        ]
-    },
+    // {
+    //     label: 'Pages',
+    //     icon: 'pi pi-fw pi-briefcase',
+    //     to: '/pages',
+    //     items: [
+    //         {
+    //             label: 'Book Store',
+    //             icon: 'pi pi-fw pi-globe',
+    //             to: '/bookstore'
+    //         },
+    //         {
+    //             label: 'Auth',
+    //             icon: 'pi pi-fw pi-user',
+    //             items: [
+    //                 {
+    //                     label: 'Login',
+    //                     icon: 'pi pi-fw pi-sign-in',
+    //                     to: '/auth/login'
+    //                 },
+    //                 {
+    //                     label: 'Register',
+    //                     icon: 'pi pi-fw pi-times-circle',
+    //                     to: '/auth/register'
+    //                 },
+    //                 {
+    //                     label: 'Access Denied',
+    //                     icon: 'pi pi-fw pi-lock',
+    //                     to: '/auth/forgot'
+    //                 }
+    //             ]
+    //         },
+    //     ]
+    // },
     {
         label: 'BOOK',
         items: [

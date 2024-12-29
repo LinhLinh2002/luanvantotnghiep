@@ -9,7 +9,7 @@
       <div class="signin-page">
         <form @submit.prevent="forgotPassword">
           <h1>Forgot Your Password?</h1>
-          <h4>Enter your email address and we will send you a link to reset your password.</h4>
+          <!-- <h4>Enter your email address and we will send you a link to reset your password.</h4> -->
 
           <div class="input-group">
             <input
@@ -94,15 +94,17 @@ body {
 
 .container {
   display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  align-items: center;
-  border: 2px solid #3b92c5;
-  border-radius: 20px;
-  padding: 30px;
-  gap: 30px;
-  max-width: 1200px;
-  margin: auto;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    background-color: #ffffff;
+    border: 2px solid #3b92c5;
+    border-radius: 20px;
+    padding: 20px;
+    gap: 20px;
+    max-width: 1200px;
+    margin: auto;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
 }
 
 .img-login {
@@ -115,26 +117,26 @@ body {
 
 .img-login img {
   width: 100%;
-  max-width: 500px;
-  aspect-ratio: 1;
-  object-fit: cover;
-  border-radius: 20px;
+    max-width: 500px;
+    border-radius: 20px;
+    object-fit: cover;
+    aspect-ratio: 1;
 }
 
 .signin-page {
   flex: 1;
-  max-width: 500px;
-  background-color: transparent;
-  border-radius: 20px;
-  padding: 20px;
+    max-width: 500px;
+    background-color: transparent;
+    border-radius: 20px;
+    padding: 20px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
 }
 
 h1 {
   text-align: center;
-  color: #333;
-  font-weight: normal;
-  font-size: 28px;
-  margin-bottom: 20px;
+    color: #333;
+    font-size: 28px;
+    margin-bottom: 20px;
 }
 
 h4 {
@@ -175,24 +177,25 @@ h4 {
 }
 
 .btn-container {
-  display: flex;
-  justify-content: center;
-  margin-top: 20px;
+  text-align: center;
+  margin: 20px 0;
 }
 
 .btn-In {
-  padding: 12px 25px;
-  background-color: #4c5bb6;
-  color: white;
-  border: none;
-  border-radius: 8px;
-  font-size: 16px;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
+  padding: 15px;
+    background: linear-gradient(135deg, #48c6ef, #6f86d6);
+    box-shadow: 0 5px 15px rgba(72, 198, 239, 0.3);
+    cursor: pointer;
+    border-radius: 30px;
+    width: 100%;
+    max-width: 200px;
+    font-size: 17px;
+    color: #fff;
+    transition: background-color 0.3s;
 }
 
 .btn-In:hover {
-  background-color: #3b4a91;
+  background: linear-gradient(135deg, #6f86d6, #48c6ef);
 }
 
 .back-to-login {
@@ -206,7 +209,7 @@ h4 {
   text-decoration: none;
 }
 
-.back-to-login router-link:hover {
-  color: #80e4fc;
+.back-to-login :hover {
+  color: #1e768b;
 }
 </style>

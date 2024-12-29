@@ -124,7 +124,7 @@ export default {
                 this.toast.add({
                         severity: "error",
                         summary: "Lỗi",
-                        detail: "Đăng nhập thất bại.Vui lòng thử lạilại",
+                        detail: "Đăng nhập thất bại.Vui lòng thử lại",
                         life: 3000,
                     });            }
         },
