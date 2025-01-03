@@ -1,126 +1,89 @@
 <template>
-  <div class="container">
-    <div class="item">
-      <img src="https://deliciousvietnam.net/wp-content/uploads/BanhMi_NgonVietnam01-1200x750.jpg" class="image" />
-      <div class="text">
-        <h2 class="title">Bánh Mì</h2>
-        <h3 class="price">15.000 đđ</h3>
-        <h4 class="mota">Chán bánh mì vãi cả chèchè</h4>
-        <button class="btn">Buy Now</button>
-      </div>
-    </div>
-    <div class="item1">
-      <img src="https://chuphinhmenu.com/wp-content/uploads/2020/01/chup-anh-tra-sua-concept-dep-2020_0008.jpg"
-        class="image" />
-      <div class="text">
-        <h2 class="title">Trà Sữa</h2>
-        <h3 class="price">35.000 đđ</h3>
-        <h4 class="mota">Likkkkkeeeeee</h4>
-        <button class="btn1">Buy Now</button>
-      </div>
-    </div>
-  </div>
+  <h3>Danh Sách Book</h3>
+  <table>
+    <thead>
+      <tr>
+        <th @click="sort('title')">
+          Tiêu Đề
+          <span v-if="sortKey === 'title'">{{ sortOrder === 'asc' ? '↑' : '↓' }}</span>
+        </th>
+        <th @click="sort('isbn')">
+          ISBN
+          <span v-if="sortKey === 'isbn'">{{ sortOrder === 'asc' ? '↑' : '↓' }}</span>
+        </th>
+        <th @click="sort('quantity')">
+          Số Lượng
+          <span v-if="sortKey === 'quantity'">{{ sortOrder === 'asc' ? '↑' : '↓' }}</span>
+        </th>
+        <th @click="sort('original_price')">
+          Giá Gốc (VND)
+          <span v-if="sortKey === 'original_price'">{{ sortOrder === 'asc' ? '↑' : '↓' }}</span>
+        </th>
+        <th @click="sort('discount_price')">
+          Giá Giảm
+          <span v-if="sortKey === 'discount_price'">{{ sortOrder === 'asc' ? '↑' : '↓' }}</span>
+        </th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr v-for="book in sortedBooks" :key="book.id">
+        <td>{{ book.title }}</td>
+        <td>{{ book.isbn }}</td>
+        <td>{{ book.quantity }}</td>
+        <td>{{ (book.original_price) }}</td>
+        <td>{{ book.discount_price}}</td>
+      </tr>
+    </tbody>
+  </table>
 </template>
 
-
 <script setup>
+import BookService from '@/service/BookService';
+import { onMounted, ref, computed } from 'vue';
 
+const books = ref([]);
+const sortKey = ref(null);
+const sortOrder = ref('asc'); 
+
+const fetchBooks = async () => {
+  try {
+    const response = await BookService.getAllBooks();
+    books.value = response.data;
+  } catch (error) {
+    console.error('Error fetching books:', error);
+  }
+};
+
+const sort = (key) => {
+  if (sortKey.value === key) {
+    sortOrder.value = sortOrder.value === 'asc' ? 'desc' : 'asc';
+  } else {
+    sortKey.value = key;
+    sortOrder.value = 'asc'; 
+  }
+};
+
+const sortedBooks = computed(() => {
+  return books.value.slice().sort((a, b) => {
+    if (!sortKey.value) return 0;
+    const modifier = sortOrder.value === 'asc' ? 1 : -1;
+    if (a[sortKey.value] < b[sortKey.value]) return -1 * modifier;
+    if (a[sortKey.value] > b[sortKey.value]) return 1 * modifier;
+    return 0;
+  });
+});
+
+// Định dạng giá tiền
+const formatPrice = (price) => {
+  return price.toLocaleString('vi-VN');
+};
+
+onMounted(fetchBooks);
 </script>
 
-<style scoped>
-body {
-  width: 100%;
-
-}
-
-.container {
-  display: flex;
-  justify-content: space-around;
-  padding: 50px;
-  background-color: #f5f5f5;
-}
-
-.item {
-  background-color: #ffffff;
-  width: 300px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-  text-align: center;
-  margin-left: 200px;
-}
-
-.item:hover {
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
-}
-
-.item1 {
-  background-color: #ffffff;
-  width: 300px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-  text-align: center;
-  margin-right: 200px;
-}
-
-.item1:hover {
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
-}
-
-.image {
-  width: 100%;
-  height: 250px;
-}
-
-.text {
-  padding: 20px;
-}
-
-.title {
-  font-size: 20px;
-  color: #333;
-  margin: 10px 0;
-}
-
-.price {
-  font-size: 16px;
-  color: #e67e22;
-  margin: 5px 0;
-}
-
-.mota {
-  font-size: 14px;
-  color: #777;
-  margin: 10px 0;
-  padding-top: 20px;
-}
-
-.btn {
-  background-color: #d35400;
-  color: #0e0d0d;
-  padding: 10px 20px;
-  border: 2px solid #ffffff;
-  border-radius: 25px;
-  font-size: 16px;
-  margin-top: 40px;
-}
-
-.btn:hover {
-  background-color: #ffffff;
-  border: 2px solid #d35400;
-  position: relative;
-  top:10px;
-}
-
-.btn1 {
-  background-color: #ffffff;
-  color: #0e0d0d;
-  padding: 10px 20px;
-  border: 2px solid #d35400;
-  border-radius: 25px;
-  font-size: 16px;
-  margin-top: 40px;
-
-}
-
-.btn1:hover {
-  background-color: #d35400;
+<style>
+th {
+  cursor: pointer;
+  user-select: none;
 }
 </style>

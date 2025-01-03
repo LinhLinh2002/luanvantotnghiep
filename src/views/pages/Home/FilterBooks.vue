@@ -2,22 +2,19 @@
     <Toast />
 
     <HeaderComponent />
+
     <div class="filter-container">
 
         <div class="content">
-            <!-- Cột trái: Danh mục -->
             <div class="left-column">
-                <!-- Danh sách danh mục -->
 
                 <div class="filter-section">
                     <h3>Lọc Sản Phẩm</h3>
 
                     <div class="divider"></div>
 
-                    <!-- Lọc theo giá -->
                     <div class="filter-price">
                         <label>Giá:</label>
-                        <!-- Thanh trượt để chọn khoảng giá -->
                         <vue-slider v-model="priceRange" :min="0" :max="10000000" :tooltip="'always'"
                             :format-tooltip="formatTooltip" @change="searchBooks" />
                         <div class="price-inputs">
@@ -28,13 +25,11 @@
                         </div>
                     </div>
 
-                    <!-- Lọc theo Nhà xuất bản -->
                     <div class="filter-publisher">
                         <label>Nhà Xuất Bản <button @click="toggleFilter('publishers')" class="btn-toggle">
                                 <i class="bx bx-plus"></i> <!-- Nút + -->
                             </button></label>
 
-                        <!-- Hiển thị danh sách checkbox nếu showPublishers là true -->
                         <ul class="category-list" v-show="showPublishers">
                             <li v-for="(publisher, index) in publishers" :key="index">
                                 <label>
@@ -46,7 +41,6 @@
                         </ul>
                     </div>
 
-                    <!-- Bộ lọc Danh Mục -->
                     <div class="filter-publisher">
                         <label>Danh mục <button @click="toggleFilter('categories')" class="btn-toggle">
                                 <i class="bx bx-plus"></i> <!-- Nút + -->
@@ -63,7 +57,6 @@
                         </ul>
                     </div>
 
-                    <!-- Bộ lọc Tác Giả -->
                     <div class="filter-publisher">
                         <label>Tác giả <button @click="toggleFilter('authors')" class="btn-toggle">
                                 <i class="bx bx-plus"></i> <!-- Nút + -->
@@ -80,7 +73,6 @@
                         </ul>
                     </div>
 
-                    <!-- Bộ lọc Dịch Giả -->
                     <div class="filter-publisher">
                         <label>Dịch giả <button @click="toggleFilter('translators')" class="btn-toggle">
                                 <i class="bx bx-plus"></i> <!-- Nút + -->
@@ -97,7 +89,6 @@
                         </ul>
                     </div>
 
-                    <!-- Bộ lọc Ngôn Ngữ -->
                     <div class="filter-publisher">
                         <label>Ngôn ngữ <button @click="toggleFilter('languages')" class="btn-toggle">
                                 <i class="bx bx-plus"></i> <!-- Nút + -->
@@ -114,7 +105,6 @@
                         </ul>
                     </div>
 
-                    <!-- Bộ lọc Loại Bìa -->
                     <div class="filter-publisher">
                         <label>Loại bìa <button @click="toggleFilter('coverTypes')" class="btn-toggle">
                                 <i class="bx bx-plus"></i> <!-- Nút + -->
@@ -150,7 +140,6 @@
                 </div>
             </div>
 
-            <!-- Cột phải: Sách -->
             <div class="right-column">
 
                 <!-- <div class="sort-container">
@@ -202,18 +191,16 @@
 </template>
 
 <script>
+import AttributeService from '@/service/AttributeService';
+import AuthorService from '@/service/AuthorService';
+import CategoryService from '@/service/CategoryService';
+import PublisherService from '@/service/PublisherService';
+import TranslatorService from '@/service/TranslatorService';
 import axios from 'axios';
+import { useToast } from 'primevue/usetoast'; // Import useToast
 import FooterComponent from './Footer.vue';
 import HeaderComponent from './Header.vue';
 import CartService from '/src/service/CartService.js';
-import PublisherService from '@/service/PublisherService';
-import CategoryService from '@/service/CategoryService';
-import AuthorService from '@/service/AuthorService';
-import TranslatorService from '@/service/TranslatorService';
-import AttributeService from '@/service/AttributeService';
-import { useToast } from 'primevue/usetoast'; // Import useToast
-import BookSearchService from "@/service/BookSearchService";
-
 export default {
     name: 'FilterBooks',
     components: {
@@ -293,6 +280,7 @@ export default {
                 this.selectedCategoryIds.includes(catetegory.id)
             );
         },
+
         selectedAuthors() {
             return this.authors.filter(author =>
                 this.selectedAuthorIds.includes(author.id)
@@ -320,7 +308,32 @@ export default {
         }
 
     },
+    watch: {
+        '$route.query': {
+            handler(newQuery) {
+                this.selectedAuthorIds = newQuery.author_id ? [].concat(newQuery.author_id) : [];
+                this.selectedTranslatorIds = newQuery.translator_id ? [].concat(newQuery.translator_id) : [];
+                this.selectedPublisherIds = newQuery.publisher_id ? [].concat(newQuery.publisher_id) : [];
+                this.selectedCategoryIds = newQuery.category_id ? [].concat(newQuery.category_id) : [];
+                this.selectedGenreIds = newQuery.genre_id ? [].concat(newQuery.genre_id) : [];
+                this.selectedLanguageIds = newQuery.language_id ? [].concat(newQuery.language_id) : [];
+                this.selectedCoverTypeIds = newQuery.cover_type_id ? [].concat(newQuery.cover_type_id) : [];
+                this.minPrice = newQuery.min_price ? Number(newQuery.min_price) : null;
+                this.maxPrice = newQuery.max_price ? Number(newQuery.max_price) : null;
 
+                // Tự động thực hiện tìm kiếm sau khi cập nhật query
+                this.searchBooks();
+            },
+            immediate: true
+        }
+    },
+
+    setup() {
+        const toast = useToast();
+        return {
+            toast,
+        };
+    },
     methods: {
         formatCurrency(amount) {
             return new Intl.NumberFormat('vi-VN').format(amount);
@@ -362,7 +375,7 @@ export default {
         },
         async searchBooks() {
             try {
-                
+
                 const params = {
                     author_id: this.selectedAuthorIds.length > 0 ? this.selectedAuthorIds : undefined,
                     translator_id: this.selectedTranslatorIds.length > 0 ? this.selectedTranslatorIds : undefined,
@@ -427,7 +440,7 @@ export default {
         async addToCart(bookId) {
             try {
                 await CartService.addToCart(bookId, 1);
-                toast.add({
+                this.toast.add({
                     severity: 'success',
                     summary: 'Thành công',
                     detail: 'Thêm sách thành côngcông',
@@ -444,7 +457,8 @@ export default {
             try {
                 const response = await PublisherService.getAllPublishers();
                 this.publishers = response.data;
-            } catch (error) {
+            }
+            catch (error) {
                 console.error('Error fetching publishers:', error);
             }
         },
@@ -542,6 +556,22 @@ export default {
     box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
 }
 
+.p-toast {
+    font-size: 16px;
+    background-color: #f8f9fa;
+}
+
+.p-toast-message {
+    color: #495057;
+}
+
+.p-toast {
+    z-index: 9999 !important;
+    /* Đảm bảo toast không bị ẩn */
+    position: fixed !important;
+    top: 20px;
+    right: 20px;
+}
 
 .category-title {
     font-size: 28px;

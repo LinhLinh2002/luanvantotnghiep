@@ -78,19 +78,23 @@
                         <p v-if="book.discount_price" class="product-price-sell discounted-price">
                             {{ formatCurrency(book.discount_price) }} đ
                         </p>
+
                         <p v-if="book.discount_price" class="product-price-sell original-price">
                             {{ formatCurrency(book.original_price) }} đ
                         </p>
+
                         <p v-else class="product-price-sell normal-price">
                             {{ formatCurrency(book.original_price) }} đ
                         </p>
 
-                        <p v-if="book.quantity === 0" class="out-of-stock">Hết hàng</p>
-
                         <button class="product-button-sell" v-if="book.quantity > 0"
                             @click.prevent="addToCart(book.id)">
-                            <i class="bx bxs-cart"></i> Chọn Mua
+                            <i class="bx bxs-cart"></i>Chọn Mua
                         </button>
+
+
+                        <p v-if="book.quantity === 0" class="out-of-stock">Hết hàng</p>
+
 
                     </router-link>
                 </div>
@@ -124,12 +128,13 @@
                             {{ formatCurrency(book.original_price) }} đ
 
                         </p>
-                        <p v-if="book.quantity === 0" class="out-of-stock">Hết hàng</p>
-
                         <button class="product-button-sell" v-if="book.quantity > 0"
                             @click.prevent="addToCart(book.id)">
-                            <i class="bx bxs-cart"></i> Chọn Mua
+                            <i class="bx bxs-cart"></i>Chọn Mua
                         </button>
+                        <p v-if="book.quantity === 0" class="out-of-stock">Hết hàng</p>
+
+
 
                     </router-link>
 
@@ -138,12 +143,12 @@
             </div>
 
 
-            <div class="icon-container-1">
+            <!-- <div class="icon-container-1">
                 <div v-for="publisher in publishers" :key="publisher.id" class="icon-item">
                     <img v-if="publisher.image" :src="publisher.image" alt="Publisher Image" class="publisher-image" />
                     <p>{{ publisher.name }}</p>
                 </div>
-            </div>
+            </div> -->
 
             <div class="textbook">
                 <h5 class="textbook-1">Sách Tình Cảm</h5>
@@ -173,12 +178,14 @@
                             {{ formatCurrency(book.original_price) }} đ
 
                         </p>
-                        <p v-if="book.quantity === 0" class="out-of-stock">Hết hàng</p>
 
                         <button class="product-button-sell" v-if="book.quantity > 0"
                             @click.prevent="addToCart(book.id)">
-                            <i class="bx bxs-cart"></i> Chọn Mua
+                            <i class="bx bxs-cart"></i>Chọn Mua
                         </button>
+                        <p v-if="book.quantity === 0" class="out-of-stock">Hết hàng</p>
+
+
                     </router-link>
                 </div>
             </div>
@@ -198,7 +205,7 @@
                     <a href="">Self-help</a>
                 </div> -->
                 <div class="product-list-sell">
-                    <router-link v-for="book in loveBooks" :key="book.id"
+                    <router-link v-for="book in englishBooks" :key="book.id"
                         :to="{ name: 'bookdetails', params: { id: book.id } }" class="product-card-sell">
 
                         <div class="cart-icon-sell"></div>
@@ -215,17 +222,18 @@
                             {{ formatCurrency(book.original_price) }} đ
 
                         </p>
-                        <p v-if="book.quantity === 0" class="out-of-stock">Hết hàng</p>
-
                         <button class="product-button-sell" v-if="book.quantity > 0"
                             @click.prevent="addToCart(book.id)">
-                            <i class="bx bxs-cart"></i> Chọn Mua
+                            <i class="bx bxs-cart"></i>Chọn Mua
                         </button>
+                        <p v-if="book.quantity === 0" class="out-of-stock">Hết hàng</p>
+
+
                     </router-link>
                 </div>
-                <div class="btn-more">
+                <!-- <div class="btn-more">
                     <button class="see-more">Xem Thêm</button>
-                </div>
+                </div> -->
             </div>
 
             <div class="icon-container-2">
@@ -274,24 +282,23 @@
 
         </div>
     </div>
-            <button id="scroll-to-top" class="scroll-to-top" @click="scrollToTop">
-                ^
-            </button>
+    <button id="scroll-to-top" class="scroll-to-top" @click="scrollToTop">
+        ^
+    </button>
     <FooterComponent />
 </template>
 
 <script>
-import PublisherService from '@/service/PublisherService';
 import BookService from '@/service/BookService';
+import PublisherService from '@/service/PublisherService';
 import { useToast } from 'primevue/usetoast';
 import { onMounted, ref } from 'vue';
 import FooterComponent from './Footer.vue';
 import HeaderComponent from './Header.vue';
 
 
-import CartService from '/src/service/CartService.js';
-import BookSearchService from '@/service/BookSearchService'; // Import BookSearchService
 import { useRouter } from 'vue-router';
+import CartService from '/src/service/CartService.js';
 
 export default {
     name: 'bookstores',
@@ -301,7 +308,7 @@ export default {
     },
     setup() {
         const router = useRouter();
-        const currentUser = ref(null);        // Thông tin người dùng
+        const currentUser = ref(null);
         const books = ref([]);
         const bestsellerBooks = ref([]);
         const loveBooks = ref([]);
@@ -333,14 +340,11 @@ export default {
         };
 
         onMounted(async () => {
-            // Lắng nghe sự kiện cuộn trang
             window.addEventListener('scroll', () => {
                 const scrollButton = document.getElementById('scroll-to-top');
                 if (window.scrollY > 100) {
-                    // Khi cuộn xuống hơn 100px, hiển thị nút
                     scrollButton.style.display = 'block';
                 } else {
-                    // Nếu không, ẩn nút
                     scrollButton.style.display = 'none';
                 }
             });
@@ -353,13 +357,14 @@ export default {
                 books.value = response.data;
 
                 loveBooks.value = books.value.filter(book => book.id >= 16 && book.id <= 19);
-                bestsellerBooks.value = books.value.filter(book => book.id >= 12 && book.id <= 16);
+
+                bestsellerBooks.value = books.value.filter(book => book.id >= 10 && book.id <= 14);
 
                 const publisherResponse = await PublisherService.getAllPublishers();
                 publishers.value = publisherResponse.data;
 
-                const englishBooksData = await BookSearchService.searchBooks('English Books'); // Gọi API với từ khóa 'english'
-                englishBooks.value = englishBooksData; // Lưu dữ liệu vào biến englishBooks
+                englishBooks.value = books.value.filter(book => book.id >= 20 && book.id <= 24);
+
 
             } catch (error) {
                 // console.error('Lỗi khi tải danh sách sách hoặc nhà xuất bản:', error);

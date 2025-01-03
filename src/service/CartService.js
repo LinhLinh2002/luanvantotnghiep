@@ -10,7 +10,6 @@ class CartService {
     }
 
 
-   // Chuyển hướng nếu không có token
     ensureAuthenticated() {
         const token = this.getToken();
         if (!token) {
@@ -19,7 +18,6 @@ class CartService {
         return token;
     }
 
-    // Lấy giỏ hàng
     async getCart() {
         try {
             const token = this.ensureAuthenticated();
@@ -36,7 +34,6 @@ class CartService {
         }
     }
 
-    // Thêm sản phẩm vào giỏ hàng
     async addToCart(bookId, quantity = 1) {
         try {
             const token = this.ensureAuthenticated();
@@ -56,7 +53,6 @@ class CartService {
         }
     }
     
-    // Tăng số lượng sản phẩm
     async increaseQuantity(itemId) {
         try {
             const token = this.ensureAuthenticated();
@@ -70,7 +66,6 @@ class CartService {
         }
     }
 
-    // Giảm số lượng sản phẩm
     async decreaseQuantity(itemId) {
         try {
             const token = this.ensureAuthenticated();
@@ -84,7 +79,6 @@ class CartService {
         }
     }
 
-    // Xóa sản phẩm khỏi giỏ hàng
     async removeItem(itemId) {
         try {
             const token = this.ensureAuthenticated();
@@ -98,7 +92,6 @@ class CartService {
         }
     }
 
-    // Xóa toàn bộ giỏ hàng
     async clearCart() {
         try {
             const token = this.ensureAuthenticated();
@@ -111,6 +104,21 @@ class CartService {
             throw error;
         }
     }
+    // Cập nhật số lượng sản phẩm
+async updateQuantity(itemId, quantity) {
+    try {
+      const token = this.ensureAuthenticated();
+      const response = await axios.put(
+        `${API_URL}/update-quantity/${itemId}`,
+        { quantity },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  }
+  
 }
 
 export default new CartService();

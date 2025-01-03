@@ -341,7 +341,7 @@ a {
 .icon-container-1 {
     display: flex;
     gap: 10px; /* Khoảng cách đều giữa các item */
-    padding: 10px 180px; /* Thêm padding để tránh thanh cuộn bị quá gần các item */
+    padding: 10px 280px; /* Thêm padding để tránh thanh cuộn bị quá gần các item */
 }
 
 .icon-item {
@@ -455,12 +455,17 @@ a {
 .product-button-sell{
     background-color: #0056b3;
     color: white;
-    padding: 10px 15px;
+   
     border: none;
     border-radius: 20px;
     cursor: pointer;
     text-transform: uppercase;
     font-size:15px;
+    /* position: relative;
+    top: -40px;
+    width: 50px;
+    height: 30px;
+    left: 150px; */
 }
 .product-button-sell:hover{
     background-color: #5b91cc;

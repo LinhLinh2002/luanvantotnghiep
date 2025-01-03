@@ -2,7 +2,6 @@
   <Toast />
 
   <div class="home-header">
-    <!-- Header trên cùng -->
     <div class="header-top">
       <div class="container">
         <a class="addres-star" href="#">TP.Hồ Chí Minh</a>
@@ -16,7 +15,6 @@
 
     <div class="divider"></div>
 
-    <!-- Header dưới -->
     <header class="header-botton">
       <div class="header-botton1">
         <router-link to="/bookstore" class="logo-img">
@@ -38,15 +36,12 @@
     <div class="divider"></div>
 
 
-    <!-- Form thanh toán -->
     <div class="checkout-container">
       <h2>THANH TOÁN ĐƠN HÀNG</h2>
       <div class="checkout-layout">
 
-        <!-- Cột bên trái -->
 
         <form class="checkout-form">
-          <!-- Thông tin cá nhân -->
           <div class="form-section">
             <h3>1. Thông Tin Nhận Hàng</h3>
 
@@ -108,7 +103,6 @@
 
           </div>
 
-          <!-- Sản phẩm đã chọn -->
           <div class="form-section">
             <h3>2. Sản Phẩm Đã Chọn</h3>
 
@@ -127,16 +121,12 @@
                   <tr v-for="item in cartItems" :key="item.id">
                     <img :src="item.book.image" alt="Product Image" class="product-image" />
 
-                    <!-- Tên sách -->
                     <td>{{ item.book.title }}</td>
 
-                    <!-- Số lượng -->
                     <td>{{ item.quantity }}</td>
 
-                    <!-- Giá bán -->
                     <td>{{ formatCurrency(item.price) }} </td>
 
-                    <!-- Tổng tiền -->
                     <td>{{ formatCurrency(item.price * item.quantity) }} </td>
                   </tr>
                 </tbody>
@@ -145,7 +135,6 @@
           </div>
 
 
-          <!-- Phương thức thanh toán -->
           <div class="form-section">
             <h3>3. Phương Thức Thanh Toán</h3>
             <div class="payment-method">
@@ -171,9 +160,7 @@
           <button @click="goToOrderPage" class="btn-success">Xem đơn hàng</button>
         </div>
 
-        <!-- Cột bên phải -->
         <div class="checkout-summary">
-          <!-- Mã giảm giá -->
           <div class="form-section">
             <h3>4. Mã Giảm Giá</h3>
             <div class="discount-code">
@@ -235,17 +222,16 @@ export default {
   data() {
 
     return {
-      cartItems: [],    // Array to store cart items
+      cartItems: [],    
       total: 0,
-      total_amount: 0, // khai báo biến total_amount
+      total_amount: 0, 
 
       addresses: [],
-      shippingFee: 0,  // Phí vận chuyển
+      shippingFee: 0,  
       discount: 0,
-      couponCode: '', // Mã giảm giá nhập từ người dùng
-      isPaymentSuccess: false, // Trạng thái thanh toán thành công
-
-      paymentMethod: 'cod',// Mặc định chọn COD
+      couponCode: '', 
+      isPaymentSuccess: false, 
+      paymentMethod: 'cod',
       selectedAddress: '',
       selectedAddressInfo: null,
       savedAddresses: [],
@@ -260,28 +246,22 @@ export default {
     };
   },
   computed: {
-    // Tính tổng tiền bao gồm phí vận chuyển và chiết khấu
     formattedTotal() {
-      // Đảm bảo rằng các giá trị đều là kiểu số
       const shippingFee = parseFloat(this.shippingFee) || 0; // Phí vận chuyển là 21000
       const discount = parseFloat(this.discount) || 0; // Giá trị giảm giá
       const total = parseFloat(this.total) || 0; // Tổng số tiền hiện tại
 
-      // Tính tổng số tiền
       this.total_amount = total + shippingFee - discount;
 
-      // Làm tròn kết quả đến 2 chữ số sau dấu phẩy
       this.total_amount = parseFloat(this.total_amount.toFixed(2));
 
       // console.log('Tổng cộng:', this.total_amount);
 
       return this.total_amount;
     },
-    // Tính tổng số lượng sản phẩm trong giỏ hàng
     totalQuantity() {
       return this.cartItems.reduce((total, item) => total + item.quantity, 0);
     },
-    // Tính tổng giá trị các sản phẩm trong giỏ hàng
     total() {
       return this.cartItems.reduce(
         (total, item) => total + (item.quantity || 0) * (item.price || 0),
@@ -297,7 +277,6 @@ export default {
     };
   },
   methods: {
-    // Chọn địa chỉ giao hàng
     async updateAddressInfo() {
       const selectedAddress = this.addresses.find(address => address.id === this.selectedAddress);
 
@@ -371,7 +350,6 @@ export default {
         // console.error("Lỗi khi tải danh sách địa chỉ:", error);
       }
     },
-    // Áp dụng mã giảm giá
     async applyDiscount() {
       if (!this.couponCode) {
         return;
@@ -398,12 +376,10 @@ export default {
           }
         );
 
-        // Kiểm tra giá trị discount trả về
         if (response.data.discount > 0) {
           this.discount = response.data.discount || 0;
           this.discount_id = response.data.discount_id;
 
-          // Lưu giá trị giảm giá
           this.toast.add({
             severity: "success",
             summary: "Thành công",
@@ -436,7 +412,6 @@ export default {
     },
 
     async checkoutOrder() {
-      // Kiểm tra xem đã chọn địa chỉ và phương thức thanh toán chưa
       if (!this.selectedAddress || !this.paymentMethod) {
         this.toast.add({
           severity: "warn",
@@ -466,7 +441,6 @@ export default {
       const token = localStorage.getItem("access_token");
 
       if (!token) {
-        // alert("Bạn cần đăng nhập để thực hiện thanh toán.");
         //this.$router.push({ name: 'login' });  // Chuyển hướng đến trang đăng nhập
         return;
       }
@@ -483,21 +457,18 @@ export default {
         );
 
         if (response.data.vnpUrl) {
-          // Redirect đến VNPay
           // console.log('Redirecting to VNPay...');
           window.location.href = response.data.vnpUrl;
           this.isPaymentSuccess = false; // Trạng thái thanh toán đang chờ xử lý
 
         }
         else if (response.data.momoUrl && response.data.momoUrl.original && response.data.momoUrl.original.momoUrl) {
-          // Redirect đến MoMo
           // console.log('Redirecting to MoMo...');
           window.location.href = response.data.momoUrl.original.momoUrl;
           this.isPaymentSuccess = false; // Trạng thái thanh toán đang chờ xử lý
 
         } else {
           // Xử lý thanh toán COD hoặc thông báo lỗi
-          //alert('Đơn hàng của bạn đã được xác nhận. Vui lòng kiểm tra email hoặc liên hệ CSKH.');
           this.toast.add({
             severity: "success",
             summary: "Thành công",
@@ -516,7 +487,6 @@ export default {
       }
     },
 
-    // Xử lý callback VNPay
     async handleVNPayCallback(urlParams) {
       try {
 
@@ -533,7 +503,7 @@ export default {
         // console.log(response.data)
 
         if (response.data.resultCode === '0') {
-          // Thanh toán thành công
+
           this.toast.add({
             severity: "success",
             summary: "Thành công",
@@ -541,7 +511,7 @@ export default {
             life: 3000,
           }); this.isPaymentSuccess = true;
           console.log(this.isPaymentSuccess);
-          this.$router.push({ name: 'order' });  // Chuyển đến trang xác nhận đơn hàng
+          this.$router.push({ name: 'order' });  
 
         } else {
           this.toast.add({
@@ -563,7 +533,6 @@ export default {
     },
 
 
-    // Hàm định dạng giá trị thành tiền tệ
     formatCurrency(amount) {
       return new Intl.NumberFormat('vi-VN').format(amount);
     },
@@ -571,10 +540,8 @@ export default {
   },
 
   mounted() {
-    // Lấy các tham số từ URL
     const urlParams = new URLSearchParams(window.location.search);
 
-    // Kiểm tra callback từ VNPay
     if (urlParams.has('vnp_SecureHash')) {
       this.handleVNPayCallback(urlParams);
     }
@@ -586,7 +553,7 @@ export default {
   },
 
   created() {
-    this.loadCart();  // Call loadCart when component is created
+    this.loadCart();  
     this.loadAddresses();
 
     if (this.selectedAddress) {

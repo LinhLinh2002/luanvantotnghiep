@@ -26,14 +26,15 @@
             <td>
 
               <div class="quantity-controls">
-                <button @click="decreaseQuantity(item.id)">-</button>
-                <span>{{ item.quantity }}</span>
-                <!-- <input type="number" class="quantity-display" :placeholder="quantity" v-model="item.quantity" /> -->
+                <button @click="decreaseQuantity(item.id)" :disabled="item.quantity <= 1">-</button>
+                <!-- <span>{{ item.quantity }}</span> -->
+                <input type="number" class="quantity-display" :placeholder="quantity" v-model="item.quantity" />
 
                 <button @click="increaseQuantity(item.id)">+</button>
               </div>
+              <p class="stock-info">Còn lại: {{ item.book.quantity }} sản phẩm</p>
 
-
+              
             </td>
             <td>{{ formatCurrency(item.price * item.quantity) }} đ</td>
             <td>
@@ -88,24 +89,22 @@ export default {
   },
   data() {
     return {
-      cartItems: [],    // Array to store cart items
-      couponCode: '',   // Coupon code for discount
-      total: 0,         // Total price of items in the cart
+      cartItems: [],    
+      couponCode: '',   
+      total: 0,         
     };
   },
   async mounted() {
-    await this.loadCart();  // Load cart when component mounts
+    await this.loadCart();  
   },
   setup() {
-    const toast = useToast(); // Khai báo useToast
+    const toast = useToast(); 
     return {
-      toast, // Trả về để dùng trong methods
+      toast, 
     };
   },
   methods: {
-    // Method to load the cart from API
-    // Xử lý thanh toán
-
+   
     async loadCart() {
       try {
         const response = await CartService.getCart();
@@ -170,8 +169,17 @@ export default {
 </script>
 
 <style scoped>
+.stock-info {
+  margin-top: 10px;
+  font-size: 12px;
+  color: #555;
+  text-align: center;
+}
+
 /* Container chính của giỏ hàng */
 .cart-container {
+  font-family: Verdana, Geneva, Tahoma, sans-serif;
+
   width: 1180px;
   margin: 0 auto;
   padding: 20px;
@@ -179,12 +187,13 @@ export default {
   border-radius: 8px;
   box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
 }
-
+input[type=number] {
+    -moz-appearance: textfield;
+}
 /* Tiêu đề chính */
 h2 {
   text-align: start;
   color: #333;
-  font-family: Inter, -apple-system, sans-serif;
   font-weight: 900;
   letter-spacing: normal;
   font-size: 20px;
@@ -244,6 +253,11 @@ h2 {
   color: #555;
   cursor: pointer;
   transition: all 0.3s ease;
+
+}
+.quantity-controls button:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
 }
 
 .quantity-controls button:hover {

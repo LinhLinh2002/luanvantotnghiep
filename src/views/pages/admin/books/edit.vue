@@ -191,13 +191,11 @@ const fetchBook = async (id) => {
         const response = await BookService.getBookById(id);
         const bookData = response.data;
 
-        // Nếu API trả về danh sách authors dưới dạng object, map thành array các ID
         if (Array.isArray(bookData.authors) && bookData.authors.length > 0 && typeof bookData.authors[0] === 'object') {
             bookData.authors = bookData.authors.map((author) => author.id);
         }
 
         Object.assign(book.value, bookData);
-        // Kiểm tra các trường length, width, height
         book.value.length = response.data.length || '';
         book.value.width = response.data.width || '';
         book.value.height = response.data.height || '';
@@ -256,7 +254,7 @@ const updateBook = async () => {
     }
 };
 const cancelUpdate = () => {
-    router.push('/books'); // Điều hướng về trang danh sách sách
+    router.push('/books'); 
 };
 const onFileChange = (event) => {
     const file = event.target.files[0];

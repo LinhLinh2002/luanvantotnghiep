@@ -5,12 +5,11 @@
             </div>
 
             <div class="search-container">
-                <input type="text" v-model="searchQuery" placeholder="Tìm kiếm sách theo tiêu đề hoặc ISBN"
+                <input type="text" v-model="searchQuery" placeholder="Tìm kiếm người đặt , sdt  "
                     class="search-input" />
                 <Button icon="pi pi-search" label="Tìm kiếm" class="search-button" />
             </div>
 
-            <!-- Bảng danh sách đơn hàng -->
             <table class="table" v-if="filteredBooks.length > 0">
                 <thead>
                     <tr>
@@ -53,7 +52,6 @@
                 </tbody>
             </table>
 
-            <!-- Modal Sửa Trạng Thái -->
             <div v-if="showModal" class="modal">
                 <div class="modal-content">
                     <span class="close" @click="closeModal">&times;</span>
@@ -84,7 +82,6 @@
                 </div>
             </div>
 
-            <!-- Modal Chi Tiết Đơn Hàng -->
             <div v-if="showDetailModal" class="modal">
                 <div class="modal-content">
                     <button class="close-btn" @click="closeDetailModal">×</button>
@@ -106,7 +103,6 @@
                             </li>
                         </ul>
 
-                        <!-- Thông tin giao dịch -->
                         <div v-if="selectedOrder.transaction">
                             <h3>Thông Tin Giao Dịch</h3>
                             <table class="transaction-info-table">
@@ -138,7 +134,6 @@
             </div>
 
 
-            <!-- Modal Xác Nhận Xóa -->
             <div v-if="showConfirmModal" class="modal">
                 <div class="modal-content">
                     <h2>Xác nhận</h2>
@@ -185,7 +180,6 @@ const filteredBooks = computed(() => {
     if (!searchQuery.value.trim()) {
         return orders.value;
     }
-    // Lọc sách dựa trên từ khóa, kiểm tra tiêu đề và ISBN.
     return orders.value.filter((order) => {
         const lowerCaseQuery = searchQuery.value.toLowerCase();
         return (
@@ -214,13 +208,10 @@ const goToPage = (page) => {
         currentPage.value = page;
     }
 };
-// Định dạng ngày
 const formatDate = (date) => new Date(date).toLocaleDateString('vi-VN', { year: 'numeric', month: 'long', day: 'numeric' });
 
-// Định dạng tiền tệ
 const formatCurrency = (amount) => new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(amount);
 
-// Định dạng trạng thái đơn hàng
 const formatOrderStatus = (status) => ({
     ordered: 'Đã đặt hàng',
     shipping: 'Đang giao hàng',
@@ -242,13 +233,11 @@ const fetchOrders = async () => {
     }
 };
 
-// Xác định trạng thái tiếp theo
 const getNextStatus = (currentStatus) => {
     const statusOrder = ['ordered', 'shipping', 'delivered', 'rejected', 'returned', 'canceled'];
     const currentIndex = statusOrder.indexOf(currentStatus);
     return currentIndex >= 0 && currentIndex < statusOrder.length - 1 ? statusOrder[currentIndex + 1] : null;
 };
-// Cập nhật trạng thái trực tiếp
 const updateToNextStatus = async (order) => {
     const nextStatus = getNextStatus(order.order_status);
     if (!nextStatus) {
@@ -273,7 +262,6 @@ const updateToNextStatus = async (order) => {
 //dc chon het 
 // const allStatuses = ['ordered', 'shipping', 'delivered', 'rejected', 'returned', 'canceled'];
 
-// Mở modal sửa
 const openEditModal = (order) => {
     // Cập nhật orderForm với trạng thái của đơn hàng hiện tại
     orderForm.value = { ...order, order_status: order.order_status };
@@ -281,12 +269,10 @@ const openEditModal = (order) => {
 };
 
 
-// Đóng modal
 const closeModal = () => {
     showModal.value = false;
 };
 
-// Cập nhật trạng thái đơn hàng
 const updateOrder = async () => {
     try {
         console.log("Request Payload:", {
@@ -303,12 +289,10 @@ const updateOrder = async () => {
     }
 };
 
-// Đóng modal xem chi tiết
 const closeDetailModal = () => {
     showDetailModal.value = false;
     selectedOrder.value = null;
 };
-// Format transaction status with default fallback
 const formatTransactionStatus = (status) => {
     const statusMap = {
         pending: 'Đang chờ xử lý',
@@ -335,7 +319,6 @@ const getTransactionStatusClass = (transaction_status) => {
     }
 };
 
-// Mở modal xem chi tiết
 const openOrderDetailModal = async (orderId) => {
     try {
         const order = await OrderService.getAdminOrderById(orderId);
@@ -346,18 +329,16 @@ const openOrderDetailModal = async (orderId) => {
         toast.add({ severity: 'error', summary: 'Lỗi', detail: 'Không thể tải chi tiết đơn hàng', life: 3000 });
     }
 };
-// Mở modal xác nhận xóa đơn hàng
+
 const openConfirmDeleteModal = (orderId) => {
     orderToDelete.value = orderId;
     showConfirmModal.value = true;
 };
 
-// Đóng modal xác nhận xóa
 const closeConfirmModal = () => {
     showConfirmModal.value = false;
 };
 
-// Xóa đơn hàng
 const confirmDeleteOrder = async () => {
     try {
         await OrderService.deleteOrder(orderToDelete.value);
@@ -369,7 +350,6 @@ const confirmDeleteOrder = async () => {
     }
 };
 
-// Khởi tạo dữ liệu
 onMounted(fetchOrders);
 
 </script>

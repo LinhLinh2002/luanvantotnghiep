@@ -61,9 +61,9 @@ export default {
         }
     },
     setup() {
-        const toast = useToast(); // Khai báo useToast
+        const toast = useToast(); 
         return {
-            toast, // Trả về để dùng trong methods
+            toast, 
         };
     },
     methods: {
@@ -101,22 +101,17 @@ export default {
             }
 
             try {
-                // Call the login function from authService
                 const response = await AuthService.login(this.login);
                 // console.log("Đăng nhập thành công:", response);
 
-                // Lưu thông tin người dùng và token vào localStorage
         
                 localStorage.setItem('access_token', response.data.token.access_token); // Lưu token
                 localStorage.setItem('currentUser', JSON.stringify(response.data.user));
 
-                // Kiểm tra vai trò của người dùng và chuyển hướng
                 const user = response.data.user;
                 if (user.is_admin === 1) {
-                    // Chuyển hướng đến trang admin nếu là quản trị viên
                     this.$router.push({ name: 'dashboard' });
                 } else {
-                    // Chuyển hướng đến trang bookstore nếu là người dùng bình thường
                     this.$router.push({ name: 'bookstore' });
                 }
             } catch (error) {
@@ -130,7 +125,6 @@ export default {
         },
 
         loginWithGoogle() {
-            // Call backend to get the Google login URL
             axios.get('http://127.0.0.1:8000/api/auth/google')
                 .then(response => {
                     window.location.href = response.data.url;
@@ -142,7 +136,6 @@ export default {
       
 
         loginWithFacebook() {
-            // Gửi yêu cầu đến backend để lấy URL đăng nhập Facebook
             axios.get('http://127.0.0.1:8000/api/auth/facebook')
                 .then(response => {
                     // Chuyển hướng người dùng đến URL đăng nhập của Facebook

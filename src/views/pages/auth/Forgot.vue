@@ -59,14 +59,13 @@ export default {
       try {
         const response = await AuthService.forgotPassword(this.email);
         alert("Check your email for the reset link.");
-        this.$router.push({ name: 'resetpassword' }); // Chuyển hướng đến trang reset mật khẩu
+        this.$router.push({ name: 'resetpassword' }); 
       } catch (error) {
         alert("Error sending reset link: " + error.message);
         console.error(error);
       }
     },
 
-    // Kiểm tra tính hợp lệ của email
     validateEmail(email) {
       const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       return re.test(email);

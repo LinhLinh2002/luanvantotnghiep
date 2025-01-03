@@ -185,7 +185,7 @@
                                     <span class="item-quantity">{{ item.quantity }} x {{ formatCurrency(item.price)
                                         }}</span>
                                 </div>
-                                
+
                             </li>
                         </ul>
 
@@ -289,10 +289,11 @@ export default {
             if (currentUser) {
                 // console.log("Giỏ hàng hiển thị:", dropcart.value);
             } else {
-                this.$router.push({ name: 'login' });            }
-
+                this.$router.push({ name: 'login' });
             }
-    
+
+        }
+
 
         const showuser = () => {
             // Tắt dropdown giỏ hàng nếu nó đang mở
@@ -473,11 +474,16 @@ export default {
         const selectCategory = (category) => {
             selectedCategory.value = category;
             showSthing.value = false;
+
         };
+
         const selectAuthor = (author) => {
             selectedAuthor.value = author;
             showSthing.value = false;
+
+            // Nếu có logic riêng cho tác giả, xử lý tại đây
         };
+
         // Hàm định dạng giá trị thành tiền tệ
         const formatCurrency = (amount) => {
             return new Intl.NumberFormat('vi-VN').format(amount);

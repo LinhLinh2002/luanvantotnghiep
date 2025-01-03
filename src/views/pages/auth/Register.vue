@@ -54,12 +54,11 @@ export default {
     setup() {
         const toast = useToast(); 
         return {
-            toast, // Trả về để dùng trong methods
+            toast, 
         };
     },
     methods: {
         async saveData() {
-            // Validate fields
             if (!this.register.name || !this.register.email || !this.register.password || !this.register.c_password) {
                 // alert("Please fill out all fields!");
                 this.toast.add({
@@ -101,7 +100,6 @@ export default {
             }
 
             try {
-                // Check if c_password is included correctly
                 const response = await AuthService.register({
                     name: this.register.name,
                     email: this.register.email,
